@@ -12,7 +12,7 @@ Technology Radar Vol.35（2026年11月）で、Platforms の Adopt に置かれ�
 
 ## VictoriaMetrics
 
-**状態**: 下書き
+**状態**: 公開承認済み（2026-11-08、内容は人による検証なし）
 
 ### 1. 一言でいうと
 
