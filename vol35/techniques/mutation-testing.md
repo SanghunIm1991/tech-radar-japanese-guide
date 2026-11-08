@@ -58,7 +58,7 @@ flowchart LR
 
 - **Stryker**: JavaScript／TypeScript（StrykerJS）、C#（Stryker.NET）、Scala（Stryker4s）向け（[Stryker](https://stryker-mutator.io/docs/)）
 - **PIT（Pitest）**: Java など JVM 向け。Maven・Ant・コマンドラインから使える。Gradle などとは、第三者が作ったプラグインでつなぐ（[PIT](https://pitest.org/quickstart/)）
-- Radar のページの2026年4月の版の説明は、Rust 向けの cargo-mutants も挙げています（Rust 向けであることは一般的な説明）
+- [Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/mutation-testing)の2026年4月の版の説明は、Rust 向けの cargo-mutants も挙げています（Rust 向けであることは一般的な説明）
 
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
@@ -87,7 +87,7 @@ flowchart LR
 
 ## 7. Radar での扱い
 
-- Vol.35（2026年11月）: **Adopt**
+- Vol.35（2026年11月）: **Adopt**（Trial から移動）
 - 過去の版: 2026年4月の版で Trial（Radar のページの推移による）
 - Thoughtworks の評価の要旨: AI がコードとテストを大量に書く時代には、カバレッジの数字は簡単に水増しできるため、テストが本当に誤りを見つけられるかを確かめるミューテーションテストが、重要な安全装置になると見ています。今回は、AI のエージェントが作業の中で自分で回せるようになった点も挙げています。時間がかかるので、対象を特定のパッケージや最近の変更に絞るよう勧めています
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/techniques/mutation-testing

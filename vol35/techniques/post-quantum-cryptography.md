@@ -40,7 +40,7 @@ Post-quantum cryptography（PQC、耐量子計算機暗号）は、将来の高�
 
 このほか、鍵カプセル化の2つめの方式として HQC が選ばれ、標準化が進んでいます（[NIST: HQC](https://csrc.nist.gov/news/2025/hqc-announced-as-a-4th-round-selection)）。
 
-**ハイブリッド方式**: 新しい暗号はまだ実績が浅いと考えられているため、移行の途中では、従来の暗号と PQC を**組み合わせて**使う方式がよく使われます。たとえば、通信の暗号化の規格 TLS 1.3 では、従来の鍵交換（X25519 など）と ML-KEM を組み合わせる方式が、IETF の規格（RFC 10024）として定められました。どちらか一方が安全である限り、全体の安全が保たれる、という考え方です（[RFC 10024](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)）。英国の NCSC によると、主要なブラウザのいくつかは、すでにこのような組み合わせに対応しています（[NCSC](https://www.ncsc.gov.uk/guidance/pqc-migration-timelines)）。
+**ハイブリッド方式**: 新しい暗号はまだ実績が浅いと考えられているため、移行の途中では、従来の暗号と PQC を**組み合わせて**使う方式がよく使われます。たとえば、通信の暗号化の規格 TLS 1.3 では、従来の鍵交換（X25519 など）と ML-KEM を組み合わせる方式が、IETF の規格（RFC 10024）として定められました。どちらか一方が安全である限り、全体の安全が保たれる、という考え方です（[RFC 10024（草案のページ）](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)）。英国の NCSC によると、主要なブラウザのいくつかは、すでにこのような組み合わせに対応しています（[NCSC](https://www.ncsc.gov.uk/guidance/pqc-migration-timelines)）。
 
 ```mermaid
 flowchart LR
@@ -59,7 +59,7 @@ flowchart LR
 
 **代わりに失うもの・難しさ**
 
-- **データが大きくなる**: PQC の鍵や暗号文は、従来より大きくなりがちです。たとえば、TLS のハイブリッド方式（X25519MLKEM768）では、接続の最初に送る鍵のデータが約1.2KB になります（従来の X25519 だけなら32バイト）（[RFC 10024](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)）
+- **データが大きくなる**: PQC の鍵や暗号文は、従来より大きくなりがちです。たとえば、TLS のハイブリッド方式（X25519MLKEM768）では、接続の最初に送る鍵のデータが約1.2KB になります（従来の X25519 だけなら32バイト）（[RFC 10024（草案のページ）](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)）
 - **性能**: NCSC は、計算を速くするハードウェアの対応が進み、2026〜27年ごろに効率がよくなる見込みを示していました（ページの公開時点の見通し）（[NCSC](https://www.ncsc.gov.uk/guidance/pqc-migration-timelines)）
 - **古い機器・作り直せない機器**: 工場の機器などの IoT 機器は、性能が低かったり、更新できなかったり、独自の通信方式を使っていたりして、移行が難しいことがあります（同じページ）
 - **相互運用**: 移行の期間中は、新旧両方の方式に対応する必要があります。NCSC は、Web の証明書の仕組み（WebPKI）と産業用の制御システムを、特に難しい分野に挙げています（同じページ）
@@ -82,6 +82,7 @@ flowchart LR
 ## 7. Radar での扱い
 
 - Vol.35（2026年11月）: **Adopt**。Radar のページは、新規か移動かを明記していません
+- 過去の版: Radar のページの推移には、今回の版だけが載っています
 - Thoughtworks の評価の要旨: 今の暗号化データを記録しておき将来解読する脅威があるため、特に鍵交換の移行を急ぐべきだと見ています。NIST の標準が確定し、各国の政府が2030〜2035年の移行を目標にしていること、言語やフレームワークの対応も進んでいることを挙げ、新しいシステムでは必須にし、既存のシステムでは移行の計画を前倒しするよう勧めています
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/techniques/post-quantum-cryptography
 
