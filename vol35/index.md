@@ -1,0 +1,27 @@
+# Technology Radar Vol.35（2026年11月）の索引
+
+> 非公式の解説です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。人が公開を承認していますが、内容の正確さを人が個別に確かめてはいません。詳しくは [README](../README.md) を参照してください。
+
+- 公式のページ: https://www.thoughtworks.com/radar
+- 項目数: 117（Techniques 45、Platforms 22、Tools 36、Languages & Frameworks 14）
+- 確認日: 2026-11-08
+
+## テーマ
+
+この版には4つのテーマが付いています（題名だけを載せています。要旨はのちほど追記します）。
+
+- Harness engineering at scale
+- Beyond frontier models
+- Putting more agents to work
+- Constructing the AI factory
+
+## 分類ごとのファイル
+
+表の数字は、その分類に置かれた技術の数です。「—」の分類に置かれた技術はなく、ファイルもありません。リンクの無い分類は、解説をまだ書いていません。
+
+| 象限 ＼ リング | Adopt | Trial | Assess | Caution |
+|---|---|---|---|---|
+| Techniques | 6 | 17 | 12 | 10 |
+| Tools | 3 | 16 | 17 | — |
+| Platforms | 1 | 10 | 11 | — |
+| Languages & Frameworks | 1 | 6 | 7 | — |
