@@ -89,7 +89,7 @@ flowchart LR
 - Vol.35（2026年11月）: **Adopt**（Trial から移動）
 - 過去の版: 2022年10月の版で Trial
 - Thoughtworks の評価の要旨: 大規模な監視の仕組みを自分たちで運用する組織にとって、実運用に耐える段階に達したと見ています。理由として、大量で系列の多いメトリクスに強いこと、規模に応じて単一ノード版とクラスター版を選べること、Prometheus や OpenTelemetry と互換があり今の道具を生かせることを挙げています
-- Radar のページ: https://www.thoughtworks.com/en-us/radar/platforms/summary/victoriametrics （版ごとの推移: https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics ）
+- Radar のページ: https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics
 
 ## 8. 深掘りするときの一次情報
 
@@ -102,7 +102,7 @@ flowchart LR
 ## 9. 確認日
 
 - 内容の確認日: 2026-11-08（確認時点の最新のリリースは v1.155.0）
-- Radar の評価の確認日: 2026-11-08（リングの推移は、Radar の版ごとの推移のページで確認）
+- Radar の評価の確認日: 2026-11-08（リングの推移は、Radar の項目のページで確認）
 
 ## 用語集
 
