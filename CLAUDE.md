@@ -23,7 +23,7 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - 版ごとにフォルダを分け、その中を象限ごとのフォルダに分ける。技術（blip）1つにつき1ファイルにする（例: `vol35/platforms/victoriametrics.md`）。象限のフォルダ名は techniques / tools / platforms / languages-and-frameworks。リングはファイルの冒頭の表と索引に書く。（当初は象限×リングの分類ごとに1ファイルだったが、ユーザーの指示で改めた）
 - 想定読者は、専門分野の分からない IT エンジニア。専門用語は、初めて出たところで短く説明し、末尾の用語集にもう少し詳しく書く。システムアーキテクトの観点（トレードオフ・採用判断）は省かない。
 - 1技術あたり15分程度（本文と用語集を合わせて5,000〜6,000字。用語の説明とアーキテクトの観点を両立させるため、当初の10分・3,000〜4,000字から改めた）。見出しは9つ。
-- 書き方は `templates/blip_template.md` に合わせる。
+- 書き方は `templates/blip_template.md` に合わせる。手順は、プロジェクトのスキル `.claude/skills/write-blip/SKILL.md` に従い、1項目ずつ最後（push）まで終えてから次へ進む。
 - 下書きの段階から公開する。各解説の冒頭の表に「状態: 下書き」と書き、ユーザーが承認したら「公開承認済み（YYYY-MM-DD、内容は人による検証なし）」に書き換える。
 - ユーザーは公開を承認するが、内容の詳細は確認しない運用である。「人が確認した」と読める表現を使わない。正確さは Claude 側の手順で担保する（2026-11-08 決定）。主な事実ごとに一次情報のリンクを付ける。書いたあとに、新しい視点のサブエージェントが出典と照らし合わせて事実を点検する（静的な確認だけで、コードは実行しない）。点検が済むまで状態は「下書き」のままにする。
 - 文章のライセンスは CC BY 4.0（自分たちが書いた文章だけが対象）。Claude Code が作成した旨と、人は内容を個別に検証していない旨を、README と各ファイルの冒頭に書く。
@@ -34,7 +34,14 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - **push の承認: コミットとセットで扱う**（2026-11-08 にユーザーが決定）。コミットのあと、push 前の点検を通したうえで、改めて確認せずに push してよい。force push などの禁止操作は、この場合も行わない。
 - GitHub のリポジトリ作成（private）と最初の push は、実行の前に内容を示して承認を得る。
 
-## 直近のゴール（2026-11-08 決定）: 公開できる形まで
+## 直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
+
+- 対象（残り10項目）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
+- 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
+- 見本（VictoriaMetrics）の書き直し後の確認は、ユーザーが後で行う（2026-11-08）
+- Pages の設定は、ユーザーが public に切り替えたあとに行う
+
+## 前の直近のゴール（2026-11-08 決定）: 公開できる形まで
 
 完了の判定基準:
 
