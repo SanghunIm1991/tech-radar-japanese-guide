@@ -20,9 +20,9 @@ VictoriaMetrics は、監視のためのメトリクス（CPU 使用率やリク
 
 ### 2. 解決する課題（なぜ生まれたか）
 
-Prometheus は、監視対象からのメトリクスの収集・保存・検索を、1台のサーバーで担う設計です。Prometheus のドキュメントは、手元のストレージはクラスタ化も複製もされず、1台のノードの拡張性と耐久性に限られると説明しています。長期の保存には、外部のストレージとつなぐ仕組み（remote write 等）を使うことになります（[Prometheus: Storage](https://prometheus.io/docs/prometheus/latest/storage/)）。
+Prometheus は、監視対象からのメトリクスの収集・保存・検索を、1台のサーバーで担う設計です。Prometheus のドキュメントは、手元のストレージはクラスタ化も複製もされず、1台のノードの拡張性と耐久性に限られると説明しています。1台を超える拡張性や耐久性が要る場合のために、外部のストレージとつなぐ仕組み（remote write 等）が用意されています（[Prometheus: Storage](https://prometheus.io/docs/prometheus/latest/storage/)）。
 
-監視の規模が大きくなると、次のような課題が出てきます。
+一般に、監視の規模が大きくなると、次のような課題が出てきます。
 
 - **高カーディナリティ**: ラベル（例: ユーザーID、Pod 名）の組み合わせが増え、時系列の数が数百万に達すると、メモリとディスクが足りなくなる
 - **高チャーン**: Kubernetes のように Pod が頻繁に入れ替わる環境では、新しい時系列が次々に生まれては消える
@@ -68,11 +68,11 @@ flowchart LR
 
 **代償にするもの**
 
-- **一貫性より可用性**: クラスター版は、データの一貫性より可用性を優先すると明言しています。`vmstorage` が止まると、`vminsert` は新しいデータを健全なノードへ回します。検索は、一部のノードが欠けた状態の結果を返すことがあります（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）。監視の用途では多くの場合許容できますが、完全な数値が要る用途（課金の集計など）では注意が要ります
+- **一貫性より可用性**: クラスター版は、データの一貫性より可用性を優先すると明言しています。`vmstorage` が止まると、`vminsert` は新しいデータを健全なノードへ回します。検索は、一部のノードが欠けた状態の結果を返すことがあります（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）。筆者の見立てでは、監視の用途なら多くの場合これで困りませんが、完全な数値が要る用途（課金の集計など）では注意が要ります。完全な結果が要る場合は、部分的な結果を返さずエラーにする設定や、データの複製で対処できます（同じページ）
 - **単純さの裏返し**: `vmstorage` どうしが通信しない作りは、構成を単純にします。その代わり、ノードを足しても過去のデータは自動では並べ直されません（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）
 - **PromQL との差**: 外挿の有無などで、Prometheus と数値がわずかに変わることがあります。移行の際は、ダッシュボードとアラートの値を見比べる必要があります
 - **無償版と有償版の境目**: ダウンサンプリング、データの種類ごとに保持期間を変える機能、バックアップの自動化、全部品の mTLS などは、エンタープライズ版だけの機能です（[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
-- **開発元への依存**: 開発の中心は VictoriaMetrics 社の1社です。ライセンスは Apache 2.0 なので、コードが使えなくなる心配は小さいものの、機能の方向性は開発元に左右されます
+- **開発元への依存**（筆者の見立て）: 開発は主に開発元のコアチームが担っているとみられ、機能の方向性はその判断に左右されえます。Apache 2.0 で公開されているのはコミュニティ版で、エンタープライズ版の機能はこの範囲に含まれません
 
 ### 5. 採用を判断するときの観点
 
@@ -80,14 +80,14 @@ flowchart LR
 - **既存の資産**: Prometheus の収集の設定や Grafana のダッシュボードを生かせるか。MetricsQL との差を許容できるか
 - **運用の体制**: 自分たちで運用（セルフホスト）する体制があるか。クラウドのマネージドサービス（Prometheus 互換のもの）と比べて、費用と手間はどうか
 - **必要な機能が無償版にあるか**: ダウンサンプリングや保持期間の使い分けが要るなら、エンタープライズ版の契約が前提になる
-- **可用性の作り方**: 単一ノード版の冗長化は、複数の VictoriaMetrics へ同時に書き込み、読み出しを `vmauth` で振り分ける形になる（[vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/)）。クラスター版では、複製の数を指定できる
+- **可用性の作り方**: 単一ノード版の冗長化は、同じ設定の複数台へ `vmagent` で同時に書き込み、読み出しを `vmauth` で振り分けるか、上位の `vmselect` で複数台をまとめて検索する形になる（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)の High availability の節）。クラスター版では、複製の数を指定できる（[クラスター版](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）
 - **検証**: 性能の数値は開発元の主張なので、実際のデータとクエリで負荷試験をする
 
 ### 6. 関連技術・代替技術
 
 - **Prometheus**: VictoriaMetrics が互換を保っている監視システム。小規模なら Prometheus 単体で足りることも多い（[Prometheus](https://prometheus.io/)）
-- **Thanos、Cortex、Grafana Mimir**: Prometheus の長期保存と水平拡張のための仕組み。オブジェクトストレージに保存する点が VictoriaMetrics と違う（[Thanos](https://thanos.io/)、[Cortex](https://cortexmetrics.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)）
-- **InfluxDB、TimescaleDB**: 監視に限らない汎用の時系列データベース
+- **Thanos、Cortex、Grafana Mimir**: Prometheus の長期保存と水平拡張のための仕組み（[Thanos](https://thanos.io/)、[Cortex](https://cortexmetrics.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)）。Thanos と Mimir はオブジェクトストレージにデータを保存します。VictoriaMetrics は、指定したローカルのディレクトリ（`-storageDataPath`）に保存します（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)）
+- **InfluxDB、TimescaleDB**: 監視に限らない汎用の時系列データベース（一般的な説明）
 - **VictoriaLogs**: 同じ開発元のログ用データベース。Vol.35 では Platforms の Trial に置かれている（[VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)）
 - **OpenTelemetry**: メトリクスなどを集める標準。VictoriaMetrics は OpenTelemetry の形式で受け取れる
 
@@ -95,7 +95,7 @@ flowchart LR
 
 - Vol.35（2026年11月）: **Adopt**（Trial から移動）
 - 過去の版: 2022年10月の版で Trial
-- Thoughtworks の評価の要旨: 大規模な監視基盤を自分たちで運用する組織にとって、信頼できる選択肢に成熟した、と評価しています。理由として、大量で高カーディナリティのメトリクスに強いこと、単一ノード版とクラスター版を規模に応じて選べること、Prometheus や OpenTelemetry と互換があり既存の資産を生かせることを挙げています
+- Thoughtworks の評価の要旨: 大規模な監視基盤を自分たちで運用する組織にとって、実運用に耐える段階に達したと見ています。理由として、大量で高カーディナリティのメトリクスに強いこと、単一ノード版とクラスター版を規模に応じて選べること、Prometheus や OpenTelemetry と互換があり既存の資産を生かせることを挙げています
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/platforms/summary/victoriametrics （版ごとの推移: https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics ）
 
 ### 8. 深掘りするときの一次情報
@@ -109,7 +109,7 @@ flowchart LR
 
 ### 9. 確認日
 
-- 内容の確認日: 2026-11-08（確認時点の最新の安定版は v1.155.0）
+- 内容の確認日: 2026-11-08（確認時点の最新のリリースは v1.155.0。GitHub の Releases で Latest 表示、2026-10-23 リリース）
 - Radar の評価の確認日: 2026-11-08
 
 ---
