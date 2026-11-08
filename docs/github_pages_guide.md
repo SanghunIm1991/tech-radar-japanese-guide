@@ -3,7 +3,7 @@
 この解説集を GitHub Pages で公開する手順。実際に1つずつ試しながら、この文書を更新していく。
 
 - 状態: **下書き**。2026-11-08 に GitHub の公式ドキュメントで確かめた内容をもとに書いた。まだ実際には試していない
-- 方式: 分岐点P1の選択肢A（GitHub 標準の Jekyll を使い、ブランチから公開する）。手元に Ruby や Jekyll を入れずに済む（Jekyll は Windows では公式にはサポートされていない）
+- 方式: 分岐点P1の選択肢A（GitHub 標準の Jekyll を使い、ブランチから公開する）。手元に Ruby や Jekyll を入れずに済む
 - 印の意味: 【確認済み】公式ドキュメントで確かめた。【要確認】公式ドキュメントに記述が無かった（公開後に実物で確かめる）
 
 ## 前提
@@ -26,7 +26,7 @@
    ```
 
    リポジトリが public なら、除外したファイルも GitHub 上では誰でも読める。除外はサイトの見た目を整えるためのもので、隠すためのものではない
-3. **点検**: `public-release-review` スキルの手順に沿って点検する
+3. **点検**: `public-release-review` スキル（作成者の手元の Claude Code のスキル）の手順に沿って点検する
 
 出典: [About GitHub Pages and Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll)
 

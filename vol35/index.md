@@ -1,6 +1,6 @@
 # Technology Radar Vol.35（2026年11月）の索引
 
-> 非公式の解説です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。人が公開を承認していますが、内容の正確さを人が個別に確かめてはいません。詳しくは [README](../README.md) を参照してください。
+> 非公式の解説です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。各解説の「公開承認済み」の節は人が公開を承認していますが、内容の正確さを人が個別に確かめてはいません。「下書き」の節は承認前の作成中のものです。詳しくは [README](../README.md) を参照してください。
 
 - 公式のページ: https://www.thoughtworks.com/radar
 - 項目数: 117（Techniques 45、Platforms 22、Tools 36、Languages & Frameworks 14）

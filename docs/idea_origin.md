@@ -1,5 +1,7 @@
 # Thoughtworks Technology Radar の技術を日本語で解説する公開リポジトリ
 
+> この文書は、着手前（2026-11-08）のアイデアの記録です。本文はその時点のまま残しています。その後の決定（解説の単位、リングの名前〈Caution〉、下書きの公開、人による確認の位置づけ等）は、[CLAUDE.md](../CLAUDE.md) と [QA表](qa_log.md) を正とします。
+
 ## 概要・きっかけ
 
 IT業界の技術トレンドを追うため、Thoughtworks が発行している **Technology Radar**（https://www.thoughtworks.com/radar）に載った技術を、日本語で解説する資料集を作り、GitHub で**公開**する。
