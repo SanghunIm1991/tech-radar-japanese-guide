@@ -23,5 +23,5 @@
 |---|---|---|---|---|
 | Techniques | 6 | 17 | 12 | 10 |
 | Tools | 3 | 16 | 17 | — |
-| Platforms | 1 | 10 | 11 | — |
+| Platforms | [1](platforms-adopt.md) | 10 | 11 | — |
 | Languages & Frameworks | 1 | 6 | 7 | — |
