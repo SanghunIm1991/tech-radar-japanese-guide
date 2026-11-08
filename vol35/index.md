@@ -32,4 +32,5 @@
 
 | 技術 | 象限 | リング | 状態 |
 |---|---|---|---|
+| [Agent sandboxing](techniques/agent-sandboxing.md) | Techniques | Adopt | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |

@@ -14,7 +14,7 @@ description: Technology Radar の技術（blip）1つについて、日本語の
 
 ## 1. Radar の評価を読む
 
-- Radar のその項目のページ（例: `https://www.thoughtworks.com/en-us/radar/<象限>/summary/<技術名>`）と、版ごとの推移のページ（`.../radar/<象限>/<技術名>`）だけを、1件ずつ読む。トップや象限のページをまとめて取得して一覧を作ることはしない（Radar の利用条件の線引き。`CLAUDE.md`）
+- Radar のその項目のページ（`https://www.thoughtworks.com/en-us/radar/<象限>/<技術名>`）だけを読む。`.../radar/<象限>/summary/<技術名>` の形の URL は、象限全体の項目をまとめたページを返すので使わない（2026-11-08 に判明）。トップや象限のページをまとめて取得して一覧を作ることはしない（Radar の利用条件の線引き。`CLAUDE.md`）
 - 読み取るのは、リング、新規か移動か、過去の版での扱い、評価の理由、注意点。Radar の文章は翻訳・転載せず、自分の言葉で短い要旨にする
 
 ## 2. 一次情報を調べる
