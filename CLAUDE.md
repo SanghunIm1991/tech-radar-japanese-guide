@@ -18,6 +18,12 @@ Thoughtworks Technology Radar に載った技術を、システムアーキテ�
 - Radar のサイトの利用条件（https://www.thoughtworks.com/radar/tos 、2016-11-03 版）では、個人で使う範囲を超える複製・改変・再配布に書面の許可が要る。自動での収集（スクレイピング）は禁止。リンクは、推奨や関係を示唆しなければ張ってよい。そのため、Radar のページを自動で一括収集せず、解説を書くときに項目ごとのページを読むだけにとどめる。確認結果の詳細は `docs/kickoff_check.md`。
 - Vol.35 以降、4つめのリングの名前は「Hold」ではなく「Caution」（公式ページの表記に合わせる）。
 
+## 解説ファイルの構成（2026-11-08 決定）
+
+- 版ごとにフォルダを分ける（例: `vol35/`）。
+- フォルダの中は、象限（Techniques／Tools／Platforms／Languages & Frameworks）×リング（Adopt／Trial／Assess／Caution）の最大16分類で、分類ごとに1ファイルにする（例: `vol35/techniques-adopt.md`）。項目のない分類のファイルは作らない。
+- 1ファイルの中に、その分類の技術を並べる。1技術あたり10分程度（3,000〜4,000字）。項目の多いファイルには目次を付ける。
+
 ## Git の運用
 
 - コミット規約は `git-conventions` スキルに従う（`[claude]` 接頭辞、Co-Authored-By トレーラー、最初のコミットの前に `user.email` が noreply アドレスかを確認する）。
