@@ -1,6 +1,6 @@
-# GitHub Pages で公開する手順（下書き）
+# GitHub Pages で公開する手順
 
-この解説集を GitHub Pages で公開する手順。実際に1つずつ試しながら、この文書を更新していく。
+この解説集を GitHub Pages で公開する手順。2026-11-09 に、この手順で公開まで済んだ。未確認の点は末尾に書く。
 
 - 状態: 2026-11-08 に GitHub の公式ドキュメントで確かめた内容をもとに書き、2026-11-09 にこの手順で公開した（サイト: https://sanghunim1991.github.io/tech-radar-japanese-guide/ ）。mermaid の図は、サイトではコードのまま表示することにした（2026-11-09 決定。下の表を参照）
 - 方式: 分岐点P1の選択肢A（GitHub 標準の Jekyll を使い、ブランチから公開する）。手元に Ruby や Jekyll を入れずに済む。2026-11-09 にユーザーが選択肢Aに決めた
@@ -34,6 +34,8 @@
 4. ブランチに `main`、フォルダに `/(root)` を選ぶ
 5. **Save** を押す
 6. 反映には最大10分ほどかかる。Settings → Pages の「**Visit site**」からサイトを開く
+
+別の方法（このリポジトリで実際に使った方法）: 画面の代わりに、GitHub CLI で公開元を設定できる。`gh api -X POST repos/<ユーザー名>/<リポジトリ名>/pages -f "source[branch]=main" -f "source[path]=/"`。構築の状態は `gh api repos/<ユーザー名>/<リポジトリ名>/pages/builds/latest` で読める（`built` になれば完了）
 
 出典: [Configuring a publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 

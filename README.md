@@ -44,8 +44,8 @@ vol35/                     版ごとのフォルダ
   platforms/               象限ごとのフォルダ
     victoriametrics.md     技術1つにつき1ファイル
   ...
-templates/                 解説ファイルのひな形
-docs/                      作業の記録（判断の経緯・確認結果など）
+templates/                 解説ファイルのひな形（サイトには載せていません。GitHub のリポジトリで読めます）
+docs/                      作業の記録（判断の経緯・確認結果など。サイトには載せていません。GitHub のリポジトリで読めます）
 ```
 
 - [Vol.35（2026年11月）の索引](vol35/index.md)
@@ -68,6 +68,6 @@ docs/                      作業の記録（判断の経緯・確認結果な�
 
 ## ライセンス
 
-このリポジトリで独自に書いた文章は、[クリエイティブ・コモンズ 表示 4.0 国際（CC BY 4.0）](https://creativecommons.org/licenses/by/4.0/deed.ja) のもとで提供します。詳しくは [LICENSE](LICENSE) を参照してください。
+このリポジトリで独自に書いた文章は、[クリエイティブ・コモンズ 表示 4.0 国際（CC BY 4.0）](https://creativecommons.org/licenses/by/4.0/deed.ja) のもとで提供します。詳しくは [LICENSE](https://github.com/SanghunIm1991/tech-radar-japanese-guide/blob/main/LICENSE) を参照してください。
 
 Technology Radar の内容、リンク先の文書、および各社の商標・名称は、それぞれの権利者に帰属します。CC BY 4.0 はこれらには及びません。「Thoughtworks」「Technology Radar」は Thoughtworks, Inc. の名称です。
