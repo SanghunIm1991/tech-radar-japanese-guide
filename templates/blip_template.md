@@ -39,7 +39,7 @@
 
 - Vol.NN: ＜リング＞（新規／移動／変化なし）
 - 過去の版での扱い: 分かる範囲で
-- Thoughtworks の評価の要旨: （自分の言葉で1〜3文）
+- Thoughtworks の評価の要旨: （自分の言葉で1〜2文。理由は主なもの1〜2つ）
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/<象限>/<技術名>
 
 ## 8. 深掘りするときの一次情報
