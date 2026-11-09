@@ -1,0 +1,11 @@
+# GitHub Pages（Jekyll）の設定
+title: Technology Radar 非公式の日本語解説
+description: Thoughtworks Technology Radar に載った技術の、非公式の日本語解説です（Claude Code〈AI〉が作成。Thoughtworks とは関係がありません）。
+lang: ja
+
+# 作業用の文書はサイトに載せない（リポジトリは public なので、GitHub 上では読める）
+exclude:
+  - CLAUDE.md
+  - docs/
+  - templates/
+  - local/

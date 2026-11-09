@@ -3,12 +3,13 @@
 この解説集を GitHub Pages で公開する手順。実際に1つずつ試しながら、この文書を更新していく。
 
 - 状態: **下書き**。2026-11-08 に GitHub の公式ドキュメントで確かめた内容をもとに書いた。まだ実際には試していない
-- 方式: 分岐点P1の選択肢A（GitHub 標準の Jekyll を使い、ブランチから公開する）。手元に Ruby や Jekyll を入れずに済む
+- 方式: 分岐点P1の選択肢A（GitHub 標準の Jekyll を使い、ブランチから公開する）。手元に Ruby や Jekyll を入れずに済む。2026-11-09 にユーザーが選択肢Aに決めた
+- 公開元の設定は、ユーザーの判断で、画面の操作の代わりに Claude が `gh api` で行う（2026-11-09 決定）
 - 印の意味: 【確認済み】公式ドキュメントで確かめた。【要確認】公式ドキュメントに記述が無かった（公開後に実物で確かめる）
 
 ## 前提
 
-- GitHub Free では、Pages を使えるのは **public のリポジトリだけ**【確認済み】。public に切り替えるかはユーザーが判断し、ユーザー自身が操作する
+- GitHub Free では、Pages を使えるのは **public のリポジトリだけ**【確認済み】。public に切り替えるかはユーザーが判断し、ユーザー自身が操作する（2026-11-09 に切り替えた）
 - Pages のサイトはインターネット上の誰でも見られる【確認済み】。リポジトリと同じく、機密情報・個人情報・第三者の著作物を載せない
 - 公開される URL は `https://<ユーザー名>.github.io/<リポジトリ名>/` の形になる。GitHub のユーザー名が URL に出る【確認済み】
 - 出典: [Creating a GitHub Pages site](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site)、[What is GitHub Pages?](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)
@@ -16,14 +17,7 @@
 ## 事前の準備（リポジトリの中）
 
 1. **トップページ**: 公開元のフォルダの直下にある `index.html`・`index.md`・`README.md` のいずれかが入口になる【確認済み】。このリポジトリでは `README.md` が入口になる
-2. **サイトに載せないファイルを除外する**: Jekyll は、`_`・`.`・`#` で始まるファイルとフォルダ、`~` で終わるファイル、設定ファイル（`_config.yml`）の `exclude` に書いたものを、サイトに含めない【確認済み】。この解説集では、作業用の文書をサイトから外すため、`_config.yml` に次のように書く案（書き方は公開時に確かめる）
-
-   ```yaml
-   exclude:
-     - CLAUDE.md
-     - docs/
-     - templates/
-   ```
+2. **サイトに載せないファイルを除外する**: Jekyll は、`_`・`.`・`#` で始まるファイルとフォルダ、`~` で終わるファイル、設定ファイル（`_config.yml`）の `exclude` に書いたものを、サイトに含めない【確認済み】。この解説集では、作業用の文書をサイトから外すため、リポジトリの直下の `_config.yml` に `exclude`（CLAUDE.md・docs/・templates/・local/）を書いた。サイトの題名と説明にも「非公式」を入れた（2026-11-09）
 
    リポジトリが public なら、除外したファイルも GitHub 上では誰でも読める。除外はサイトの見た目を整えるためのもので、隠すためのものではない
 3. **点検**: `public-release-review` スキル（作成者の手元の Claude Code のスキル）の手順に沿って点検する

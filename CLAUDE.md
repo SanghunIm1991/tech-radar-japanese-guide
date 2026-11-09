@@ -4,8 +4,9 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 
 ## 公開を前提にしたリポジトリの方針（必ず守る）
 
-- このリポジトリは、いつ public にしても問題ない状態を保つ。
-- GitHub のリポジトリは private で作る。public への切り替えはユーザーが判断し、ユーザー自身が操作する（Claude は行わない）。
+- このリポジトリは public で公開している（private で作り、2026-11-09 にユーザーが切り替えた）。公開して問題ない状態を保つ。
+- 公開範囲（visibility）の変更は、ユーザーが判断し、ユーザー自身が操作する（Claude は行わない）。
+- 公開後は、記録の文書（QA表など）やコミットメッセージにも、アカウント名・PC の実測値・ドライブのパスなどを書かない。
 - 機密情報・個人情報・第三者の著作物を、追跡するファイルにも、コミットの author・committer 欄にも入れない。手元にだけ置くものは `local/` に置く（`.gitignore` で除外済み）。
 - push の前には、`public-release-review` スキル（作成者の手元の Claude Code のスキル。以下のスキルも同じ）の手順1（機械点検）と手順2（目視点検）の観点で点検する。QA表などの記録の文書とコミットメッセージも点検の対象にする。
 
@@ -32,14 +33,14 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 
 - コミット規約は `git-conventions` スキルに従う（`[claude]` 接頭辞、Co-Authored-By トレーラー、最初のコミットの前に `user.email` が noreply アドレスかを確認する）。
 - **push の承認: コミットとセットで扱う**（2026-11-08 にユーザーが決定）。コミットのあと、push 前の点検を通したうえで、改めて確認せずに push してよい。force push などの禁止操作は、この場合も行わない。
-- GitHub のリポジトリ作成（private）と最初の push は、実行の前に内容を示して承認を得る。
+- GitHub のリポジトリ作成（private）と最初の push は、実行の前に内容を示して承認を得た（2026-11-08）。
 
 ## 直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
 
 - 対象（残り10項目）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - 見本（VictoriaMetrics）の書き直し後の公開承認の判断は、ユーザーが後で行う（2026-11-08）
-- Pages の設定は、ユーザーが public に切り替えたあとに行う
+- Pages の設定は、ユーザーが public に切り替えたので（2026-11-09）、`docs/github_pages_guide.md` に沿って進める
 
 ## 前の直近のゴール（2026-11-08 決定）: 公開できる形まで
 
@@ -53,4 +54,4 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - 点検を通し、private のリポジトリに push した
 - GitHub Pages の手順書の下書きがある（public への切り替えと Pages の設定は次のゴールで扱う）
 
-**2026-11-08 に達成**（private のリポジトリに push 済み）。その後、同日にユーザーの指示で見本を初心者向けに書き直し（約6,000字、`vol35/platforms/victoriametrics.md`）、状態を「下書き」に戻した。書き直し後の公開承認はまだ得ていない。次のゴールの候補: 書き直した見本の公開承認を得る。そのうえで、ユーザーが public に切り替えたあと、`docs/github_pages_guide.md` に沿って Pages を設定し、表示を確かめて手順書を仕上げる。あわせて、解説を書く手順をスキルにまとめるか、残りの解説をどの順で書くかを決める（2026-11-08 に決定。上の「直近のゴール」を参照）。
+**2026-11-08 に達成**（private のリポジトリに push 済み）。その後、同日にユーザーの指示で見本を初心者向けに書き直し（約6,000字、`vol35/platforms/victoriametrics.md`）、状態を「下書き」に戻した。書き直し後の公開承認はまだ得ていない。次のゴールの候補: 書き直した見本の公開承認を得る。そのうえで、ユーザーが public に切り替えたあと（2026-11-09 に切り替えた）、`docs/github_pages_guide.md` に沿って Pages を設定し、表示を確かめて手順書を仕上げる。あわせて、解説を書く手順をスキルにまとめるか、残りの解説をどの順で書くかを決める（2026-11-08 に決定。上の「直近のゴール」を参照）。
