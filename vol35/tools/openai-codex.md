@@ -61,7 +61,7 @@ AI が実行するコマンドの「囲いの広さ」は3段階のモードで�
 **得られるもの**
 
 - **作業の自動化**: 調査・修正・テストの往復を任せられる。クラウドでは複数の作業を並べて進められる（[Codex CLI](https://learn.chatgpt.com/docs/codex/cli)）
-- **企業での管理のしやすさ**: OS の仕組みによる囲い、段階的な承認、設定の一元管理がある（Thoughtworks が Adopt の理由に挙げた点の1つ。[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openai-codex)）
+- **企業での管理のしやすさ**: OS の仕組みによる囲いと、段階的な承認の方針がある（[Sandboxing](https://learn.chatgpt.com/docs/sandboxing)、[承認とセキュリティ](https://learn.chatgpt.com/docs/agent-approvals-security)）。設定は個人・プロジェクトのほか、管理者が配る層からも読み込まれます（[設定の基本](https://learn.chatgpt.com/docs/config-file/config-basic)）
 - **組み込みやすさ**: `codex exec`、GitHub のアクション、TypeScript と Python の SDK で、ほかの仕組みから呼べる（[GitHub: sdk](https://github.com/openai/codex/tree/main/sdk)）
 
 **代わりに失うもの・注意点**
@@ -89,7 +89,7 @@ AI が実行するコマンドの「囲いの広さ」は3段階のモードで�
 
 - Vol.35（2026年11月）: **Adopt**（Trial から移動）
 - 過去の版: 2026年4月の版で Trial として載った（Radar のページの推移による）
-- Thoughtworks の評価の要旨: チームで日常的に使えるコーディングエージェントの1つとして勧めています。理由として、企業で使うための管理の機能に加え、ほかのエージェントからの移りやすさや OpenAI 以外のモデルへの対応を挙げています
+- Thoughtworks の評価の要旨: チームで日常的に使えるコーディングエージェントの1つとして勧めています。主な理由は、企業で使うための管理の機能と、ほかのエージェントや OpenAI 以外のモデルとの組み合わせやすさです
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/tools/openai-codex
 
 ## 8. 深掘りするときの一次情報
