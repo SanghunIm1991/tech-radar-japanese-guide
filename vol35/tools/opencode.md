@@ -13,7 +13,7 @@
 
 OpenCode は、オープンソースの**コーディングエージェント**（指示を受けて、コードを読み、書き換え、コマンドを実行して作業を進める AI の道具）です。端末の中で動く画面（TUI）のほか、デスクトップアプリや Web の画面からも使えます（[OpenCode のドキュメント](https://opencode.ai/docs)）。ライセンスは MIT で、ソースコードは GitHub で公開されています（[GitHub: anomalyco/opencode](https://github.com/anomalyco/opencode)）。
 
-いちばんの特徴は、**特定の AI モデルの提供元に縛られない**ことです。クラウドのモデルにも、社内や手元の PC で動かすモデルにもつなげます（[Providers](https://opencode.ai/docs/providers)）。たとえるなら、エンジン（モデル）を積み替えられる車です。
+いちばんの特徴は、**特定の AI モデルの提供元に縛られない**ことです。クラウドのモデルにも、社内や手元の PC で動かすモデルにもつなげます（[Providers](https://opencode.ai/docs/providers)）。たとえるなら、エンジン（モデル）を積み替えられる車です（たとえは筆者の見立て）。
 
 ## 2. 解決する課題（なぜ生まれたか）
 

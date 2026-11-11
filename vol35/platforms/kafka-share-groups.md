@@ -13,7 +13,7 @@
 
 Kafka share groups は、Apache Kafka（大量のデータの流れを記録し、配る基盤）に加わった、**メッセージを「キュー」のように取り分ける**ための読み手のまとまりです。KIP-932「Queues for Kafka」（KIP は Kafka の改善提案の文書）で設計され、Kafka 4.2 で本番に使える段階になりました（[KIP-932](https://cwiki.apache.org/confluence/display/KAFKA/KIP-932%3A+Queues+for+Kafka)、[4.2.0 の告知](https://kafka.apache.org/blog/2026/02/17/apache-kafka-4.2.0-release-announcement/)）。
 
-たとえるなら、これまでの Kafka は「棚ごとに担当を1人決めて仕事を配る」方式でした（1人が複数の棚を持つこともあります）。share groups は「全員で1つの受付の山から、手が空いた人が1件ずつ取っていく」方式を加えます。
+たとえるなら、これまでの Kafka は「棚ごとに担当を1人決めて仕事を配る」方式でした（1人が複数の棚を持つこともあります）。share groups は「全員で1つの受付の山から、手が空いた人が1件ずつ取っていく」方式を加えます（たとえは筆者の見立て）。
 
 ## 2. 解決する課題（なぜ生まれたか）
 
@@ -60,7 +60,7 @@ Java のクライアントには、`KafkaShareConsumer` という専用の読み
 
 | Kafka の版 | 段階 |
 |---|---|
-| 4.0（2025年3月） | 早期の試用版（[4.0.0 の告知](https://kafka.apache.org/blog/2025/03/18/apache-kafka-4.0.0-release-announcement/)）。本番のクラスタでは有効にしてはいけない（[試用版の注意書き](https://cwiki.apache.org/confluence/x/i4ogF)） |
+| 4.0（2025年3月） | 早期の試用版（[4.0.0 の告知](https://kafka.apache.org/blog/2025/03/18/apache-kafka-4.0.0-release-announcement/)）。本番のクラスタでは有効にしてはいけない（[4.0 の試用版の注意書き](https://cwiki.apache.org/confluence/x/i4ogF)） |
 | 4.1（2025年9月） | プレビュー。まだ本番向けではない（[4.1.0 の告知](https://kafka.apache.org/blog/2025/09/04/apache-kafka-4.1.0-release-announcement/)） |
 | 4.2（2026年2月） | 本番で使える段階（[4.2.0 の告知](https://kafka.apache.org/blog/2026/02/17/apache-kafka-4.2.0-release-announcement/)） |
 
@@ -110,6 +110,7 @@ Java のクライアントには、`KafkaShareConsumer` という専用の読み
 - [KIP-932: Queues for Kafka](https://cwiki.apache.org/confluence/display/KAFKA/KIP-932%3A+Queues+for+Kafka)
 - [Apache Kafka 4.2.0 の告知](https://kafka.apache.org/blog/2026/02/17/apache-kafka-4.2.0-release-announcement/)
 - [Apache Kafka 4.1.0 の告知](https://kafka.apache.org/blog/2025/09/04/apache-kafka-4.1.0-release-announcement/) と [4.0.0 の告知](https://kafka.apache.org/blog/2025/03/18/apache-kafka-4.0.0-release-announcement/)
+- [4.0 の試用版の注意書き](https://cwiki.apache.org/confluence/x/i4ogF)
 
 ## 9. 確認日
 
