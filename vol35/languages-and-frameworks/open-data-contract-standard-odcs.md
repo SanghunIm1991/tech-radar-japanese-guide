@@ -41,7 +41,7 @@ ODCS は、この取り決めを共通の書式で書けるようにします。
 | スキーマ（Schema） | 表やオブジェクトと、その項目の名前・型・必須か・主キーか・例など（[Schema](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/schema.md)） |
 | データ品質（Data Quality） | 品質のルール（次の 3.3） |
 | SLA | 更新の頻度・遅れの許容・保存期間などの約束（次の 3.4） |
-| サーバー（Servers） | データの置き場所。PostgreSQL・S3・Kafka・Snowflake など多くの種類を指定できる（[Servers](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/infrastructure-servers.md)） |
+| サーバー（Servers） | データの置き場所。PostgreSQL・S3・Kafka・Snowflake（データベース・クラウドのストレージ・メッセージの基盤など）といった多くの種類を指定できる（[Servers](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/infrastructure-servers.md)） |
 | そのほか | 担当チーム・役割（権限）・問い合わせ先・料金・独自の項目など |
 
 ごく小さな例を自作すると、次のような形です（主な項目だけを抜き出した、説明用の簡略版です）。
