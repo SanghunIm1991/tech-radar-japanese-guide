@@ -39,7 +39,7 @@ mise（「ミーズ」と読む）は、プロジェクトで使う**開発ツ�
 
 ### 3.2 設定ファイルの重なり
 
-設定ファイルは、全体用（ホームのフォルダの `~/.config/mise/config.toml`）と、プロジェクトのフォルダの `mise.toml` などがあり、今いるフォルダに近いものほど優先されます。個人だけの設定は `mise.local.toml` に書き、Git には入れない使い方が想定されています（[Configuration](https://mise.jdx.dev/configuration.html)）。
+設定ファイルは、全体用（`~/.config/mise/config.toml`）とプロジェクトの `mise.toml` などがあり、今いるフォルダに近いものほど優先されます。個人だけの設定は、Git に入れない `mise.local.toml` に書きます（[Configuration](https://mise.jdx.dev/configuration.html)）。
 
 ### 3.3 版の切り替え方: activate と shim
 
@@ -75,13 +75,13 @@ mise は、ツールの入手先を**バックエンド**と呼ぶ部品に分�
 
 - **隔離はしない**: PC の上で直接ツールを切り替えるだけで、コンテナのように分けはしないので、OS のライブラリの違いまではそろいません（筆者の見立て）
 - **入手先の信頼**: 検証の強さはバックエンドしだいです。プラグイン型の入手先は、その作者のコードを手元で動かすことになります（[asdf からの移行](https://mise.jdx.dev/dev-tools/comparison-to-asdf.html)、[Backends](https://mise.jdx.dev/dev-tools/backends/)）
-- **設定ファイルがコードを動かす**: 環境変数の読み込みやタスクはコマンドを実行しうるため、知らないリポジトリでは `mise install` などの前に設定を読む
-- **保守の体制**: MIT ライセンスのオープンソースで、作者の Jeff Dickey さんが中心となって保守しています（[About](https://mise.jdx.dev/about.html)）
+- **設定ファイルがコードを動かす**: 環境変数の読み込みやタスクはコマンドを実行しうるため、知らないリポジトリでは `mise install` などの前に設定を読む（3.5 節を参照）
+- **保守の体制**: MIT ライセンスのオープンソースで、作者の Jeff Dickey さんが中心となって保守しています（[About](https://mise.jdx.dev/about.html)）。作者1人への依存度が高いので、長く使う前提なら開発が続いているかを見ておきます（筆者の見立て）
 
 ## 5. 採用を判断するときの観点
 
 - **チームの規模と言語の数**: 複数の言語や複数のサービスを抱えるチームほど、まとめる効果が大きい。1つの言語だけなら、その言語の標準の道具で足りる場合もあります（筆者の見立て）
-- **OS**: macOS・Linux・Windows に対応します。Windows では asdf のプラグインが動かず（[Backends](https://mise.jdx.dev/dev-tools/backends/)）、GUI のアプリから使うには shim のフォルダを Path に足す必要があります（[Shims](https://mise.jdx.dev/dev-tools/shims.html)）
+- **OS**: macOS・Linux・Windows に対応します（[mise 公式サイト](https://mise.jdx.dev/)）。Windows では asdf のプラグインが動かず（[Backends](https://mise.jdx.dev/dev-tools/backends/)）、GUI のアプリから使うには shim のフォルダを Path に足す必要があります（[Shims](https://mise.jdx.dev/dev-tools/shims.html)）
 - **CI**: GitHub Actions 向けの公式のアクション（`jdx/mise-action`）があり、`mise.toml` のツールを入れてキャッシュします。CI ではシェルの activate は不要で、`mise run` や `mise exec` を使います（[Continuous Integration](https://mise.jdx.dev/continuous-integration.html)）
 - **供給網の安全性**: 版を固定するなら `mise.lock` をコミットし、`--locked` で入れる。公式は、公開元のビルド済みのリリースを取るバックエンドを優先し、プラグインを最後にする順を勧めています。検証の有無はツールごとに `mise tool` で確かめます（[Backends](https://mise.jdx.dev/dev-tools/backends/)）
 - **既存の道具との共存**: `.tool-versions` などを残したまま始められる。mise と asdf でツールの置き場所を共有しない点には注意します（[asdf からの移行](https://mise.jdx.dev/dev-tools/comparison-to-asdf.html)）
