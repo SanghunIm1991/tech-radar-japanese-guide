@@ -41,4 +41,5 @@
 | [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
+| [Open Data Contract Standard (ODCS)](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
