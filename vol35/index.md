@@ -43,4 +43,5 @@
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
 | [Kafka share groups](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
+| [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
 | [Open Data Contract Standard (ODCS)](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
