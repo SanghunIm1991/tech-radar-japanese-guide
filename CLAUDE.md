@@ -37,7 +37,7 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 
 ## 直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
 
-- 対象（10項目。2026-11-11 の時点で、mise までの7項目を書き終えた）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
+- 対象（10項目。2026-11-11 の時点で、OpenAI Codex までの8項目を書き終えた）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - 見本（VictoriaMetrics）の書き直し後の公開承認の判断は、ユーザーが後で行う（2026-11-08）
 - Pages は、ユーザーが public に切り替えたあと（2026-11-09）、`docs/github_pages_guide.md` に沿って設定し、公開した。mermaid の図はサイトではコードのまま表示する（ユーザーの決定）ので、本文は図がなくても分かるように書く
