@@ -61,7 +61,7 @@ AI が実行するコマンドの「囲いの広さ」は3段階のモードで�
 **得られるもの**
 
 - **作業の自動化**: 調査・修正・テストの往復を任せられる。クラウドでは複数の作業を並べて進められる（[Codex CLI](https://learn.chatgpt.com/docs/codex/cli)）
-- **企業での管理のしやすさ**: OS の仕組みによる囲いと、段階的な承認の方針がある（[Sandboxing](https://learn.chatgpt.com/docs/sandboxing)、[承認とセキュリティ](https://learn.chatgpt.com/docs/agent-approvals-security)）。設定は個人・プロジェクトのほか、管理者が配る層からも読み込まれます（[設定の基本](https://learn.chatgpt.com/docs/config-file/config-basic)）
+- **企業での管理のしやすさ**: OS の仕組みによる囲いと、段階的な承認の方針がある（[Sandboxing](https://learn.chatgpt.com/docs/sandboxing)、[承認とセキュリティ](https://learn.chatgpt.com/docs/agent-approvals-security)）。設定は個人・プロジェクトのほか、組織のワークスペースにクラウドから配られる既定値や、マシン全体の設定からも読み込まれます。管理された PC では、組織が `requirements.toml` で設定を縛ることもできます（[設定の基本](https://learn.chatgpt.com/docs/config-file/config-basic)）
 - **組み込みやすさ**: `codex exec`、GitHub のアクション、TypeScript と Python の SDK で、ほかの仕組みから呼べる（[GitHub: sdk](https://github.com/openai/codex/tree/main/sdk)）
 
 **代わりに失うもの・注意点**

@@ -40,8 +40,8 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - 対象（10項目。2026-11-11 に10項目すべてを書き終えた）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - 見本（VictoriaMetrics）の書き直し後の公開承認の判断は、ユーザーが後で行う（2026-11-08）
-- 申し送り（2026-11-11）: OpenAI Codex の第4節の「設定は…管理者が配る層からも読み込まれます」の1文は、レビュー対応で足したもので、事実の点検を通していない。次に手を入れるときか公開承認の前に、出典（設定の基本のページ）と照らして点検する
-- **2026-11-11 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」。ただし Codex の1文の点検は、上の申し送りのとおり残っている）。次のゴールは未定（候補: 公開の承認、Trial の項目、索引のテーマの要旨の追記など。ユーザーが決める）
+- **2026-11-11 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」）。レビュー対応で足した未点検の文（Codex の第4節の設定の層の1文、OpenCode の第2節・第4節の書き直し）も、同日に事実の点検を通して反映した
+- 次のゴールは未定（候補: 10項目の公開の承認、Trial の項目、索引のテーマの要旨の追記など。ユーザーが決める）
 - Pages は、ユーザーが public に切り替えたあと（2026-11-09）、`docs/github_pages_guide.md` に沿って設定し、公開した。mermaid の図はサイトではコードのまま表示する（ユーザーの決定）ので、本文は図がなくても分かるように書く
 
 ## 前の直近のゴール（2026-11-08 決定）: 公開できる形まで
