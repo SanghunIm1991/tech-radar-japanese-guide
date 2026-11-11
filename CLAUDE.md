@@ -35,13 +35,19 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - **push の承認: コミットとセットで扱う**（2026-11-08 にユーザーが決定）。コミットのあと、push 前の点検を通したうえで、改めて確認せずに push してよい。force push などの禁止操作は、この場合も行わない。
 - GitHub のリポジトリ作成（private）と最初の push は、実行の前に内容を示して承認を得た（2026-11-08）。
 
-## 直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
+## 直近のゴール（2026-11-11 決定）: Vol.35 の Platforms の Trial を書く
+
+- 対象（10項目。公式の一覧の順に書く。2026-11-11 の時点で、Kafka share groups の1項目を書き終えた）: Kafka share groups、KServe、LibreChat、LiteLLM、Microsoft Copilot Retrieval API、Restate、Talos Linux、Temporal、vCluster、VictoriaLogs
+- 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
+- Adopt の10項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
+
+## 前の直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
 
 - 対象（10項目。2026-11-11 に10項目すべてを書き終えた）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - 見本（VictoriaMetrics）の書き直し後の公開承認の判断は、ユーザーが後で行う（2026-11-08）
 - **2026-11-11 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」）。レビュー対応で足した未点検の文（Codex の第4節の設定の層の1文、OpenCode の第2節・第4節の書き直し）も、同日に事実の点検を通して反映した
-- 次のゴールは未定（候補: 10項目の公開の承認、Trial の項目、索引のテーマの要旨の追記など。ユーザーが決める）
+- 次のゴールは、2026-11-11 にユーザーが Platforms の Trial に決めた（上の「直近のゴール」）
 - Pages は、ユーザーが public に切り替えたあと（2026-11-09）、`docs/github_pages_guide.md` に沿って設定し、公開した。mermaid の図はサイトではコードのまま表示する（ユーザーの決定）ので、本文は図がなくても分かるように書く
 
 ## 前の直近のゴール（2026-11-08 決定）: 公開できる形まで
