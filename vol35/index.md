@@ -46,4 +46,5 @@
 | [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
 | [LibreChat](platforms/librechat.md) | Platforms | Trial | 下書き |
 | [LiteLLM](platforms/litellm.md) | Platforms | Trial | 下書き |
+| [Microsoft Copilot Retrieval API](platforms/microsoft-copilot-retrieval-api.md) | Platforms | Trial | 下書き |
 | [Open Data Contract Standard (ODCS)](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
