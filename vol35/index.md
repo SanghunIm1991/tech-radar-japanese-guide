@@ -38,4 +38,5 @@
 | [Post-quantum cryptography](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
 | [Progressive context disclosure](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
 | [Threat modeling](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
+| [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
