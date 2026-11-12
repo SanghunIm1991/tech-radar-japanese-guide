@@ -48,6 +48,7 @@
 | [Interactive visual plans with agents](techniques/interactive-visual-plans-with-agents.md) | Techniques | Trial | 下書き |
 | [Managed agents runtime](techniques/managed-agents-runtime.md) | Techniques | Trial | 下書き |
 | [Open-weight models](techniques/open-weight-models.md) | Techniques | Trial | 下書き |
+| [Risk-tiered human oversight](techniques/risk-tiered-human-oversight.md) | Techniques | Trial | 下書き |
 | [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |

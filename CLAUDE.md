@@ -38,7 +38,7 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 ## 直近のゴール（2026-11-12 決定）: Vol.35 の Techniques の Trial を書く
 
 - 対象: Techniques の Trial の17項目（名前は着手時に作った `local/` の一覧を参照。Radar の一覧の複製と見られないよう、まだ書いていない項目の名前は追跡するファイルに載せない。書いた解説は索引に載せる）。公式の一覧の順に書く
-- 進み具合: 2026-11-12 の時点で10項目を書いた（Open-weight models まで。索引を参照）
+- 進み具合: 2026-11-12 の時点で11項目を書いた（Risk-tiered human oversight まで。索引を参照）
 - 完了の判定基準: 17項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - Adopt・Platforms の Trial の各項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
 
