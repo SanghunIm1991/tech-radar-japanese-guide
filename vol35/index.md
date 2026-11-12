@@ -51,4 +51,5 @@
 | [Talos Linux](platforms/talos-linux.md) | Platforms | Trial | 下書き |
 | [Temporal](platforms/temporal.md) | Platforms | Trial | 下書き |
 | [vCluster](platforms/vcluster.md) | Platforms | Trial | 下書き |
+| [VictoriaLogs](platforms/victorialogs.md) | Platforms | Trial | 下書き |
 | [Open Data Contract Standard (ODCS)](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |

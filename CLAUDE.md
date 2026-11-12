@@ -37,9 +37,10 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 
 ## 直近のゴール（2026-11-11 決定）: Vol.35 の Platforms の Trial を書く
 
-- 対象（10項目。公式の一覧の順に書く。2026-11-12 の時点で、vCluster までの9項目を書き終えた。次は VictoriaLogs）: Kafka share groups、KServe、LibreChat、LiteLLM、Microsoft Copilot Retrieval API、Restate、Talos Linux、Temporal、vCluster、VictoriaLogs
+- 対象（10項目。公式の一覧の順に書く。2026-11-12 に10項目すべてを書き終えた）: Kafka share groups、KServe、LibreChat、LiteLLM、Microsoft Copilot Retrieval API、Restate、Talos Linux、Temporal、vCluster、VictoriaLogs
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - Adopt の10項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
+- **2026-11-12 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」）。次のゴールはユーザーが決める
 
 ## 前の直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
 
