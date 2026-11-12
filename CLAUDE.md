@@ -35,7 +35,13 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 - **push の承認: コミットとセットで扱う**（2026-11-08 にユーザーが決定）。コミットのあと、push 前の点検を通したうえで、改めて確認せずに push してよい。force push などの禁止操作は、この場合も行わない。
 - GitHub のリポジトリ作成（private）と最初の push は、実行の前に内容を示して承認を得た（2026-11-08）。
 
-## 直近のゴール（2026-11-11 決定）: Vol.35 の Platforms の Trial を書く
+## 直近のゴール（2026-11-12 決定）: Vol.35 の Techniques の Trial を書く
+
+- 対象（17項目。公式の一覧の順に書く。項目は着手時に作った `local/` の一覧から選んだ）: Agent plugin marketplace、Agent-maintained knowledge bases、Anchoring coding agents to a reference application、Coding harness for general-purpose agents、Feedback flywheel、Graph-grounded codebase reasoning、Grilling、Interactive visual plans with agents、Managed agents runtime、Open-weight models、Risk-tiered human oversight、Self-improving harness、Small language models、Stateful guardrails、Subagents for better context management、Toxic flow analysis for AI、Unattended overnight agentic builds
+- 完了の判定基準: 17項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
+- Adopt・Platforms の Trial の各項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
+
+## 前の直近のゴール（2026-11-11 決定）: Vol.35 の Platforms の Trial を書く
 
 - 対象（10項目。公式の一覧の順に書く。2026-11-12 に10項目すべてを書き終えた）: Kafka share groups、KServe、LibreChat、LiteLLM、Microsoft Copilot Retrieval API、Restate、Talos Linux、Temporal、vCluster、VictoriaLogs
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）

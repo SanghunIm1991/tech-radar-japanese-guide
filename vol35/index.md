@@ -38,6 +38,7 @@
 | [Post-quantum cryptography](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
 | [Progressive context disclosure](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
 | [Threat modeling](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
+| [Agent plugin marketplace](techniques/agent-plugin-marketplace.md) | Techniques | Trial | 下書き |
 | [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
