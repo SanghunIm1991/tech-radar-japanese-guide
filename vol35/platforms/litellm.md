@@ -50,7 +50,7 @@ Docker のイメージや Kubernetes 向けの Helm のチャートで動かし�
 
 ### 3.5 Rust への書き換え
 
-プロキシの処理を段階的に Rust へ移す作業が進んでいます。対応済みの要求は Rust で処理し、それ以外は Python の側に回す形です（[Rust への移行](https://docs.litellm.ai/rust-migration)）。
+プロキシの処理を段階的に Rust へ移す作業が進んでいます。完成後は、前段の Rust のサーバーが要求を受け、Rust で処理できるものはそこで処理し、それ以外は同じ機械の Python の側に回す設計です（2026年11月の時点で作業の途中。[Rust への移行](https://docs.litellm.ai/rust-migration)）。
 
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
@@ -66,7 +66,7 @@ Docker のイメージや Kubernetes 向けの Helm のチャートで動かし�
 
 - **セキュリティの更新が多い**: 公式の告知の一覧には、2026年だけでも、認証を迂回されるものや、有料版のプロキシで管理者の鍵が漏れるものなど、重大度が Critical の脆弱性が複数載っています（[セキュリティの告知](https://github.com/BerriAI/litellm/security/advisories)）。Thoughtworks も、今年25件を超える CVE（公開された脆弱性の識別番号）が出たことを、Adopt にしない主な理由に挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/platforms/litellm)）。ゲートウェイは全社の鍵を預かるので、速やかに更新できる体制が欠かせません（筆者の見立て）
 - **共通化の限界**: 使える引数は提供元とモデルの組み合わせごとに違い、公式は、使うモデルごとに対応する引数を関数（`get_supported_openai_params`）で調べるよう書いています。OpenAI の形に無い、提供元に特有の引数は、そのまま提供元へ渡されます（[入力の引数](https://docs.litellm.ai/docs/completion/input)、[提供元に特有の引数](https://docs.litellm.ai/docs/completion/provider_specific_params)）。特有の引数に頼るほど、提供元を替えやすいという利点は薄れます（筆者の見立て）
-- **捨てられる引数**: 既定では、モデルが対応しない引数を渡すとエラーになります。`drop_params` を有効にすると、エラーの代わりにその引数を捨てます（[drop_params](https://docs.litellm.ai/docs/completion/drop_params)）。エラーで止まらない分、意図した機能が効いていないことに気づきにくくなります（筆者の見立て）
+- **捨てられる引数**: 既定では、モデルが対応しない OpenAI の形の引数を渡すとエラーになります。`drop_params` を有効にすると、エラーの代わりにその引数を捨てます（提供元に特有の引数は対象外。[drop_params](https://docs.litellm.ai/docs/completion/drop_params)）。エラーで止まらない分、意図した機能が効いていないことに気づきにくくなります（筆者の見立て）
 - **中継の遅れ**: ゲートウェイを通る分だけ遅れが加わります。開発元は、模擬の接続先を使った計測で、4台（各4 vCPU）で1秒あたり約1,170件の要求を処理したとき、加わる遅れは95%の要求で8ミリ秒以内（2台・約1,036件では29ミリ秒）と示しています（開発元の主張。[ベンチマーク](https://docs.litellm.ai/docs/benchmarks)）
 
 ## 5. 採用を判断するときの観点
