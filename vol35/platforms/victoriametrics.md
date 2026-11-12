@@ -82,7 +82,7 @@ flowchart LR
 - **Prometheus**: 規模が小さければ Prometheus だけで足りることも多い（[Prometheus](https://prometheus.io/)）
 - **Thanos、Cortex、Grafana Mimir**: Prometheus のデータを長く、大規模に保存する仕組み（[Thanos](https://thanos.io/)、[Cortex](https://cortexmetrics.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)）。これらは長期のデータを**オブジェクトストレージ**に保存し、VictoriaMetrics はサーバーのディスク（ブロックストレージ）に保存する点が違う（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）
 - **InfluxDB、TimescaleDB**: 監視に限らず使える時系列データベース（一般的な説明）
-- **VictoriaLogs**: 同じ開発元のログ用データベース。Vol.35 では Platforms の Trial（[VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)）
+- **VictoriaLogs**: 同じ開発元のログ用データベース。Vol.35 では Platforms の Trial（[VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)、[VictoriaLogs の解説](victorialogs.md)）
 
 ## 7. Radar での扱い
 

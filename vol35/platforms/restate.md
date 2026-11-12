@@ -34,7 +34,7 @@ Restate は、こうした「落ちても正しく続ける」ための仕組み
 
 （[要求の一生](https://docs.restate.dev/guides/request-lifecycle)）
 
-外部の API を呼ぶなどの副作用は、`ctx.run` で包むと結果がジャーナルに残り、再試行の時に繰り返されません（[主な考え方](https://docs.restate.dev/concepts/durable_execution)、[アクション](https://docs.restate.dev/foundations/actions.md)）。公式は、呼び出しは失敗があっても1回だけ実行される、とうたっています。サービスどうしの呼び出しも呼び出し元のジャーナルに記録されるので、端から端まで冪等（何回やっても結果が同じ）になるとしています（[主な考え方](https://docs.restate.dev/concepts/durable_execution)、[要求の一生](https://docs.restate.dev/guides/request-lifecycle)）。ただし、外部の API を呼んだ直後で記録の前に落ちると、その呼び出しが繰り返される余地が残ると考えられます。相手の側でも冪等キーなどで重複を防ぐのが安全です（筆者の見立て）。
+外部の API を呼ぶなどの副作用は、`ctx.run` で包むと結果がジャーナルに残り、再試行の時に繰り返されません（[主な考え方](https://docs.restate.dev/concepts/durable_execution)、[アクション](https://docs.restate.dev/foundations/actions)）。公式は、呼び出しは失敗があっても1回だけ実行される、とうたっています。サービスどうしの呼び出しも呼び出し元のジャーナルに記録されるので、端から端まで冪等（何回やっても結果が同じ）になるとしています（[主な考え方](https://docs.restate.dev/concepts/durable_execution)、[要求の一生](https://docs.restate.dev/guides/request-lifecycle)）。ただし、外部の API を呼んだ直後で記録の前に落ちると、その呼び出しが繰り返される余地が残ると考えられます。相手の側でも冪等キーなどで重複を防ぐのが安全です（筆者の見立て）。
 
 ### 3.2 3種類のサービス
 
@@ -50,7 +50,7 @@ Virtual Object では、同じキーへの書き込みが順番待ちになる�
 
 ### 3.3 待つための部品
 
-- **耐久タイマー**: `ctx.sleep` で決まった時間だけ止まります。止まっている間は資源を使わず、再起動をまたいでも時刻どおりに再開します（[アクション](https://docs.restate.dev/foundations/actions.md)）
+- **耐久タイマー**: `ctx.sleep` で決まった時間だけ止まります。止まっている間は資源を使わず、再起動をまたいでも時刻どおりに再開します（[アクション](https://docs.restate.dev/foundations/actions)）
 - **awakeable**: 一意の ID を持つ1回きりの合図です。別のハンドラーが SDK から、または外部のシステムが HTTP の API から合図を返すまで、処理は止まって待ちます（[外部のイベント](https://docs.restate.dev/develop/ts/external-events)）
 - **呼び出し方**: HTTP、Kafka、プログラムから呼び出せます。冪等キーを付けた要求は、重複しても最初と同じ結果を返します（[主な考え方](https://docs.restate.dev/concepts/durable_execution)）
 
@@ -74,7 +74,7 @@ Restate のサーバーは、リバースプロキシやメッセージブロー
 
 **代わりに失うもの・注意点**
 
-- **決定的なコードが要る**: 再生の時に同じ順で同じ操作が出てこないと、ジャーナルの食い違いとしてエラーになります。`ctx.run` の外での HTTP の呼び出し、乱数、現在時刻などは、`ctx.run` か SDK の補助の関数を通す必要があります（[版の管理](https://docs.restate.dev/services/versioning)、[アクション](https://docs.restate.dev/foundations/actions.md)）
+- **決定的なコードが要る**: 再生の時に同じ順で同じ操作が出てこないと、ジャーナルの食い違いとしてエラーになります。`ctx.run` の外での HTTP の呼び出し、乱数、現在時刻などは、`ctx.run` か SDK の補助の関数を通す必要があります（[版の管理](https://docs.restate.dev/services/versioning)、[アクション](https://docs.restate.dev/foundations/actions)）
 - **コードの更新に作法がある**: 版ごとに別の配置先を登録し、実行中の呼び出しは元の版で最後まで動かします。古い版は、その呼び出しが終わるまで残す必要があります。公式は、何日も何か月も動き続ける処理を避け、遅延した呼び出しに分けるよう勧めています（[版の管理](https://docs.restate.dev/services/versioning)）
 - **新しい依存先が増える**: すべての呼び出しが Restate のサーバーを通るので、ここが止まると全体が止まります。クラスタでは過半数のノードが要ります（[クラスタ](https://docs.restate.dev/server/clusters)。影響の大きさは筆者の見立て）
 - **ライセンスの制約**: サーバーの BSL は、本番での利用を認めています。ただし、第三者が自分のサービスを登録して呼び出せる、公開の Restate の基盤のサービスとして提供することは除かれます。各版は公開の4年後に Apache License 2.0 に切り替わります（[サーバーの LICENSE](https://github.com/restatedev/restate/blob/main/LICENSE)）
@@ -90,7 +90,7 @@ Restate のサーバーは、リバースプロキシやメッセージブロー
 
 ## 6. 関連技術・代替技術
 
-- **Temporal**: 同じく耐久実行の基盤で、ワークフローの考え方や向く用途が近い技術です（筆者の見立て）。Vol.35 では Temporal も Platforms の Trial に入っています
+- **Temporal**: 同じく耐久実行の基盤で、ワークフローの考え方や向く用途が近い技術です（筆者の見立て）。Vol.35 では Temporal も Platforms の Trial に入っています（[Temporal の解説](temporal.md)）
 - **Saga パターン**: 複数のサービスにまたがる処理を、段階ごとの処理と、失敗した時の取り消しの処理の組で書く設計のやり方です。Restate は、これを Basic Service の用途の1つに挙げています（[サービスの種類](https://docs.restate.dev/concepts/services)）
 - **メッセージキューと自前の状態の表**: 従来のやり方です。部品を選べる自由がある代わりに、回復と重複の処理を自分で書きます（筆者の見立て）
 
