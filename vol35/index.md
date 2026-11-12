@@ -42,6 +42,7 @@
 | [Agent-maintained knowledge bases](techniques/agent-maintained-knowledge-bases.md) | Techniques | Trial | 下書き |
 | [Anchoring coding agents to a reference application](techniques/anchoring-coding-agents-to-a-reference-application.md) | Techniques | Trial | 下書き |
 | [Coding harness for general-purpose agents](techniques/coding-harness-for-general-purpose-agents.md) | Techniques | Trial | 下書き |
+| [Feedback flywheel](techniques/feedback-flywheel.md) | Techniques | Trial | 下書き |
 | [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
