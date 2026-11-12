@@ -71,7 +71,7 @@ GLM-5.3 と Kimi-K3.1-Pro のモデルカードは、vLLM や SGLang といっ�
 - **追加学習**: 重みが手元にあるので、自社のデータで調整できる
 - **提供元を替えやすい**: 同じ重みを、自前でも、複数のクラウドでも動かせる（筆者の見立て）
 
-Radar も、同様の点を利点に挙げています（第7節）。
+Radar も、同様の点を利点に挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/open-weight-models)。第7節）。
 
 **代わりに失うもの・注意点**
 

@@ -37,20 +37,21 @@ Thoughtworks Technology Radar に載った技術を、IT エンジニア向け�
 
 ## 直近のゴール（2026-11-12 決定）: Vol.35 の Techniques の Trial を書く
 
-- 対象（17項目。公式の一覧の順に書く。項目は着手時に作った `local/` の一覧から選んだ）: Agent plugin marketplace、Agent-maintained knowledge bases、Anchoring coding agents to a reference application、Coding harness for general-purpose agents、Feedback flywheel、Graph-grounded codebase reasoning、Grilling、Interactive visual plans with agents、Managed agents runtime、Open-weight models、Risk-tiered human oversight、Self-improving harness、Small language models、Stateful guardrails、Subagents for better context management、Toxic flow analysis for AI、Unattended overnight agentic builds
+- 対象: Techniques の Trial の17項目（名前は着手時に作った `local/` の一覧を参照。Radar の一覧の複製と見られないよう、まだ書いていない項目の名前は追跡するファイルに載せない。書いた解説は索引に載せる）。公式の一覧の順に書く
+- 進み具合: 2026-11-12 の時点で10項目を書いた（Open-weight models まで。索引を参照）
 - 完了の判定基準: 17項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - Adopt・Platforms の Trial の各項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
 
 ## 前の直近のゴール（2026-11-11 決定）: Vol.35 の Platforms の Trial を書く
 
-- 対象（10項目。公式の一覧の順に書く。2026-11-12 に10項目すべてを書き終えた）: Kafka share groups、KServe、LibreChat、LiteLLM、Microsoft Copilot Retrieval API、Restate、Talos Linux、Temporal、vCluster、VictoriaLogs
+- 対象: Platforms の Trial の10項目（名前は `local/` の一覧を参照。書いた解説は索引に載せた）。公式の一覧の順に書く。2026-11-12 に10項目すべてを書き終えた
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - Adopt の10項目と見本（VictoriaMetrics）の公開承認の判断は、ユーザーが後で行う
 - **2026-11-12 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」）。次のゴールはユーザーが決める
 
 ## 前の直近のゴール（2026-11-08 決定）: Vol.35 の全象限の Adopt を書く
 
-- 対象（10項目。2026-11-11 に10項目すべてを書き終えた）: Techniques の Agent sandboxing、Mutation testing、Path-to-production mapping、Post-quantum cryptography、Progressive context disclosure、Threat modeling。Tools の mise、OpenAI Codex、OpenCode。Languages & Frameworks の Open Data Contract Standard (ODCS)
+- 対象: Platforms を除く全象限の Adopt の10項目（Techniques 6、Tools 3、Languages & Frameworks 1。名前は `local/` の一覧を参照。書いた解説は索引に載せた）。2026-11-11 に10項目すべてを書き終えた
 - 完了の判定基準: 10項目それぞれについて、`write-blip` スキルの手順（事実の点検と反映を含む）を終え、索引に載せて push した。状態は「下書き」でよい（公開の承認はユーザーが後で行う）
 - 見本（VictoriaMetrics）の書き直し後の公開承認の判断は、ユーザーが後で行う（2026-11-08）
 - **2026-11-11 に達成**（10項目とも索引に載せて push した。状態はすべて「下書き」）。レビュー対応で足した未点検の文（Codex の第4節の設定の層の1文、OpenCode の第2節・第4節の書き直し）も、同日に事実の点検を通して反映した
