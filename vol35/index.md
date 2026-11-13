@@ -52,6 +52,7 @@
 | [Self-improving harness](techniques/self-improving-harness.md) | Techniques | Trial | 下書き |
 | [Small language models](techniques/small-language-models.md) | Techniques | Trial | 下書き |
 | [Stateful guardrails](techniques/stateful-guardrails.md) | Techniques | Trial | 下書き |
+| [Subagents for better context management](techniques/subagents-for-better-context-management.md) | Techniques | Trial | 下書き |
 | [mise](tools/mise.md) | Tools | Adopt | 下書き |
 | [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
