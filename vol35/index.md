@@ -62,6 +62,7 @@
 | [Agent Package Manager](tools/agent-package-manager.md) | Tools | Trial | 下書き |
 | [ast-grep](tools/ast-grep.md) | Tools | Trial | 下書き |
 | [Beads](tools/beads.md) | Tools | Trial | 下書き |
+| [Chaos Mesh](tools/chaos-mesh.md) | Tools | Trial | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
 | [Kafka share groups](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
 | [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
