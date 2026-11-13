@@ -13,7 +13,7 @@
 
 Unattended overnight agentic builds は、チームが仕事を終えて帰るときに、数時間かかる大きめの作業（機能1つ分の開発や、インフラの作業など）を AI のコーディングエージェントに渡し、**人が見ていない夜のあいだに作らせて、翌朝に成果を確かめる**進め方です。動かすエージェントは1つで、多数のエージェントを協調させる「群れ」の方式は含みません（作業の一部をサブエージェントに任せるのはかまいません）（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)の定義による）。
 
-この手法の面白いところは、夜に任せられるかどうかが、**エージェントに本当に自律して作業させられているかを示す、ごまかしにくい目印**になる点です。夜に人なしで動かせないチームは、昼間もおそらく完全には任せきれていない、という見方です（Radar のページの見方。第7節）。
+この手法の特徴は、夜に任せられるかどうかが、**エージェントに本当に自律して作業させられているかを示す、ごまかしにくい目印**になる点です。夜に人なしで動かせないチームは、昼間もおそらく完全には任せきれていない、という見方です（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)の見方。第7節）。
 
 ## 2. 解決する課題（なぜ生まれたか）
 
@@ -56,19 +56,19 @@ Claude Code は `-p` オプションで、対話なしに指示を実行でき�
 **得られるもの**
 
 - **時間の有効利用**: 人がいない時間に、大きめの作業を進められる（筆者の見立て）
-- **ごまかしにくい目印**: 夜に任せられるかどうかで、本当に人なしで数時間動かせているかが分かる（Radar のページ）
-- **仕組みの整備を促す**: 前提をそろえさせること自体に価値がある（Radar のページ）。そろえた検査や仕様の仕組みは、昼間の作業にも効く（筆者の見立て）
+- **ごまかしにくい目印**: 夜に任せられるかどうかで、本当に人なしで数時間動かせているかが分かる（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)）
+- **仕組みの整備を促す**: 前提をそろえさせること自体に価値がある（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)）。そろえた検査や仕様の仕組みは、昼間の作業にも効く（筆者の見立て）
 
 **代わりに失うもの・注意点**
 
-- **朝のレビューの重さ**: 一晩分の変更は大きく、人が全部を読むのは難しい。検査の仕組みを信頼できないと、朝の確認が形だけになる（Radar のページの懸念に基づく筆者の見立て）
+- **朝のレビューの重さ**: 一晩分の変更は大きく、人が全部を読むのは難しい。検査の仕組みを信頼できないと、朝の確認が形だけになる（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)の懸念に基づく筆者の見立て）
 - **方向違いの作業**: 仕様があいまいだと、一晩かけて違うものを作ってしまう。途中で人が止められないぶん、無駄が大きい（筆者の見立て）
 - **費用**: 長時間動かすぶん、トークン（LLM が文章を数える単位で、料金の基準）がかかる。上限の設定が要る（筆者の見立て）
 - **安全**: 人が見ていないあいだの誤った操作に備え、隔離した環境と、触れてよい範囲の制限が欠かせない（筆者の見立て。隔離は Radar の前提条件の1つ）
 
 ## 5. 採用を判断するときの観点
 
-- **前提がそろっているか**: 隔離した実行・仕様・自動の検査・検証の仕組みの4つがあるか。無ければ、まずそれらを作ることを目標にする（Radar のページ）
+- **前提がそろっているか**: 隔離した実行・仕様・自動の検査・検証の仕組みの4つがあるか。無ければ、まずそれらを作ることを目標にする（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)）
 - **作業の選び方**: 仕様がはっきりしていて、自動の検査で正しさを確かめやすい作業から始める（筆者の見立て）
 - **権限の絞り込み**: 対話なしで動かすときは、使ってよいツールやコマンドを明示して絞る（第3節の Claude Code の例）
 - **進み具合の記録**: 進み具合のファイルやコミットで、朝に何が起きたかをたどれるようにする（Anthropic の記事の工夫）
@@ -77,7 +77,7 @@ Claude Code は `-p` オプションで、対話なしに指示を実行でき�
 
 ## 6. 関連技術・代替技術
 
-- **Managed agents runtime**: エージェントを動かす実行の環境を、事業者に任せる手法。夜の作業を動かす場所として補い合う（[解説](managed-agents-runtime.md)。Radar のページも補い合う技術に挙げています）
+- **Managed agents runtime**: エージェントを動かす実行の環境を、事業者に任せる手法。夜の作業を動かす場所として補い合う（[解説](managed-agents-runtime.md)。[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)も補い合う技術に挙げています）
 - **Agent sandboxing**: エージェントの動ける範囲を閉じ込める手法（[解説](agent-sandboxing.md)）
 - **Spec-driven development**、**Feedback sensors for coding agents**、**Harness quality evaluation**、**Coding agent swarms**、**Agent pipeline responsibility**、**Sandboxed execution for coding agents**: [Radar の Unattended overnight agentic builds のページ](https://www.thoughtworks.com/en-us/radar/techniques/unattended-overnight-agentic-builds)の関連の項目に挙がっています
 - **代替: 昼間に人が見ながら進める**: 前提がそろわないうちは、作業を小さく分けて、人がそばで見ながら進めるほうが安全（筆者の見立て）
