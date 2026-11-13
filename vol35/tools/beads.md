@@ -54,7 +54,7 @@ Beads は、課題と依存関係を構造のあるデータとしてコード�
 
 `bd init` は、既定で AGENTS.md（エージェントへの指示をまとめたファイル）を作るか更新し、Claude Code・Codex・Cursor 向けの連携も入れます。書き込む指示の中身は「`bd prime` を実行する」「Markdown の TODO リストで課題を管理しない」などです。書き込みを止めるオプション（`--skip-agents`）もあります。
 
-**外部の課題管理との同期**: Radar は、Linear・Jira・GitHub Issues と双方向に同期できると説明しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）。人が見る課題と、エージェントが扱う課題をつなげられるということです。
+**外部の課題管理との同期**: Thoughtworks は、Linear・Jira・GitHub Issues と双方向に同期できると説明しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）。人が見る課題と、エージェントが扱う課題をつなげられるということです。
 
 **版の上げ方の注意**（[GitHub: gastownhall/beads](https://github.com/gastownhall/beads)「Upgrading?」「Schema Version Guard」）
 
@@ -62,7 +62,7 @@ Beads は、課題と依存関係を構造のあるデータとしてコード�
 
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
-**位置づけ**: エージェントの「作業の記憶」と「調整の場」です。人のチームの計画は Linear などの課題管理で行い、Beads はエージェントが作る細かい作業を扱う、という分担で補い合うと Radar は説明しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）。
+**位置づけ**: エージェントの「作業の記憶」と「調整の場」です。人のチームの計画は Linear などの課題管理で行い、Beads はエージェントが作る細かい作業を扱う、という分担で補い合うと Thoughtworks は説明しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）。
 
 **得られるもの**
 
@@ -72,9 +72,9 @@ Beads は、課題と依存関係を構造のあるデータとしてコード�
 
 **代わりに失うもの・注意点**
 
-- **重くなった**: Radar によると、1.0 に達し、保存先が Dolt だけになり、HTTP の API や作業の貸し出し（work leases）などが加わって、初期の軽い道具より重くなった（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）
+- **重くなった**: Thoughtworks によると、1.0 に達し、保存先が Dolt だけになり、HTTP の API や作業の貸し出し（work leases）などが加わって、初期の軽い道具より重くなった（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）
 - **版をそろえる必要**: 版の違う `bd` は同じデータベースを共有できないので、共有するデータベースごとに版を固定する（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)。README のスキーマの注意とも合う）
-- **AGENTS.md への書き込み**: Beads が AGENTS.md に書き込む指示を確かめる（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/beads)）。ほかの指示とぶつからないかも見る（筆者の見立て）
+- **AGENTS.md への書き込み**: `bd init` は既定で AGENTS.md を書き換える（[README](https://github.com/gastownhall/beads)）。書き込まれた指示を読み、チームのほかの指示とぶつからないかを確かめる（筆者の見立て）
 - **もう1つの保存先**: 課題がコードとは別の Dolt のデータとして増えるので、バックアップや共有の方法を決める必要がある（筆者の見立て）
 
 ## 5. 採用を判断するときの観点

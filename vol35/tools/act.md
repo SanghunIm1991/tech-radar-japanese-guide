@@ -94,7 +94,7 @@ API キーなどの秘密情報（secrets）は、`-s` オプションや `--sec
 ## 7. Radar での扱い
 
 - Vol.35（2026年11月）: **Trial**（新規か移動かは Radar のページに明記なし）
-- 過去の版: Radar のページの推移には、今回の版だけが載っています。本文によると、以前（2021年）に GitHub Actions の項目の中で触れたことがあります
+- 過去の版: Radar のページの推移には、今回の版だけが載っています。Radar のページの本文によると、以前（2021年）に GitHub Actions の項目の中で触れたことがあります
 - Thoughtworks の評価の要旨: 完全な再現ではないとしつつ、コーディングエージェントが push の前にワークフローを手元で試せる点を評価しています
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/tools/act
 

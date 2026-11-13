@@ -21,7 +21,7 @@ Chaos Mesh は、Kubernetes（コンテナを多数のサーバーで動かす�
 
 かといって、手作業で障害を起こすのは危険で、同じ条件をくり返すのも難しくなります。Chaos Mesh は、起こす障害を Kubernetes の設定のファイルとして書けるようにし、同じ実験をくり返し、影響の範囲を絞って実行できるようにします。Chaos Mesh はもともと、分散データベースの TiDB をテストする仕組みから生まれました（[Chaos Mesh: Overview](https://chaos-mesh.org/docs/)）。
 
-Radar は、GPU（AI の計算に使う演算装置）を多く積んだ AI の基盤のような環境でも使えることを挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/chaos-mesh)）。
+Thoughtworks は、GPU（AI の計算に使う演算装置）を多く積んだ AI の基盤のような環境でも使えることを挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/chaos-mesh)）。
 
 ## 3. 仕組みの概要
 

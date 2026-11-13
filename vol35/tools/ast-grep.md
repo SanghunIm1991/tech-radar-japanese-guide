@@ -67,7 +67,7 @@ IDE（統合開発環境）の多くは構文を理解した検索を持って�
 **得られるもの**
 
 - **軽さ**: コードの索引（インデックス）や language server（エディタにコードの意味を教えるサーバー）を前もって用意しなくても使える。大きなコードベースで重い仕組みを入れる前の、手軽な第一歩になる（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/ast-grep)）
-- **人とエージェントで同じ道具**: 開発者も同じ検索・検査・書き換えをそのまま実行できる。Radar は、エージェント向けのコード理解の道具（Code intelligence as agentic tooling）の多くと違う点として、これを挙げている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/ast-grep)）
+- **人とエージェントで同じ道具**: 開発者も同じ検索・検査・書き換えをそのまま実行できる。Thoughtworks は、エージェント向けのコード理解の道具（Code intelligence as agentic tooling）の多くと違う点として、これを挙げている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/ast-grep)）
 - **多言語**: 1つの道具で、多くの言語に同じ書き方で使える（[ast-grep の公式サイト](https://ast-grep.github.io/)）
 
 **代わりに失うもの・注意点**
