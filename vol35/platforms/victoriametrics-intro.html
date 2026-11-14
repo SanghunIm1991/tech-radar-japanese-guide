@@ -64,20 +64,35 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .hot{animation:blink 6s ease-in-out infinite}
 @keyframes blink{0%,40%,70%,100%{opacity:.25}48%,62%{opacity:1}}
 
-/* 課題と計算機 */
-.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.issue{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
-.issue h3{font-size:21px}
-.issue .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
-.issue p{font-size:15px;line-height:1.75}
-.calc{background:var(--bg);border-radius:12px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center}
-.calc label{display:flex;flex-direction:column;gap:4px;font-size:15px}
-.calc label b{font-family:var(--mono);color:var(--blue)}
-.calc input[type=range]{width:100%;accent-color:var(--blue)}
-.calc .sliders{display:flex;flex-direction:column;gap:14px;min-width:0}
-.result{text-align:center;display:flex;flex-direction:column;gap:4px}
-.result .num{font-family:var(--mono);font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1.1;color:var(--pulse-text);font-variant-numeric:tabular-nums}
-.result small{color:var(--sub);font-size:13px;line-height:1.6}
+/* 課題と答えの対 */
+.lead-note{font-size:14px;color:var(--sub)}
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--blue)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--pulse);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.bars{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.bar-row{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:8px;align-items:center;font-size:13px}
+.bar{display:block;height:14px;border-radius:3px}
+.bar.full{width:100%;background:var(--muted-node)}
+.bar.vm{width:calc(100% / 7);background:var(--blue)}
+.bar-note{font-size:13px!important;color:var(--sub)}
+
+/* 判断の目安のスライダー */
+.rate{background:var(--bg);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.rate label{font-size:15px;font-weight:700}
+.rate label b{font-family:var(--mono);color:var(--blue);margin-left:6px;font-variant-numeric:tabular-nums}
+.rate input[type=range]{width:100%;accent-color:var(--blue);min-height:32px}
+.scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--sub)}
+.rec{font-size:15px}
+.rec b{color:var(--pulse-text)}
+.hint{font-size:14px;color:var(--sub)}
 
 /* 仕組み */
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px;align-self:flex-start;flex-wrap:wrap}
@@ -110,8 +125,6 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
 .loss{border-top-color:var(--pulse)}
 .gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
-.stat{display:flex;gap:12px;align-items:baseline}
-.stat .mono{font-weight:700;font-size:44px;color:var(--blue);line-height:1}
 ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
 
 /* チェックリスト */
@@ -138,8 +151,9 @@ details p.etym{color:var(--ink);font-weight:500}
 footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
 
 @media (max-width:720px){
-  .metaphor,.calc,.two,.terms{grid-template-columns:minmax(0,1fr)}
-  .three{grid-template-columns:minmax(0,1fr)}
+  .metaphor,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
   .radar{flex-direction:column;align-items:flex-start}
 }
 @media (prefers-reduced-motion:reduce){
@@ -204,30 +218,53 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   </section>
 
   <section class="card" aria-labelledby="s-issue">
-    <h2 id="s-issue">監視の規模が大きくなると起きる、3つの課題</h2>
-    <div class="three">
-      <div class="issue"><h3>系列が爆発する</h3><span class="term">高カーディナリティ（high cardinality）</span><p>数値に付く<b>ラベル</b>（どのサーバー・どの画面）の組み合わせごとに、別々の系列として記録される。</p></div>
-      <div class="issue"><h3>系列が入れ替わる</h3><span class="term">高チャーン（high churn）</span><p>Kubernetes の Pod のように入れ物が作り直されるたび、新しい系列が生まれては消える。</p></div>
-      <div class="issue"><h3>長く残すほど高い</h3><span class="term">長期保存</span><p>数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になる。</p></div>
-    </div>
-    <div class="calc">
-      <div class="sliders">
-        <div class="eyebrow">試してみる: 系列はかけ算で増える</div>
-        <label for="srv">サーバーの数 <b id="srv-v">50</b><input id="srv" type="range" min="1" max="500" value="50"></label>
-        <label for="ep">画面（URL）の数 <b id="ep-v">40</b><input id="ep" type="range" min="1" max="200" value="40"></label>
-        <label for="code">応答の種類（200・404・500 など） <b id="code-v">5</b><input id="code" type="range" min="1" max="10" value="5"></label>
+    <h2 id="s-issue">監視が大きくなると起きる4つの課題と、VictoriaMetrics の答え</h2>
+    <p class="lead-note">左が課題、右が答えです。答えはどれも開発元の説明・主張で、数値は開発元自身による比較です。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>系列が爆発する</h3><span class="term">高カーディナリティ（high cardinality）</span><p>数値に付く<b>ラベル</b>（どのサーバー・どの画面）の組み合わせごとに別々の系列になり、数百万にもなる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>少ないメモリで多くの系列を扱う</h3>
+          <div class="bars" role="img" aria-label="メモリの比較。Prometheus・Thanos・Cortex を7としたとき、VictoriaMetrics は最も少ない場合で1（開発元の主張）">
+            <div class="bar-row"><span>Prometheus など</span><span class="bar full"></span></div>
+            <div class="bar-row"><span>VictoriaMetrics</span><span class="bar vm"></span></div>
+          </div>
+          <p class="bar-note">メモリは最大で7分の1。比べる相手は Prometheus・Thanos・Cortex で、数百万の系列を扱う条件での比較。棒は、いちばん差が大きい場合です。</p>
+        </div>
       </div>
-      <div class="result" aria-live="polite">
-        <span style="font-size:15px">「リクエスト数」という1つの数値だけで</span>
-        <span class="num" id="series">10,000</span>
-        <span style="font-size:15px;font-weight:700">本の系列</span>
-        <small>数字は説明のための例です。実際に現れた組み合わせだけが系列になるので、これは最大の場合の数です。</small>
+      <div class="pair">
+        <div class="q"><h3>系列が入れ替わる</h3><span class="term">高チャーン（high churn）</span><p>Kubernetes の Pod のように入れ物が作り直されるたび、新しい系列が生まれては消える。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>入れ替わりの激しい系列向けに最適化</h3><p>開発元はそう説明しています。どう最適化しているかの中身は、元の解説でも確かめていません。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>長く残すほど高い</h3><span class="term">長期保存（long-term storage）</span><p>数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>データを強く圧縮して、ディスクを減らす</h3>
+          <div class="bars" role="img" aria-label="ディスクの比較。Prometheus・Thanos・Cortex を7としたとき、VictoriaMetrics は最も少ない場合で1（開発元の主張）">
+            <div class="bar-row"><span>Prometheus など</span><span class="bar full"></span></div>
+            <div class="bar-row"><span>VictoriaMetrics</span><span class="bar vm"></span></div>
+          </div>
+          <p class="bar-note">ディスクは最大で7分の1（比べる相手は同じ。棒は、いちばん差が大きい場合）。Prometheus の長期保存の保存先として使える。</p>
+        </div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>1台では足りない</h3><span class="term">規模の拡大（scaling）</span><p>Prometheus の手元の保存領域は、1台のサーバーの能力と耐久性に限られる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>まず1台を強くし、超えたら台数を増やす</h3><p>単一ノード版は CPU やメモリを増やして伸ばす（縦の拡張）。それを超えたら、クラスター版で部品ごとに台数を増やす（横の拡張。クラスター版でも各部品の縦の拡張はできる）。<a href="#s-arch">下の図で、自分の規模を当てはめて試せます</a>。</p></div>
       </div>
     </div>
   </section>
 
   <section class="card" aria-labelledby="s-arch">
-    <h2 id="s-arch">仕組み: 2つの形態</h2>
+    <h2 id="s-arch">「1台では足りない」への答え: 2つの形態</h2>
+    <div class="rate">
+      <label for="rate">試してみる: あなたの監視の、1秒あたりの書き込み（データ点の数） <b id="rate-v">10万件</b></label>
+      <input id="rate" type="range" min="0" max="100" step="1" value="40" aria-valuetext="毎秒10万件">
+      <div class="scale" aria-hidden="true"><span>1千</span><span>1万</span><span>10万</span><span>100万</span><span>1千万</span><span>1億</span></div>
+      <p class="rec" id="rec" aria-live="polite"></p>
+    </div>
+    <p class="hint">下のボタンでは、2つの形態の図を見比べられます（目安の表示は変わりません）。</p>
     <div class="controls">
       <div class="seg" role="group" aria-label="形態を選ぶ">
         <button type="button" id="m-single" aria-pressed="false">単一ノード版</button>
@@ -298,8 +335,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   <div class="two">
     <section class="gain" aria-labelledby="s-gain">
       <h2 id="s-gain">得るもの</h2>
-      <div class="stat"><span class="mono">1/7</span><span>Prometheus・Thanos・Cortex と比べて、メモリは系列の多い条件で最大7分の1、ディスクも最大7分の1<br><small style="color:var(--sub)">開発元自身による比較（ある比較での値）。自分たちのデータで確かめる</small></span></div>
       <ul>
+        <li>少ないメモリとディスク（上の棒。開発元自身による比較なので、自分たちのデータで確かめる）</li>
         <li>Prometheus や Grafana の設定・画面をほぼそのまま生かせる</li>
         <li>規模に応じて単一ノード版とクラスター版を選べる</li>
       </ul>
@@ -357,24 +394,15 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 <footer>
   <div class="wrap">
     非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
-    このページは <a href="victoriametrics.html">VictoriaMetrics の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-08（元の解説）。<br>
+    このページは <a href="victoriametrics.html">VictoriaMetrics の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-08（元の解説。課題ごとの答えは 2026-11-15）。<br>
     Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
   </div>
 </footer>
 
 <script>
 (function(){
-  // 系列の計算機
-  var ids=['srv','ep','code'];
-  function calc(){
-    var v=ids.map(function(id){var el=document.getElementById(id);document.getElementById(id+'-v').textContent=el.value;return +el.value;});
-    document.getElementById('series').textContent=(v[0]*v[1]*v[2]).toLocaleString('ja-JP');
-  }
-  ids.forEach(function(id){document.getElementById(id).addEventListener('input',calc);});
-  calc();
-
   // 形態の切り替えと、保管係の停止
-  var mode='cluster', down=false;
+  var mode='single', down=false;
   var single=document.getElementById('m-single'), cluster=document.getElementById('m-cluster'), stop=document.getElementById('stop-b');
   var svgC=document.getElementById('svg-cluster'), svgS=document.getElementById('svg-single'), status=document.getElementById('status');
   function render(){
@@ -386,17 +414,42 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     stop.textContent=down?'保管係を戻す':'保管係を1台止めてみる';
     svgC.classList.toggle('down',down);
     if(mode==='single'){
-      status.innerHTML='<b>まずはこちらから。</b>開発元は、書き込みが毎秒100万件程度に満たないなら単一ノード版を勧めています。止まらない作りにするには、同じ設定の複数台へ同時に書き込み、読み出しは振り分けるか、まとめて検索します。';
+      status.innerHTML='<b>単一ノード版:</b> 1つのプログラムだけで動き、データは1つのフォルダに置きます。1台の CPU やメモリを増やして伸ばします。止まらない作りにするには、同じ設定の複数台へ同時に書き込み、読み出しは振り分けるか、まとめて検索します。';
     }else if(down){
       status.innerHTML='<b>保管係 B が止まりました。</b>新しいデータは保管係 A に回され、止まらずに動き続けます（そのぶん A の負荷は増えます）。その代わり、B にあった分が欠けた検索結果が返ることがあります（欠けたらエラーにする設定や、データの複製で対処できます）。';
     }else{
       status.innerHTML='受付係は、名前とラベルから計算した値で預け先を決めます。保管係の顔ぶれが変わらない限り、同じ系列は同じ保管係に届きます。係ごとに台数を別々に増やせます。';
     }
   }
-  single.addEventListener('click',function(){mode='single';render();});
+  single.addEventListener('click',function(){mode='single';down=false;render();});
   cluster.addEventListener('click',function(){mode='cluster';render();});
   stop.addEventListener('click',function(){down=!down;render();});
-  render();
+
+  // 判断の目安のスライダー（対数の目盛り: 毎秒1千件〜1億件）。目安の線は開発元の「毎秒100万件程度」
+  var rate=document.getElementById('rate'), rateV=document.getElementById('rate-v'), rec=document.getElementById('rec');
+  function fmt(n){
+    if(n>=1e8) return (Math.round(n/1e7)/10)+'億件';
+    if(n>=1e4) return Math.round(n/1e4).toLocaleString('ja-JP')+'万件';
+    return Math.round(n).toLocaleString('ja-JP')+'件';
+  }
+  function onRate(){
+    var n=Math.pow(10,3+5*(+rate.value)/100), label=fmt(n);
+    rateV.textContent=label;
+    rate.setAttribute('aria-valuetext','毎秒'+label);
+    if(n<1e6){
+      mode='single'; down=false;
+      rec.innerHTML='<b>単一ノード版で始める</b>のが目安です。開発元は、書き込みが毎秒100万件程度に満たないなら単一ノード版を勧めています。';
+    }else if(n<=2e6){
+      mode='cluster';
+      rec.innerHTML='<b>クラスター版を検討する</b>規模に入りました（開発元の勧める目安の毎秒100万件程度に達しています）。ただし開発元は、実際の利用に基づく値として、単一ノード版で毎秒200万件のデータ点まで扱えるとも説明しています。目安は厳密な線ではありません。';
+    }else{
+      mode='cluster';
+      rec.innerHTML='<b>クラスター版を検討する</b>規模です。単一ノード版について開発元が示す値（毎秒200万件のデータ点）も超えています。';
+    }
+    render();
+  }
+  rate.addEventListener('input',onRate);
+  onRate();
 
   // チェックリスト
   var boxes=[].slice.call(document.querySelectorAll('#checks input')), verdict=document.getElementById('verdict');

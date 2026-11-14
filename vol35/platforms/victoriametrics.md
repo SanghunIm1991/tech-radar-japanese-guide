@@ -27,10 +27,24 @@ Prometheus は、監視対象から数値を集め（**スクレイプ**）、�
 - **記録する系列の数が爆発する**（**高カーディナリティ**）: 数値には「どのサーバーか」「どの画面か」といった**ラベル**が付きます。ラベルの組み合わせが増えると、別々に記録する系列が数百万にもなり、メモリとディスクが足りなくなります
 - **系列が次々に入れ替わる**（**高チャーン**）: **Kubernetes** のように、アプリケーションの入れ物（**Pod**）が頻繁に作り直される環境では、新しい系列が生まれては消えていきます
 - **長く残すほど高くつく**: 数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になります
+- **1台では足りなくなる**: 上で見たとおり、Prometheus の手元の保存領域は1台のサーバーの能力と耐久性に限られます
 
-VictoriaMetrics は、これらを少ないメモリとディスクでこなすことを狙っています。開発元は、Prometheus・Thanos・Cortex に比べて、メモリは系列の多い条件で最大7分の1、ディスクも最大7分の1（ある比較での値）で済むと主張しています（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)）。ただし、これは**開発元自身による比較**です。
+VictoriaMetrics は、これらを少ないメモリとディスクと、規模に合わせて選べる2つの形態でこなすことを狙っています。課題ごとの答えは、次の第3節に書きます。
 
 ## 3. 仕組みの概要
+
+### 課題ごとの答え
+
+第2節の4つの課題に、VictoriaMetrics は次のように答えています。どれも開発元の文書の説明・主張で、性能の数値は**開発元自身による比較**です（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)の Prominent features の節、[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）。
+
+| 課題 | VictoriaMetrics の答え |
+|---|---|
+| 記録する系列の数が爆発する | 少ないメモリで多くの系列を扱う。数百万の系列を扱う条件で、Prometheus・Thanos・Cortex よりメモリが最大7分の1で済むと主張している（公式ドキュメント） |
+| 系列が次々に入れ替わる | 入れ替わりの激しい系列向けに最適化していると説明している（公式ドキュメント）。どう最適化しているかの中身は、この解説では確かめていない |
+| 長く残すほど高くつく | データを強く圧縮して、ディスクを減らす。Prometheus・Thanos・Cortex よりディスクが最大7分の1で済み、TimescaleDB と比べると限られた容量に最大70倍のデータ点を入れられると主張している。Prometheus の長期保存の保存先として使える（公式ドキュメント） |
+| 1台では足りなくなる | まず単一ノード版で、1台の CPU やメモリを増やして伸ばす（**縦の拡張**）。開発元は、実際の利用に基づく値として、単一ノード版で最大1億のアクティブな系列（いま書き込みが続いている系列）、毎秒200万件のデータ点を扱えるとしている（FAQ）。それを超える規模では、下のクラスター版で部品ごとに台数を増やす（**横の拡張**）。クラスター版でも、各部品の CPU やメモリを増やす縦の拡張ができる（FAQ） |
+
+### 2つの形態
 
 **2つの形態**があります。
 
@@ -50,6 +64,8 @@ flowchart LR
   Q -->|検索結果| G[Grafana など画面]
 ```
 
+### 読み書きと周辺の部品
+
 **読み書きの方法**: 書き込みは、Prometheus の remote write のほか、ほかの監視ツール（InfluxDB・Graphite など）の形式や、**OpenTelemetry** の形式でも受け付けます。検索には **MetricsQL** という言語を使います。Prometheus の検索言語 **PromQL** をもとにしており、ほぼ同じ書き方で使えますが、一部の計算は意図的に違う結果を返します（[MetricsQL](https://docs.victoriametrics.com/victoriametrics/metricsql/)）。グラフ表示の定番ツール **Grafana** からは、Prometheus と同じように接続できます。
 
 **周辺の部品**として、数値を集めて送る `vmagent`、決めておいた条件（ルール）を定期的に調べてアラートを出す `vmalert`（通知を届けるのは Alertmanager などの別の部品）、入口で認証と振り分けをする `vmauth`、バックアップを取る `vmbackup` があります（[vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/)、[vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/)、[vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/)、[vmbackup](https://docs.victoriametrics.com/victoriametrics/vmbackup/)）。
@@ -63,7 +79,7 @@ flowchart LR
 
 **代わりに失うもの**
 
-- **止まらないことを優先する**: クラスター版は、データの完全さより、止まらずに動き続けることを優先すると明言しています。保管係の一部が止まると、新しいデータはほかの保管係に回され、検索結果は一部が欠けた状態で返ることがあります（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）。筆者の見立てでは、監視の用途ならたいてい困りませんが、完全な数値が要る用途（課金の集計など）では注意が要ります。欠けたときにエラーにする設定や、データの複製で対処できます（同じページ）
+- **止まらないことを優先する**: クラスター版は、データの完全さより、止まらずに動き続けることを優先すると明言しています。保管係の一部が止まると、新しいデータはほかの保管係に回され（そのぶん残りの保管係の負荷は増えます）、検索結果は一部が欠けた状態で返ることがあります（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）。筆者の見立てでは、監視の用途ならたいてい困りませんが、完全な数値が要る用途（課金の集計など）では注意が要ります。欠けたときにエラーにする設定や、データの複製で対処できます（同じページ）
 - **単純さの裏返し**: 保管係どうしが連絡を取らない作りは、全体を単純にします。その代わり、保管係を増やしても、過去のデータは自動では移りません（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）
 - **PromQL との小さな違い**: Prometheus から移ると、グラフの値がわずかに変わることがあります。移行の際は見比べる必要があります
 - **一部の機能は有料版だけ**: 古いデータを間引いて容量を節約する機能（**ダウンサンプリング**）、データごとに保存期間を変える機能、バックアップの自動化などは、有料のエンタープライズ版だけの機能です（[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
@@ -102,7 +118,7 @@ flowchart LR
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-08（確認時点の最新のリリースは v1.155.0）
+- 内容の確認日: 2026-11-08（確認時点の最新のリリースは v1.155.0）。第3節の「課題ごとの答え」は 2026-11-15 に公式ドキュメントと FAQ で確認
 - Radar の評価の確認日: 2026-11-08（リングの推移は、Radar の項目のページで確認）
 
 ## 用語集
@@ -120,6 +136,7 @@ flowchart LR
 | チャーン | 元の語: churn〈かき混ぜる。転じて、入れ替わり〉。系列が次々に生まれては消える入れ替わりのこと。高チャーンは、入れ替わりが激しい状態 |
 | Kubernetes | 元の語: ギリシャ語で「操舵手（船のかじを取る人）」。K8s とも書く（K と s の間の8文字を数字にした略）。多数のコンテナ（アプリケーションを動かすための軽い入れ物）を、まとめて配置・管理する仕組み |
 | Pod | 元の語: pod〈豆のさや、クジラなどの群れ〉。Kubernetes でアプリケーションを動かす最小の単位。作り直されると別の名前の新しい Pod になるため、名前の入れ替わりが多い |
+| 縦の拡張・横の拡張 | 元の語: vertical scaling〈縦の拡張〉、horizontal scaling〈横の拡張〉（scale は「規模を変える」）。縦の拡張は、1台の CPU やメモリを増やして性能を伸ばすこと。横の拡張は、台数を増やして性能を伸ばすこと |
 | 冗長化・可用性 | 元の語: redundancy〈余分・重複〉、availability〈使えること〉。冗長化は、予備の機器やデータを用意しておき、一部が壊れても止まらないようにすること。可用性は、システムが止まらずに使える度合い |
 | OpenTelemetry | 元の語: open〈開かれた〉＋ telemetry〈遠隔測定。tele「遠く」＋ metry「測ること」〉。メトリクス・ログ・トレース（処理の流れの記録）などの監視データを集めて送る方法を共通化した、業界の標準の取り組み |
 | PromQL / MetricsQL | 元の語: PromQL は Prometheus Query Language（query は「問い合わせ」）の略。PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの |
