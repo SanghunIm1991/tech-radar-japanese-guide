@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VictoriaMetrics 入門ページ（非公式）</title>
+<meta name="description" content="VictoriaMetrics の日本語解説をもとにした、動く図と触れる要素つきの入門ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 濃紺の見出しの帯 → 白いカードの章が縦に続く1列の読み物。図は触って動かせる */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-ink:#FFFFFF; --pulse:#F08A3C; --pulse-text:#B4500F; --pulse-soft:#FFE6D3;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --node:#14203A; --node-ink:#FFFFFF; --muted-node:#C5CCDA;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-ink:#0F1626; --pulse:#F5A061; --pulse-text:#F5A061; --pulse-soft:#3A2A1E;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --node:#2B3858; --node-ink:#F4F6FA; --muted-node:#3A4560;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+.mono{font-family:var(--mono)}
+
+/* 見出しの帯 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--pulse);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,10vw,96px);line-height:1;letter-spacing:-.01em}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.beat{display:block;width:100%;height:64px}
+.beat polyline{fill:none;stroke:var(--pulse);stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1400;stroke-dashoffset:0;animation:draw 3.2s ease-out 1}
+@keyframes draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.metaphor .big em{font-style:normal;color:var(--blue)}
+.lens{animation:scan 6s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateX(0)}45%,60%{transform:translateX(-150px)}}
+.hot{animation:blink 6s ease-in-out infinite}
+@keyframes blink{0%,40%,70%,100%{opacity:.25}48%,62%{opacity:1}}
+
+/* 課題と計算機 */
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.issue{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.issue h3{font-size:21px}
+.issue .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.issue p{font-size:15px;line-height:1.75}
+.calc{background:var(--bg);border-radius:12px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center}
+.calc label{display:flex;flex-direction:column;gap:4px;font-size:15px}
+.calc label b{font-family:var(--mono);color:var(--blue)}
+.calc input[type=range]{width:100%;accent-color:var(--blue)}
+.calc .sliders{display:flex;flex-direction:column;gap:14px;min-width:0}
+.result{text-align:center;display:flex;flex-direction:column;gap:4px}
+.result .num{font-family:var(--mono);font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1.1;color:var(--pulse-text);font-variant-numeric:tabular-nums}
+.result small{color:var(--sub);font-size:13px;line-height:1.6}
+
+/* 仕組み */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px;align-self:flex-start;flex-wrap:wrap}
+.seg button,.btn{font:inherit;font-size:15px;border:none;border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:transparent;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.btn{border:2px solid var(--pulse);color:var(--ink);background:var(--surface);font-weight:700}
+.btn[aria-pressed="true"]{background:var(--pulse);color:#14203A}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+.n-box{fill:var(--node)}
+.n-blue{fill:var(--blue)}
+.n-out{fill:none;stroke:var(--sub);stroke-width:2;stroke-dasharray:6 5}
+.t-main{fill:var(--node-ink);font-family:var(--display);font-weight:900;font-size:20px}
+.t-code{fill:var(--node-ink);font-family:var(--mono);font-weight:700;font-size:14px}
+.t-blue{fill:var(--blue-ink)}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:15px}
+.t-note{fill:var(--pulse-text);font-family:var(--body);font-weight:700;font-size:13px}
+.wire{fill:none;stroke:var(--line);stroke-width:3}
+.dot{fill:var(--pulse)}
+.down .n-box.b{fill:var(--muted-node)}
+.down .via-b{visibility:hidden}
+.x-mark{visibility:hidden;stroke:var(--pulse-text);stroke-width:5;stroke-linecap:round}
+.down .x-mark{visibility:visible}
+.status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
+.status b{color:var(--pulse-text)}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
+.loss{border-top-color:var(--pulse)}
+.gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
+.stat{display:flex;gap:12px;align-items:baseline}
+.stat .mono{font-weight:700;font-size:44px;color:var(--blue);line-height:1}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* チェックリスト */
+.check{display:flex;flex-direction:column;gap:10px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.check input{width:22px;height:22px;margin-top:4px;accent-color:var(--blue);flex:none}
+.check .hint{display:block;color:var(--sub);font-size:14px}
+.verdict{font-family:var(--display);font-weight:700;font-size:18px}
+
+/* 評価 */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.move{flex:none;font-family:var(--mono);font-weight:700;text-align:center;line-height:1.5}
+.move .to{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.calc,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .three{grid-template-columns:minmax(0,1fr)}
+  .radar{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .beat polyline,.lens,.hot{animation:none}
+  .hot{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="victoriametrics.html">VictoriaMetrics の解説（本文）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>PLATFORMS</span><span class="ring">ADOPT ← Trial</span><span class="note">非公式の入門ページ・下書き</span>
+    </div>
+    <h1>VictoriaMetrics</h1>
+    <p class="lead">サーバーの「調子」を表す数値を、時刻つきで大量に貯めて、すぐ探せるデータベース</p>
+    <svg class="beat" viewBox="0 0 960 64" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="0,36 340,36 360,36 376,8 394,60 410,18 424,36 590,36 608,36 618,26 630,44 640,36 960,36"></polyline>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 300" role="img" aria-label="カルテが並んだ棚を虫眼鏡が探し、熱が上がったカルテを見つける絵">
+        <rect x="20" y="20" width="330" height="262" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="20" y1="107" x2="350" y2="107" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="20" y1="194" x2="350" y2="194" stroke="var(--ink)" stroke-width="3"/>
+        <g fill="var(--bg)" stroke="var(--blue)" stroke-width="2">
+          <rect x="36" y="34" width="44" height="64" rx="3"/><rect x="88" y="34" width="44" height="64" rx="3"/><rect x="140" y="34" width="44" height="64" rx="3"/><rect x="192" y="34" width="44" height="64" rx="3"/><rect x="244" y="34" width="44" height="64" rx="3"/><rect x="296" y="34" width="40" height="64" rx="3"/>
+          <rect x="36" y="121" width="44" height="64" rx="3"/><rect x="88" y="121" width="44" height="64" rx="3"/><rect x="192" y="121" width="44" height="64" rx="3"/><rect x="244" y="121" width="44" height="64" rx="3"/><rect x="296" y="121" width="40" height="64" rx="3"/>
+          <rect x="36" y="208" width="44" height="64" rx="3"/><rect x="88" y="208" width="44" height="64" rx="3"/><rect x="140" y="208" width="44" height="64" rx="3"/><rect x="192" y="208" width="44" height="64" rx="3"/>
+        </g>
+        <g fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round">
+          <polyline points="42,70 52,70 56,60 62,78 66,70 74,70"/><polyline points="94,70 104,70 108,62 114,76 118,70 126,70"/><polyline points="146,70 156,70 160,60 166,78 170,70 178,70"/><polyline points="198,70 208,70 212,63 218,75 222,70 230,70"/><polyline points="250,70 260,70 264,60 270,78 274,70 282,70"/>
+          <polyline points="42,157 52,157 56,149 62,163 66,157 74,157"/><polyline points="94,157 104,157 108,147 114,165 118,157 126,157"/><polyline points="198,157 208,157 212,149 218,163 222,157 230,157"/><polyline points="250,157 260,157 264,150 270,162 274,157 282,157"/>
+          <polyline points="42,244 52,244 56,236 62,250 66,244 74,244"/><polyline points="94,244 104,244 108,235 114,252 118,244 126,244"/>
+        </g>
+        <g class="hot">
+          <rect x="140" y="121" width="44" height="64" rx="3" fill="var(--pulse-soft)" stroke="var(--pulse)" stroke-width="3"/>
+        </g>
+        <polyline points="146,162 154,162 158,140 166,170 170,162 178,162" fill="none" stroke="var(--pulse)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <g class="lens">
+          <circle cx="310" cy="152" r="48" fill="var(--surface)" fill-opacity=".55" stroke="var(--ink)" stroke-width="5"/>
+          <line x1="344" y1="186" x2="380" y2="226" stroke="var(--ink)" stroke-width="11" stroke-linecap="round"/>
+        </g>
+        <text x="420" y="60" text-anchor="middle" class="t-note" style="font-size:15px">熱が</text>
+        <text x="420" y="82" text-anchor="middle" class="t-note" style="font-size:15px">上がったのは</text>
+        <text x="420" y="104" text-anchor="middle" class="t-note" style="font-size:15px">いつ？</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">体温や血圧を毎分記録し続ける、<em>カルテの保管庫</em></p>
+        <p>ため込むだけでなく、「熱が上がったのはいつか」をすぐ探せることが大事です。この数値を<b>メトリクス</b>（CPU 使用率・1秒あたりのリクエスト数など）、時刻と数値が並んだデータを<b>時系列データ</b>と呼びます。コミュニティ版は無料で使えるオープンソース（Apache License 2.0）で、監視の定番 <b>Prometheus</b> と同じ方法で読み書きできます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">監視の規模が大きくなると起きる、3つの課題</h2>
+    <div class="three">
+      <div class="issue"><h3>系列が爆発する</h3><span class="term">高カーディナリティ</span><p>数値に付く<b>ラベル</b>（どのサーバー・どの画面）の組み合わせごとに、別々の系列として記録される。</p></div>
+      <div class="issue"><h3>系列が入れ替わる</h3><span class="term">高チャーン</span><p>Kubernetes の Pod のように入れ物が作り直されるたび、新しい系列が生まれては消える。</p></div>
+      <div class="issue"><h3>長く残すほど高い</h3><span class="term">長期保存</span><p>数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になる。</p></div>
+    </div>
+    <div class="calc">
+      <div class="sliders">
+        <div class="eyebrow">試してみる: 系列はかけ算で増える</div>
+        <label for="srv">サーバーの数 <b id="srv-v">50</b><input id="srv" type="range" min="1" max="500" value="50"></label>
+        <label for="ep">画面（URL）の数 <b id="ep-v">40</b><input id="ep" type="range" min="1" max="200" value="40"></label>
+        <label for="code">応答の種類（200・404・500 など） <b id="code-v">5</b><input id="code" type="range" min="1" max="10" value="5"></label>
+      </div>
+      <div class="result" aria-live="polite">
+        <span style="font-size:15px">「リクエスト数」という1つの数値だけで</span>
+        <span class="num" id="series">10,000</span>
+        <span style="font-size:15px;font-weight:700">本の系列</span>
+        <small>数字は説明のための例です。実際に現れた組み合わせだけが系列になるので、これは最大の場合の数です。</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-arch">
+    <h2 id="s-arch">仕組み: 2つの形態</h2>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="形態を選ぶ">
+        <button type="button" id="m-single" aria-pressed="false">単一ノード版</button>
+        <button type="button" id="m-cluster" aria-pressed="true">クラスター版</button>
+      </div>
+      <button type="button" class="btn" id="stop-b" aria-pressed="false">保管係を1台止めてみる</button>
+    </div>
+    <div class="diagram">
+      <svg id="svg-cluster" viewBox="0 0 960 300" role="img" aria-label="監視対象から受付係、2台の保管係、検索係を経て画面へデータが流れる図">
+        <path id="p-in" class="wire" d="M130 150 H220"/>
+        <path id="p-a" class="wire" d="M370 150 C410 150 410 80 450 80"/>
+        <path id="p-b" class="wire" d="M370 150 C410 150 410 220 450 220"/>
+        <path id="p-qa" class="wire" d="M600 80 C640 80 640 150 680 150"/>
+        <path id="p-qb" class="wire" d="M600 220 C640 220 640 150 680 150"/>
+        <path id="p-out" class="wire" d="M830 150 H860"/>
+        <rect x="10" y="115" width="120" height="70" rx="10" class="n-out"/>
+        <text x="70" y="156" text-anchor="middle" class="t-plain">監視対象</text>
+        <rect x="220" y="105" width="150" height="90" rx="10" class="n-blue"/>
+        <text x="295" y="140" text-anchor="middle" class="t-code t-blue">vminsert</text>
+        <text x="295" y="170" text-anchor="middle" class="t-main t-blue">受付係</text>
+        <rect x="450" y="45" width="150" height="70" rx="10" class="n-box"/>
+        <text x="525" y="73" text-anchor="middle" class="t-code">vmstorage</text>
+        <text x="525" y="100" text-anchor="middle" class="t-main">保管係 A</text>
+        <rect x="450" y="185" width="150" height="70" rx="10" class="n-box b"/>
+        <text x="525" y="213" text-anchor="middle" class="t-code">vmstorage</text>
+        <text x="525" y="240" text-anchor="middle" class="t-main">保管係 B</text>
+        <g class="x-mark"><line x1="500" y1="195" x2="550" y2="245"/><line x1="550" y1="195" x2="500" y2="245"/></g>
+        <text x="525" y="285" text-anchor="middle" class="t-note">保管係どうしは連絡を取り合わない</text>
+        <rect x="680" y="105" width="150" height="90" rx="10" class="n-blue"/>
+        <text x="755" y="140" text-anchor="middle" class="t-code t-blue">vmselect</text>
+        <text x="755" y="170" text-anchor="middle" class="t-main t-blue">検索係</text>
+        <rect x="860" y="115" width="92" height="70" rx="10" class="n-out"/>
+        <text x="906" y="146" text-anchor="middle" class="t-plain">Grafana</text>
+        <text x="906" y="168" text-anchor="middle" class="t-plain" style="font-size:13px">など画面</text>
+        <g>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-a"/></animateMotion></circle>
+          <circle r="7" class="dot via-b"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-b"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-qa"/></animateMotion></circle>
+          <circle r="7" class="dot via-b"><animateMotion dur="1.6s" begin="1.2s" repeatCount="indefinite"><mpath href="#p-qb"/></animateMotion></circle>
+          <circle r="6" class="dot"><animateMotion dur="0.8s" repeatCount="indefinite"><mpath href="#p-out"/></animateMotion></circle>
+        </g>
+      </svg>
+      <svg id="svg-single" viewBox="0 0 960 300" role="img" aria-label="監視対象から1つのプログラムを経て画面へデータが流れる図" hidden>
+        <path id="s-in" class="wire" d="M130 150 H330"/>
+        <path id="s-out" class="wire" d="M630 150 H830"/>
+        <rect x="10" y="115" width="120" height="70" rx="10" class="n-out"/>
+        <text x="70" y="156" text-anchor="middle" class="t-plain">監視対象</text>
+        <rect x="330" y="85" width="300" height="130" rx="12" class="n-box"/>
+        <text x="480" y="128" text-anchor="middle" class="t-code">victoria-metrics</text>
+        <text x="480" y="162" text-anchor="middle" class="t-main">1つのプログラム</text>
+        <text x="480" y="192" text-anchor="middle" class="t-code" style="font-weight:500">データは1つのフォルダに</text>
+        <rect x="830" y="115" width="120" height="70" rx="10" class="n-out"/>
+        <text x="890" y="146" text-anchor="middle" class="t-plain">Grafana</text>
+        <text x="890" y="168" text-anchor="middle" class="t-plain" style="font-size:13px">など画面</text>
+        <text x="480" y="260" text-anchor="middle" class="t-note">ほかのソフトウェアを必要としない</text>
+        <g>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#s-in"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath href="#s-in"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.6s" begin="0.4s" repeatCount="indefinite"><mpath href="#s-out"/></animateMotion></circle>
+        </g>
+      </svg>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <div class="stat"><span class="mono">1/7</span><span>Prometheus・Thanos・Cortex と比べて、メモリは系列の多い条件で最大7分の1、ディスクも最大7分の1<br><small style="color:var(--sub)">開発元自身による比較（ある比較での値）。自分たちのデータで確かめる</small></span></div>
+      <ul>
+        <li>Prometheus や Grafana の設定・画面をほぼそのまま生かせる</li>
+        <li>規模に応じて単一ノード版とクラスター版を選べる</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの</h2>
+      <ul>
+        <li><b>止まらないことを優先</b>: 保管係の一部が止まると、検索結果が一部欠けることがある（エラーにする設定や複製で対処できる）</li>
+        <li>保管係を増やしても、過去のデータは自動では移らない</li>
+        <li>検索言語 MetricsQL は、PromQL とわずかに違う結果を返す計算がある</li>
+        <li>ダウンサンプリングなどは有料のエンタープライズ版だけ</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-check">
+    <h2 id="s-check">採用を考えるときのチェック</h2>
+    <div class="check" id="checks">
+      <label><input type="checkbox"><span>すでに Prometheus や Grafana を使っている<span class="hint">設定や画面をほぼそのまま生かせる</span></span></label>
+      <label><input type="checkbox"><span>自分たちでサーバーを運用する体制がある<span class="hint">マネージドサービスと費用・手間を比べる</span></span></label>
+      <label><input type="checkbox"><span>ダウンサンプリングなどの機能がなくてもよい<span class="hint">要るなら有料版の契約が前提</span></span></label>
+      <label><input type="checkbox"><span>止まらない作り（冗長化）の組み方を決めた<span class="hint">単一ノード版は複数台へ同時に書き込む、クラスター版は複製の数を指定する</span></span></label>
+      <label><input type="checkbox"><span>自分たちのデータで負荷をかけて試す予定がある<span class="hint">性能の数値は開発元の主張</span></span></label>
+    </div>
+    <p class="verdict" id="verdict" aria-live="polite"></p>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="move">Trial<br><span style="font-size:24px">↓</span><br><span class="to">Adopt</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（要旨）</div>
+      <p>大規模な監視の仕組みを自分たちで運用する組織にとって、実運用に耐える段階に達したと、Thoughtworks は見ています。理由は、大量で系列の多いメトリクスに強いこと、規模に応じて2つの形態を選べること、Prometheus や OpenTelemetry と互換があることです。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <div class="terms">
+      <details><summary>Prometheus</summary><p>監視の分野で広く使われているオープンソースのツール。監視対象から数値を定期的に集めて保存し、検索やアラートに使う。</p></details>
+      <details><summary>ラベル・カーディナリティ</summary><p>ラベルは数値に付ける目印。その値の組み合わせの数がカーディナリティで、多いほど保存の負担が大きい。</p></details>
+      <details><summary>remote write</summary><p>Prometheus が集めたデータを、外部の保存先へ送る仕組み。VictoriaMetrics を長期の保存先にするときに使う。</p></details>
+      <details><summary>PromQL / MetricsQL</summary><p>PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの。</p></details>
+      <details><summary>ダウンサンプリング</summary><p>古いデータの粒度を「1分ごと」から「1時間ごと」のように粗くして、容量を節約し検索を速くすること。</p></details>
+      <details><summary>冗長化・可用性</summary><p>冗長化は、予備を用意して一部が壊れても止まらないようにすること。可用性は、止まらずに使える度合い。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページは <a href="victoriametrics.html">VictoriaMetrics の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-08（元の解説）。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 系列の計算機
+  var ids=['srv','ep','code'];
+  function calc(){
+    var v=ids.map(function(id){var el=document.getElementById(id);document.getElementById(id+'-v').textContent=el.value;return +el.value;});
+    document.getElementById('series').textContent=(v[0]*v[1]*v[2]).toLocaleString('ja-JP');
+  }
+  ids.forEach(function(id){document.getElementById(id).addEventListener('input',calc);});
+  calc();
+
+  // 形態の切り替えと、保管係の停止
+  var mode='cluster', down=false;
+  var single=document.getElementById('m-single'), cluster=document.getElementById('m-cluster'), stop=document.getElementById('stop-b');
+  var svgC=document.getElementById('svg-cluster'), svgS=document.getElementById('svg-single'), status=document.getElementById('status');
+  function render(){
+    single.setAttribute('aria-pressed',mode==='single');
+    cluster.setAttribute('aria-pressed',mode==='cluster');
+    svgC.hidden=mode!=='cluster'; svgS.hidden=mode!=='single';
+    stop.hidden=mode!=='cluster';
+    stop.setAttribute('aria-pressed',down);
+    stop.textContent=down?'保管係を戻す':'保管係を1台止めてみる';
+    svgC.classList.toggle('down',down);
+    if(mode==='single'){
+      status.innerHTML='<b>まずはこちらから。</b>開発元は、書き込みが毎秒100万件程度に満たないなら単一ノード版を勧めています。止まらない作りにするには、同じ設定の複数台へ同時に書き込み、読み出しは振り分けるか、まとめて検索します。';
+    }else if(down){
+      status.innerHTML='<b>保管係 B が止まりました。</b>新しいデータは保管係 A に回され、止まらずに動き続けます（そのぶん A の負荷は増えます）。その代わり、B にあった分が欠けた検索結果が返ることがあります（欠けたらエラーにする設定や、データの複製で対処できます）。';
+    }else{
+      status.innerHTML='受付係は、名前とラベルから計算した値で預け先を決めます。保管係の顔ぶれが変わらない限り、同じ系列は同じ保管係に届きます。係ごとに台数を別々に増やせます。';
+    }
+  }
+  single.addEventListener('click',function(){mode='single';render();});
+  cluster.addEventListener('click',function(){mode='cluster';render();});
+  stop.addEventListener('click',function(){down=!down;render();});
+  render();
+
+  // チェックリスト
+  var boxes=[].slice.call(document.querySelectorAll('#checks input')), verdict=document.getElementById('verdict');
+  function judge(){
+    var n=boxes.filter(function(b){return b.checked;}).length;
+    verdict.textContent=n===boxes.length?'5つとも当てはまる: 試す準備ができています':(n+' / '+boxes.length+' が当てはまる');
+  }
+  boxes.forEach(function(b){b.addEventListener('change',judge);});
+  judge();
+
+  // 動きを減らす設定のときは、点の流れを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){svgC.pauseAnimations();svgS.pauseAnimations();}
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

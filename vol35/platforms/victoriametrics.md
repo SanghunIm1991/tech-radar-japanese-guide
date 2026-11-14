@@ -8,6 +8,7 @@
 | 象限 | Platforms（アプリケーションを載せて動かす基盤・サービス） |
 | リング | Adopt（Trial から移動） |
 | 状態 | 下書き |
+| 入門ページ | [図と動きで見る入門ページ](victoriametrics-intro.html)（サイトで表示。GitHub のリポジトリではソースが表示されます） |
 
 ## 1. 一言でいうと
 
@@ -27,7 +28,7 @@ Prometheus は、監視対象から数値を集め（**スクレイプ**）、�
 - **系列が次々に入れ替わる**（**高チャーン**）: **Kubernetes** のように、アプリケーションの入れ物（**Pod**）が頻繁に作り直される環境では、新しい系列が生まれては消えていきます
 - **長く残すほど高くつく**: 数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になります
 
-VictoriaMetrics は、これらを少ないメモリとディスクでこなすことを狙っています。開発元は、系列の多い条件で Prometheus などに比べてメモリが最大7分の1、ディスクが最大7分の1（ある比較での値）で済むと主張しています（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)）。ただし、これは**開発元自身による比較**です。
+VictoriaMetrics は、これらを少ないメモリとディスクでこなすことを狙っています。開発元は、Prometheus・Thanos・Cortex に比べて、メモリは系列の多い条件で最大7分の1、ディスクも最大7分の1（ある比較での値）で済むと主張しています（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)）。ただし、これは**開発元自身による比較**です。
 
 ## 3. 仕組みの概要
 
