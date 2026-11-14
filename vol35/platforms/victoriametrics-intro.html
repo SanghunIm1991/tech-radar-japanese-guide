@@ -131,6 +131,9 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
 details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
 summary{cursor:pointer;font-weight:700;min-height:28px}
 details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--blue)}
+.terms-note{font-size:14px;color:var(--sub)}
 
 footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
 
@@ -203,8 +206,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   <section class="card" aria-labelledby="s-issue">
     <h2 id="s-issue">監視の規模が大きくなると起きる、3つの課題</h2>
     <div class="three">
-      <div class="issue"><h3>系列が爆発する</h3><span class="term">高カーディナリティ</span><p>数値に付く<b>ラベル</b>（どのサーバー・どの画面）の組み合わせごとに、別々の系列として記録される。</p></div>
-      <div class="issue"><h3>系列が入れ替わる</h3><span class="term">高チャーン</span><p>Kubernetes の Pod のように入れ物が作り直されるたび、新しい系列が生まれては消える。</p></div>
+      <div class="issue"><h3>系列が爆発する</h3><span class="term">高カーディナリティ（high cardinality）</span><p>数値に付く<b>ラベル</b>（どのサーバー・どの画面）の組み合わせごとに、別々の系列として記録される。</p></div>
+      <div class="issue"><h3>系列が入れ替わる</h3><span class="term">高チャーン（high churn）</span><p>Kubernetes の Pod のように入れ物が作り直されるたび、新しい系列が生まれては消える。</p></div>
       <div class="issue"><h3>長く残すほど高い</h3><span class="term">長期保存</span><p>数か月〜数年分を持つと、ディスクの容量と検索の速さが問題になる。</p></div>
     </div>
     <div class="calc">
@@ -334,13 +337,17 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 
   <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
     <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">青い字は元の語（英単語・略語・名前の元になった語）と、その意味です。覚えるための手がかりにしてください。</p>
     <div class="terms">
-      <details><summary>Prometheus</summary><p>監視の分野で広く使われているオープンソースのツール。監視対象から数値を定期的に集めて保存し、検索やアラートに使う。</p></details>
-      <details><summary>ラベル・カーディナリティ</summary><p>ラベルは数値に付ける目印。その値の組み合わせの数がカーディナリティで、多いほど保存の負担が大きい。</p></details>
-      <details><summary>remote write</summary><p>Prometheus が集めたデータを、外部の保存先へ送る仕組み。VictoriaMetrics を長期の保存先にするときに使う。</p></details>
-      <details><summary>PromQL / MetricsQL</summary><p>PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの。</p></details>
-      <details><summary>ダウンサンプリング</summary><p>古いデータの粒度を「1分ごと」から「1時間ごと」のように粗くして、容量を節約し検索を速くすること。</p></details>
-      <details><summary>冗長化・可用性</summary><p>冗長化は、予備を用意して一部が壊れても止まらないようにすること。可用性は、止まらずに使える度合い。</p></details>
+      <details><summary>メトリクス・時系列データ</summary><p class="etym"><span class="w">metrics</span> ＝ metric（測った値）の複数形 ／ <span class="w">time series</span> ＝ 時間＋ひと続きの並び</p><p>システムの状態を表す数値と、それを時刻の順に並べたデータ。</p></details>
+      <details><summary>Prometheus</summary><p class="etym"><span class="w">Prometheus</span> ＝ ギリシャ神話で、人間に火を与えたティーターン（巨人族の神）の名前</p><p>監視の分野で広く使われているオープンソースのツール。監視対象から数値を定期的に集めて保存し、検索やアラートに使う。</p></details>
+      <details><summary>ラベル・カーディナリティ</summary><p class="etym"><span class="w">label</span> ＝ 荷札・名札 ／ <span class="w">cardinality</span> ＝ 数学で、集合に含まれる要素の数</p><p>ラベルは数値に付ける目印。その値の組み合わせの数がカーディナリティで、多いほど保存の負担が大きい。</p></details>
+      <details><summary>チャーン</summary><p class="etym"><span class="w">churn</span> ＝ かき混ぜる（転じて、入れ替わり）</p><p>系列が次々に生まれては消える入れ替わりのこと。高チャーンは、入れ替わりが激しい状態。</p></details>
+      <details><summary>Kubernetes・Pod</summary><p class="etym"><span class="w">Kubernetes</span> ＝ ギリシャ語で「操舵手（船のかじを取る人）」。K8s は K と s の間の8文字を数字にした略 ／ <span class="w">pod</span> ＝ 豆のさや、クジラなどの群れ</p><p>Kubernetes は多数のコンテナをまとめて配置・管理する仕組み。Pod はその中でアプリケーションを動かす最小の単位で、作り直されると別の名前になる。</p></details>
+      <details><summary>remote write</summary><p class="etym"><span class="w">remote</span> ＝ 離れた ／ <span class="w">write</span> ＝ 書き込む</p><p>Prometheus が集めたデータを、外部の保存先へ送る仕組み。VictoriaMetrics を長期の保存先にするときに使う。</p></details>
+      <details><summary>PromQL / MetricsQL</summary><p class="etym"><span class="w">PromQL</span> ＝ Prometheus Query Language（query は「問い合わせ」）の略</p><p>PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの。</p></details>
+      <details><summary>ダウンサンプリング</summary><p class="etym"><span class="w">downsampling</span> ＝ down（下げる）＋ sampling（一定の間隔で値を取ること）</p><p>古いデータの粒度を「1分ごと」から「1時間ごと」のように粗くして、容量を節約し検索を速くすること。</p></details>
+      <details><summary>冗長化・可用性</summary><p class="etym"><span class="w">redundancy</span> ＝ 余分・重複 ／ <span class="w">availability</span> ＝ 使えること</p><p>冗長化は、予備を用意して一部が壊れても止まらないようにすること。可用性は、止まらずに使える度合い。</p></details>
     </div>
   </section>
 
