@@ -12,6 +12,8 @@
 
 ## 1. 一言でいうと
 
+**名前の手がかり**: Victoria〈ラテン語で「勝利」〉＋ Metrics〈測った値〉
+
 VictoriaMetrics は、サーバーやアプリケーションの「調子」を表す数値（**メトリクス**。CPU 使用率や1秒あたりのリクエスト数など）を、時刻つきで大量に貯めておき、あとから素早く取り出すためのデータベースです。無料で使える**オープンソース**で、ライセンスは Apache License 2.0 です（[GitHub](https://github.com/VictoriaMetrics/VictoriaMetrics)）。監視の定番ツールである **Prometheus** と同じ方法で読み書きできるので、Prometheus の保存先としても、Prometheus の代わりとしても使えます（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)）。
 
 たとえるなら、体温や血圧を毎分記録し続けるカルテの保管庫です。ため込むだけでなく、「熱が上がったのはいつか」をすぐ探せることが大事です。
