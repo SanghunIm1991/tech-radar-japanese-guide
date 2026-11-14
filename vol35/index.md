@@ -65,7 +65,7 @@
 | [Chaos Mesh](tools/chaos-mesh.md) | Tools | Trial | 下書き |
 | [Cube Core](tools/cube-core.md) | Tools | Trial | 下書き |
 | [Figma Code Connect](tools/figma-code-connect.md) | Tools | Trial | 下書き |
-| [VictoriaMetrics](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
+| [VictoriaMetrics](platforms/victoriametrics.md)（[入門ページ](platforms/victoriametrics-intro.html)） | Platforms | Adopt | 下書き |
 | [Kafka share groups](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
 | [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
 | [LibreChat](platforms/librechat.md) | Platforms | Trial | 下書き |

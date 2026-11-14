@@ -33,7 +33,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{o
 h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
 h2{font-size:clamp(24px,4vw,32px)}
 p{margin:0}
-.mono{font-family:var(--mono)}
 
 /* 見出しの帯 */
 .hero{background:var(--band);color:var(--band-ink)}
@@ -137,7 +136,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
 /* 評価 */
 .radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
 .move{flex:none;font-family:var(--mono);font-weight:700;text-align:center;line-height:1.5}
-.move .to{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+.move .now{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
 
 /* 用語 */
 .terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -261,7 +260,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     <div class="rate">
       <label for="rate">試してみる: あなたの監視の、1秒あたりの書き込み（データ点の数） <b id="rate-v">10万件</b></label>
       <input id="rate" type="range" min="0" max="100" step="1" value="40" aria-valuetext="毎秒10万件">
-      <div class="scale" aria-hidden="true"><span>1千</span><span>1万</span><span>10万</span><span>100万</span><span>1千万</span><span>1億</span></div>
+      <div class="scale" aria-hidden="true"><span>1,000</span><span>1万</span><span>10万</span><span>100万</span><span>1,000万</span><span>1億</span></div>
       <p class="rec" id="rec" aria-live="polite"></p>
     </div>
     <p class="hint">下のボタンでは、2つの形態の図を見比べられます（目安の表示は変わりません）。</p>
@@ -365,7 +364,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   </section>
 
   <section class="radar" aria-labelledby="s-radar">
-    <div class="move">Trial<br><span style="font-size:24px">↓</span><br><span class="to">Adopt</span></div>
+    <div class="move">Trial<br><span style="font-size:24px">↓</span><br><span class="now">Adopt</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
       <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（要旨）</div>
       <p>大規模な監視の仕組みを自分たちで運用する組織にとって、実運用に耐える段階に達したと、Thoughtworks は見ています。理由は、大量で系列の多いメトリクスに強いこと、規模に応じて2つの形態を選べること、Prometheus や OpenTelemetry と互換があることです。</p>
@@ -408,7 +407,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   function render(){
     single.setAttribute('aria-pressed',mode==='single');
     cluster.setAttribute('aria-pressed',mode==='cluster');
-    svgC.hidden=mode!=='cluster'; svgS.hidden=mode!=='single';
+    // SVG の要素には .hidden の性質が無いので、属性を直接付け外しする
+    svgC.toggleAttribute('hidden',mode!=='cluster'); svgS.toggleAttribute('hidden',mode!=='single');
     stop.hidden=mode!=='cluster';
     stop.setAttribute('aria-pressed',down);
     stop.textContent=down?'保管係を戻す':'保管係を1台止めてみる';
