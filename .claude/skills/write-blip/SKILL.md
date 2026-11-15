@@ -85,7 +85,7 @@ URL を除いた文字数を数える。ファイルを UTF-8 で読み、Markdo
 
 ## 付録: 入門ページを作る場合（任意）
 
-解説の入口として、図と動きで見せる1枚の HTML の入門ページを作ることがある（2026-11-14 に見本の VictoriaMetrics で作った。`vol35/platforms/victoriametrics-intro.html`）。どの項目に作るかは、ユーザーが項目ごとに決める。作り方は、作成者の手元の Claude Code の2つのスキルに従う: `pages-html-page`（Pages に置く HTML の器）と、その派生の `tech-explainer-page`（技術説明の工夫と正確さの点検）。このリポジトリでの決まりは次のとおり。
+解説の入口として、図と動きで見せる1枚の HTML の入門ページを作ることがある（2026-11-14 に見本の VictoriaMetrics で作った。`vol35/platforms/victoriametrics-intro.html`）。どの項目に作るかは、ユーザーが決める（2026-11-15 に、既存の解説の見直しでは1本ずつ作ると決めた。CLAUDE.md の直近のゴール）。作り方は、作成者の手元の Claude Code の2つのスキルに従う: `pages-html-page`（Pages に置く HTML の器）と、その派生の `tech-explainer-page`（技術説明の工夫と正確さの点検）。このリポジトリでの決まりは次のとおり。
 
 - 置き場所と名前: 解説と同じフォルダに `<技術名>-intro.html`。同じ名前のファイルが無いかを先に確かめる
 - 中身は、事実の点検を終えた解説の要約にとどめ、解説に無い事実を足さない。見た目は見本にそろえる（色・字体・見出しの帯・カード）

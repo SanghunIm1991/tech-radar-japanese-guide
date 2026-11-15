@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent sandboxing 入門ページ（非公式）</title>
+<meta name="description" content="Agent sandboxing（エージェントのサンドボックス化）の日本語解説をもとにした、動く図と触れる要素つきの入門ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 濃紺の見出しの帯 → 白いカードの章が縦に続く1列の読み物。見本（VictoriaMetrics）と同じ部品で、差し色だけ砂の色にした */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-ink:#FFFFFF; --pulse:#E0A030; --pulse-text:#8A5300; --pulse-soft:#FBEBC8;
+  --danger:#C8423A; --danger-soft:#FBE1DE;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --node:#14203A; --node-ink:#FFFFFF; --muted-node:#C5CCDA;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-ink:#0F1626; --pulse:#F0BC5E; --pulse-text:#F0BC5E; --pulse-soft:#3A301C;
+  --danger:#FF8A80; --danger-soft:#3D2226;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --node:#2B3858; --node-ink:#F4F6FA; --muted-node:#3A4560;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+
+/* 見出しの帯 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--pulse);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.hero h1{font-size:clamp(40px,9vw,88px);line-height:1;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--pulse)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.fence{display:block;width:100%;height:64px}
+.fence rect{fill:none;stroke:var(--pulse);stroke-width:3;stroke-dasharray:10 8}
+.fence circle{fill:#DCE3F1;animation:bump 3.2s ease-in-out infinite}
+@keyframes bump{0%,100%{transform:translateX(0)}45%,55%{transform:translateX(250px)}}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.metaphor .big em{font-style:normal;color:var(--blue)}
+.walker{animation:walk 5s ease-in-out infinite}
+@keyframes walk{0%,100%{transform:translateX(0)}40%{transform:translateX(70px)}50%{transform:translateX(62px)}}
+.bonk{animation:bonk 5s ease-in-out infinite;opacity:0}
+@keyframes bonk{0%,36%,58%,100%{opacity:0}40%,52%{opacity:1}}
+
+/* 課題と答えの対 */
+.lead-note{font-size:14px;color:var(--sub)}
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--blue)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--pulse);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 仕組みの図 */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px;align-self:flex-start;flex-wrap:wrap}
+.seg button{font:inherit;font-size:15px;border:none;border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:transparent;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.seg.sc button[aria-pressed="true"]{background:var(--pulse);color:#14203A}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.ctl-label{font-size:14px;color:var(--sub);font-weight:700}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+.n-box{fill:var(--node)}
+.n-blue{fill:var(--blue)}
+.n-out{fill:var(--surface);stroke:var(--sub);stroke-width:2}
+.t-main{fill:var(--node-ink);font-family:var(--display);font-weight:900;font-size:19px}
+.t-code{fill:var(--node-ink);font-family:var(--mono);font-weight:700;font-size:13px}
+.t-blue{fill:var(--blue-ink)}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:15px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+.t-note{fill:var(--pulse-text);font-family:var(--body);font-weight:700;font-size:14px}
+.t-danger{fill:var(--danger);font-family:var(--body);font-weight:700;font-size:13px}
+.wire{fill:none;stroke:var(--line);stroke-width:3}
+.bound{fill:var(--pulse-soft);fill-opacity:.55;stroke:var(--pulse);stroke-width:4;stroke-dasharray:12 8}
+.dot{fill:var(--pulse)}
+.dot.bad{fill:var(--danger)}
+.x-mark{stroke:var(--danger);stroke-width:5;stroke-linecap:round}
+.gate{fill:var(--surface);stroke:var(--blue);stroke-width:3}
+.inj{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+/* 状態ごとの表示（svg の class で切り替える） */
+#mech .only-inject,#mech .only-mistake,#mech .only-off,#mech .dots{display:none}
+#mech.sc-inject .only-inject,#mech.sc-mistake .only-mistake{display:inline}
+#mech.off .only-off{display:inline} #mech.off .only-on{display:none}
+#mech.off .bound,#mech.off .bound-label,#mech.off .x-mark,#mech.off .gate-g{display:none}
+#mech.off.sc-inject .hit-i,#mech.off.sc-mistake .hit-m{fill:var(--danger-soft);stroke:var(--danger);stroke-width:3}
+#mech.sc-mistake .ws{fill:var(--danger)}
+#mech.sc-normal .d-normal,
+#mech.on.sc-inject .d-inject-on,#mech.off.sc-inject .d-inject-off,
+#mech.on.sc-mistake .d-mistake-on,#mech.off.sc-mistake .d-mistake-off{display:inline}
+#mech.on.sc-mistake .gate{stroke:var(--pulse);fill:var(--pulse-soft)}
+#mech .hit{transition:fill .2s}
+.status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
+.status b{color:var(--pulse-text)}
+.status .warn{display:block;margin-top:6px;color:var(--sub);font-size:14px}
+
+/* 囲いの強さの段階 */
+.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.step{border:2px solid var(--ink);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0;background:var(--surface)}
+.step b{font-family:var(--display);font-size:17px;line-height:1.4}
+.step span{font-size:13px;color:var(--sub);line-height:1.6}
+.step.s1{border-width:2px;min-height:110px}
+.step.s2{border-width:4px;min-height:130px}
+.step.s3{border-width:6px;min-height:150px}
+.step.s4{border-width:6px;min-height:150px}
+.step .lv{font-family:var(--mono);font-size:12px;color:var(--pulse-text);font-weight:700}
+.ladder-axis{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);border-top:3px solid var(--pulse);padding-top:6px}
+.hint{font-size:14px;color:var(--sub)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
+.loss{border-top-color:var(--pulse)}
+.gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* チェックリスト */
+.check{display:flex;flex-direction:column;gap:10px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.check input{width:22px;height:22px;margin-top:4px;accent-color:var(--blue);flex:none}
+.check .hint{display:block;color:var(--sub);font-size:14px}
+.verdict{font-family:var(--display);font-weight:700;font-size:18px}
+
+/* 道具の例のカード */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tool a{font-family:var(--display);font-weight:900;font-size:18px}
+.tool .kind{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.tool p{font-size:14px;line-height:1.7}
+
+/* 評価 */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.move{flex:none;font-family:var(--mono);font-weight:700;text-align:center;line-height:1.5;font-size:14px;max-width:15em}
+.move .now{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+.move .prev{color:var(--sub);font-weight:500}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--blue)}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar{flex-direction:column;align-items:flex-start}
+  .ladder{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .step{min-height:0!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .fence circle,.walker,.bonk{animation:none}
+  .bonk{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="agent-sandboxing.html">Agent sandboxing の解説（本文）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TECHNIQUES</span><span class="ring">ADOPT</span><span class="note">非公式の入門ページ・下書き</span>
+    </div>
+    <h1>Agent sandboxing</h1>
+    <p class="name-hint">名前の手がかり: <span>Agent</span> 代理人 ＋ <span>sandboxing</span> sandbox（子どもが遊ぶ砂場）に入れること</p>
+    <p class="lead">AI エージェントを、外から切り離した囲いの中で、必要最小限の権限だけを与えて動かす手法</p>
+    <svg class="fence" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <rect x="330" y="6" width="300" height="52" rx="10"></rect>
+      <circle cx="355" cy="32" r="9"></circle>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 300" role="img" aria-label="作業部屋の鍵だけを持った新人が、金庫室の扉の前で止められ、電話は決まった相手にしかかけられない間取りの絵">
+        <rect x="20" y="20" width="460" height="260" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="300" y1="20" x2="300" y2="70" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="300" y1="130" x2="300" y2="280" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="300" y1="160" x2="480" y2="160" stroke="var(--ink)" stroke-width="3"/>
+        <line x1="300" y1="70" x2="300" y2="130" stroke="var(--pulse)" stroke-width="8" stroke-linecap="round"/>
+        <rect x="282" y="88" width="36" height="28" rx="5" fill="var(--pulse)"/>
+        <path d="M290 88 v-8 a10 10 0 0 1 20 0 v8" fill="none" stroke="var(--pulse)" stroke-width="4"/>
+        <text x="160" y="52" text-anchor="middle" class="t-plain">作業部屋</text>
+        <text x="390" y="52" text-anchor="middle" class="t-plain">金庫室</text>
+        <rect x="355" y="72" width="70" height="62" rx="6" fill="var(--bg)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="390" cy="103" r="14" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <text x="390" y="192" text-anchor="middle" class="t-plain">外への電話</text>
+        <rect x="335" y="205" width="40" height="56" rx="6" fill="var(--bg)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="355" cy="226" r="6" fill="var(--ink)"/>
+        <text x="385" y="225" class="t-small">決まった相手</text>
+        <text x="385" y="245" class="t-small">にだけかけられる</text>
+        <rect x="60" y="200" width="200" height="60" rx="6" fill="var(--pulse-soft)" stroke="var(--pulse)" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="160" y="236" text-anchor="middle" class="t-note">作業する場所</text>
+        <g class="walker">
+          <rect x="150" y="96" width="44" height="34" rx="8" fill="var(--blue)"/>
+          <circle cx="164" cy="113" r="4" fill="var(--blue-ink)"/><circle cx="180" cy="113" r="4" fill="var(--blue-ink)"/>
+          <line x1="172" y1="96" x2="172" y2="84" stroke="var(--blue)" stroke-width="3"/><circle cx="172" cy="82" r="4" fill="var(--blue)"/>
+          <rect x="154" y="132" width="36" height="40" rx="6" fill="var(--blue)"/>
+          <circle cx="208" cy="150" r="7" fill="none" stroke="var(--pulse)" stroke-width="3"/><line x1="214" y1="150" x2="226" y2="150" stroke="var(--pulse)" stroke-width="3"/>
+        </g>
+        <g class="bonk"><text x="262" y="78" text-anchor="middle" class="t-note" style="font-size:22px">!</text></g>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">新人に渡すのは、会社の全部の鍵ではなく<em>作業部屋の鍵だけ</em></p>
+        <p>外への電話も、決まった相手にしかかけられないようにしておきます。AI <b>エージェント</b>（指示を受けて、自分でツールを使いながら作業を進める AI）が思わぬ動きをしたり、だまされて悪い操作をしたりしても、被害が囲い（<b>サンドボックス</b>）の外に広がらないようにする考え方です。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">エージェントに仕事を任せると起きる3つの危険と、サンドボックス化の答え</h2>
+    <p class="lead-note">左が危険、右が答えです。AI が「だまされない」ことは保証できないので、「だまされても大きな被害が出ない環境で動かす」のが共通の考え方です。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>だまされる</h3><span class="term">プロンプトインジェクション（prompt injection）</span><p>エージェントが読んだメールや Web ページに悪意ある指示が紛れ込んでいて、それに従ってしまう。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>だまされても、届く範囲を狭める</h3><p>ファイルは作業用のフォルダの外に書けず、ネットワークは許可リストの相手にしか出られない。悪意ある指示に従っても、鍵のファイルを書き換えたり情報を外へ送ったりしにくくなる。<a href="#s-mech">下の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>思い違いをする</h3><span class="term">ハルシネーション（hallucination）など</span><p>指示を取り違えたり、事実でないことをもっともらしく生成したりして、意図しない操作をする。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>壊せるのは囲いの中だけにする</h3><p>外部のシステムへの権限は必要な分だけに絞る（読み取り専用・下書きまでなど）。削除や送信のように影響の大きい操作は、人が承認してから実行する。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>権限が強すぎる</h3><span class="term">過剰な権限（Excessive Agency）</span><p>AI の出力が予想外だったり操作されたりしたときに、損害を生む操作ができてしまうこと。OWASP が LLM アプリケーションの主なリスクに挙げ、原因として、機能が多すぎる・権限が強すぎる・人の確認なしに動ける範囲が広すぎる、の3つを挙げている。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>最小権限の原則で、仕事に必要な分だけ</h3><p>機能・権限・人の確認なしに動ける範囲を絞る。操作してよいかの判断を AI に任せず、操作される側のシステムで確かめる。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-mech">
+    <h2 id="s-mech">試してみる: 囲いの有無で、何が届くかを比べる</h2>
+    <p class="hint">「囲いと権限の設定」と「起きたこと」を切り替えると、図と下の説明が変わります。「あり」は、ファイルの書き込みを作業フォルダに限り、鍵のファイルを読ませず、接続先を許可リストに絞った囲い（サンドボックス）に、社内のシステムへの権限の絞り込みと、影響の大きい操作への人の承認（OWASP が勧める、囲いを補う層）を組み合わせた例です。</p>
+    <div class="controls">
+      <span class="ctl-label" id="lb-mode">囲いと権限の設定</span>
+      <div class="seg" role="group" aria-labelledby="lb-mode">
+        <button type="button" id="m-on" aria-pressed="true">あり</button>
+        <button type="button" id="m-off" aria-pressed="false">なし</button>
+      </div>
+      <span class="ctl-label" id="lb-sc">起きたこと</span>
+      <div class="seg sc" role="group" aria-labelledby="lb-sc">
+        <button type="button" id="c-normal" aria-pressed="false">いつもの作業</button>
+        <button type="button" id="c-inject" aria-pressed="true">だまされた</button>
+        <button type="button" id="c-mistake" aria-pressed="false">思い違い</button>
+      </div>
+    </div>
+    <div class="diagram">
+      <svg id="mech" class="on sc-inject" viewBox="0 0 960 340" role="img" aria-label="エージェントと作業フォルダを囲うサンドボックスと、その外にある鍵のファイル・許可した接続先・知らない接続先・社内のシステムへの線の図。囲いがあると、鍵のファイルと知らない接続先への線は囲いの境目で止まる">
+        <rect x="180" y="20" width="370" height="310" rx="16" class="bound"/>
+        <text x="365" y="46" text-anchor="middle" class="t-note bound-label">サンドボックス（囲い）</text>
+        <path id="p-in" class="wire" d="M150 160 H220"/>
+        <path id="p-ws" class="wire" d="M295 200 V240"/>
+        <path id="p-key" class="wire" d="M370 125 H420 V60 H640"/>
+        <path id="p-ok" class="wire" d="M370 140 H640"/>
+        <path id="p-bad" class="wire" d="M370 170 H420 V220 H640"/>
+        <path id="p-db" class="wire" d="M370 190 H400 V300 H640"/>
+        <path id="k-key" d="M370 125 H420 V60 H550" fill="none"/>
+        <path id="k-bad" d="M370 170 H420 V220 H550" fill="none"/>
+        <path id="k-db" d="M370 190 H400 V300 H572" fill="none"/>
+
+        <rect x="10" y="120" width="140" height="80" rx="10" class="n-out"/>
+        <text x="80" y="153" text-anchor="middle" class="t-plain">読んだメール</text>
+        <text x="80" y="177" text-anchor="middle" class="t-plain">Web ページ</text>
+        <g class="only-inject"><rect x="18" y="210" width="124" height="54" rx="8" class="inj"/>
+          <text x="80" y="232" text-anchor="middle" class="t-danger">隠れた指示:</text>
+          <text x="80" y="252" text-anchor="middle" class="t-danger">鍵を外へ送れ</text></g>
+
+        <rect x="220" y="110" width="150" height="90" rx="10" class="n-blue"/>
+        <text x="295" y="145" text-anchor="middle" class="t-code t-blue">AI agent</text>
+        <text x="295" y="175" text-anchor="middle" class="t-main t-blue">エージェント</text>
+        <rect x="220" y="240" width="150" height="60" rx="10" class="n-box ws"/>
+        <text x="295" y="276" text-anchor="middle" class="t-main" style="font-size:17px">作業フォルダ</text>
+        <g class="only-mistake"><text x="295" y="318" text-anchor="middle" class="t-danger">取り違えて消した</text></g>
+
+        <rect x="640" y="30" width="300" height="60" rx="10" class="n-out hit hit-i"/>
+        <text x="790" y="66" text-anchor="middle" class="t-plain">鍵・パスワードのファイル</text>
+        <rect x="640" y="110" width="300" height="60" rx="10" class="n-out"/>
+        <text x="790" y="146" text-anchor="middle" class="t-plain only-on">許可リストの接続先</text><text x="790" y="146" text-anchor="middle" class="t-plain only-off">いつもの接続先</text>
+        <rect x="640" y="190" width="300" height="60" rx="10" class="n-out hit hit-i"/>
+        <text x="790" y="226" text-anchor="middle" class="t-plain">知らない接続先（攻撃者など）</text>
+        <rect x="640" y="270" width="300" height="60" rx="10" class="n-out hit hit-m"/>
+        <text x="790" y="298" text-anchor="middle" class="t-plain">社内のシステム</text>
+        <text x="790" y="318" text-anchor="middle" class="t-small">データベース・メールなど</text>
+
+        <g class="x-mark only-inject"><line x1="540" y1="50" x2="560" y2="70"/><line x1="560" y1="50" x2="540" y2="70"/><line x1="540" y1="210" x2="560" y2="230"/><line x1="560" y1="210" x2="540" y2="230"/></g>
+        <g class="gate-g"><circle cx="595" cy="300" r="20" class="gate"/>
+          <text x="595" y="306" text-anchor="middle" class="t-plain" style="font-size:16px">人</text>
+          <text x="595" y="262" text-anchor="middle" class="t-small">人の承認</text><text x="595" y="276" text-anchor="middle" class="t-small">（囲いを補う層）</text></g>
+        <g class="only-off"><text x="590" y="130" text-anchor="middle" class="t-danger">囲いなし</text></g>
+
+        <g class="dots d-normal">
+          <circle r="7" class="dot"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#p-ws"/></animateMotion></circle>
+          <circle r="7" class="dot"><animateMotion dur="1.8s" begin="-0.4s" repeatCount="indefinite"><mpath href="#p-ok"/></animateMotion></circle>
+        </g>
+        <g class="dots d-inject-on">
+          <circle r="7" class="dot bad"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="1.6s" begin="-0.3s" repeatCount="indefinite"><mpath href="#k-key"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="1.6s" begin="-0.9s" repeatCount="indefinite"><mpath href="#k-bad"/></animateMotion></circle>
+        </g>
+        <g class="dots d-inject-off">
+          <circle r="7" class="dot bad"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-in"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="2s" begin="-0.3s" repeatCount="indefinite"><mpath href="#p-key"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="2s" begin="-0.9s" repeatCount="indefinite"><mpath href="#p-bad"/></animateMotion></circle>
+        </g>
+        <g class="dots d-mistake-on">
+          <circle r="7" class="dot bad"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#p-ws"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="1.8s" begin="-0.4s" repeatCount="indefinite"><mpath href="#k-db"/></animateMotion></circle>
+        </g>
+        <g class="dots d-mistake-off">
+          <circle r="7" class="dot bad"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#p-ws"/></animateMotion></circle>
+          <circle r="7" class="dot bad"><animateMotion dur="2s" begin="-0.4s" repeatCount="indefinite"><mpath href="#p-db"/></animateMotion></circle>
+        </g>
+      </svg>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-ladder">
+    <h2 id="s-ladder">囲いの強さには段階がある</h2>
+    <div class="ladder">
+      <div class="step s1"><b>OS の機能で1つのプロセスを制限</b><span>Seatbelt（macOS）・bubblewrap（Linux）など</span></div>
+      <div class="step s2"><b>コンテナ</b><span>Docker など。Linux の名前空間と cgroups で区切る</span></div>
+      <div class="step s3"><b>カーネルを挟む方式</b><span>gVisor など。アプリの要求がホストのカーネルに直接届かない</span></div>
+      <div class="step s4"><b>軽量な仮想マシン</b><span>Firecracker など。起動が速く負担の小さいマイクロ VM</span></div>
+    </div>
+    <div class="ladder-axis" aria-hidden="true"><span>弱い・手軽（目安）</span><span>強い・準備や負担が増えることがある（目安）</span></div>
+    <p class="hint">一般的な目安としての並べ方です（解説の筆者の整理）。右ほど隔離が強くなる傾向がありますが、どれが強いかは構成によって変わり、特に gVisor とマイクロ VM の比較は意見が分かれます。選び方の一例（筆者の見立て）: 自分の端末で使う開発用のエージェントなら OS の機能やコンテナで足りることが多く、外部の人が入力できる業務用のエージェントなら仮想マシン級の隔離も検討する。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li>エージェントが思わぬ動きをしたり、だまされたりしても、被害が囲いの外に広がりにくい</li>
+        <li>「やってはいけないこと」をプロンプトで言い聞かせるのではなく、<b>仕組みの側で止められる</b></li>
+        <li>AI がだまされないことを保証できなくても成り立つ</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの</h2>
+      <ul>
+        <li><b>使い勝手</b>: 囲いを厳しくするほど、できることが減る。新しい接続先が要るたびに承認を求められ、待つあいだ作業が止まる</li>
+        <li><b>完全ではない</b>: 広く使われるサイト全体への接続を許すと、そこが持ち出し口になりうる。サンドボックスは安全な設計の代わりにならない（gVisor のドキュメントの指摘）</li>
+        <li><b>抜け道の管理</b>: 囲いの外で動かす例外を作ると、そこが弱点になる</li>
+        <li><b>準備と負担</b>: 強い隔離ほど、環境の用意や動作の負担が増える傾向（筆者の見立て）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-check">
+    <h2 id="s-check">採用を考えるときのチェック</h2>
+    <div class="check" id="checks">
+      <label><input type="checkbox"><span>エージェントが触れるもの（ファイル・システム・外部サービス）を洗い出した<span class="hint">壊れたり漏れたりすると困るものはどれか。Thoughtworks は脅威モデリングにもとづいて囲い方を決めるよう勧めている</span></span></label>
+      <label><input type="checkbox"><span>リスクに合わせて、囲いの強さを選んだ<span class="hint">上の段階のどれにするか</span></span></label>
+      <label><input type="checkbox"><span>ネットワークの許可リストを、必要最小限にした<span class="hint">持ち出しの経路になる広い許可は避ける</span></span></label>
+      <label><input type="checkbox"><span>影響の大きい操作には、人の承認を挟む<span class="hint">送金・削除・外部への送信など</span></span></label>
+      <label><input type="checkbox"><span>エージェントの操作の記録を残し、異常に気づける<span class="hint">被害を小さくする助けになる</span></span></label>
+    </div>
+    <p class="verdict" id="verdict" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-tools">
+    <h2 id="s-tools">実現するための道具の例</h2>
+    <p class="lead-note">推奨でも網羅でもない例です（2026-11-15 の時点）。</p>
+    <div class="tools">
+      <div class="tool"><a href="https://github.com/anthropics/sandbox-runtime">sandbox-runtime</a><span class="kind">OSS（Apache-2.0。研究段階の公開）</span><p>コンテナを使わず、OS の機能と通信の中継で、任意のプロセスのファイルとネットワークを制限する。Claude Code のために作られた。</p></div>
+      <div class="tool"><a href="https://github.com/moby/moby">Moby（Docker）</a><span class="kind">OSS（Apache-2.0）</span><p>コンテナを作って動かす仕組み。Docker の製品の上流のプロジェクト。</p></div>
+      <div class="tool"><a href="https://github.com/google/gvisor">gVisor</a><span class="kind">OSS（Apache-2.0）</span><p>アプリケーションとホストの OS のあいだに、強い隔離の層を挟むアプリケーション用のカーネル。</p></div>
+      <div class="tool"><a href="https://github.com/firecracker-microvm/firecracker">Firecracker</a><span class="kind">OSS（Apache-2.0）</span><p>複数の利用者のサービスを安全に分けて動かすための、軽量な仮想マシン（マイクロ VM）を作る。</p></div>
+      <div class="tool"><a href="https://github.com/e2b-dev/E2B">E2B</a><span class="kind">OSS（Apache-2.0）／クラウドのサービス</span><p>AI が生成したコードを、クラウドの隔離されたサンドボックスで実行する。公式サイトによると、セッションごとに Firecracker のマイクロ VM を割り当てる。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="move"><span class="prev">前の版（2026年4月）<br>コーディング用に限った<br>別の項目が Trial</span><br><span style="font-size:15px">関連（移動とは明記なし）</span><br><span class="now">Adopt</span><br><span class="prev">対象をすべての<br>エージェントに</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（要旨）</div>
+      <p>エージェントがコードだけでなく業務のシステムでも動くようになったため、コーディング用に限らず、すべてのエージェントで当たり前に行うべきことだと、Thoughtworks は見ています。最小権限などの確立した原則をエージェントにも当てはめるべきで、万能の方法は無く、脅威モデリングにもとづいてリスクに応じて決めるべきだとしています。Radar のページは、新規か移動かを明記していません。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">青い字は元の語（英単語・略語・名前の元になった語）で、＝のあとがその意味です。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>AI エージェント</summary><p class="etym"><span class="w">agent</span> ＝ 代理人</p><p>目的を与えられると、ファイルの操作・コマンドの実行・Web の検索などの道具を自分で選んで使いながら、作業を進める AI。</p></details>
+      <details><summary>サンドボックス</summary><p class="etym"><span class="w">sandbox</span> ＝ 砂場</p><p>中で何をしても外に影響が出ないように、触れられる範囲を制限した実行環境。</p></details>
+      <details><summary>最小権限の原則</summary><p class="etym"><span class="w">least privilege</span> ＝ 最も少ない特権</p><p>人やプログラムに与える権限を、仕事に必要な最小限にとどめるというセキュリティの基本の考え方。</p></details>
+      <details><summary>プロンプトインジェクション</summary><p class="etym"><span class="w">prompt</span> ＝ 促すもの（AI への指示） ／ <span class="w">injection</span> ＝ 注入</p><p>AI が読み込む文章に命令を紛れ込ませて、AI に本来の指示と違うことをさせる攻撃。</p></details>
+      <details><summary>ハルシネーション</summary><p class="etym"><span class="w">hallucination</span> ＝ 幻覚</p><p>AI が事実でない内容を、もっともらしく生成してしまうこと。</p></details>
+      <details><summary>OWASP・LLM</summary><p class="etym"><span class="w">OWASP</span> ＝ Open Worldwide Application Security Project ／ <span class="w">LLM</span> ＝ Large Language Model（大規模言語モデル）</p><p>OWASP は Web アプリケーションのセキュリティの向上に取り組む非営利の団体。LLM は大量の文章で学習し、文章を理解・生成する AI。</p></details>
+      <details><summary>コンテナ</summary><p class="etym"><span class="w">container</span> ＝ 入れ物</p><p>アプリケーションと、その動作に必要なものをひとまとめにして、ほかから切り離して動かす仕組み。ホストの OS の中核（カーネル）は共有する。</p></details>
+      <details><summary>名前空間・cgroups</summary><p class="etym"><span class="w">namespace</span> ＝ 名前の空間 ／ <span class="w">cgroups</span> ＝ control groups（制御のグループ）</p><p>Linux の機能。名前空間はプロセスから見えるものを区切り、cgroups は使える CPU やメモリの量を制限する。</p></details>
+      <details><summary>システムコール・カーネル</summary><p class="etym"><span class="w">system call</span> ＝ システムへの呼び出し ／ <span class="w">kernel</span> ＝ 果実の種の中身・核</p><p>システムコールは、アプリケーションが OS に「ファイルを開いて」などを頼む呼び出し。カーネルは OS の中核で、ハードウェアや資源を管理する部分。</p></details>
+      <details><summary>仮想マシン（VM）</summary><p class="etym"><span class="w">Virtual Machine</span> ＝ 仮想の機械</p><p>1台の物理的なコンピュータの上に、ソフトウェアで別のコンピュータを作り出す仕組み。中で動く OS ごと切り離せるので、隔離が強い。</p></details>
+      <details><summary>許可リスト</summary><p class="etym"><span class="w">allowlist</span> ＝ 許可の一覧</p><p>「これだけは許す」という一覧。載っていないものはすべて拒否する方式。</p></details>
+      <details><summary>脅威モデリング</summary><p class="etym"><span class="w">threat</span> ＝ 脅威 ／ <span class="w">modeling</span> ＝ 模型を作ること</p><p>システムに対してどんな攻撃や事故がありうるか、どこが弱いかを、設計の段階で整理する作業。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページは <a href="agent-sandboxing.html">Agent sandboxing の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-15。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/techniques/agent-sandboxing">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 囲いの有無と、起きたことの切り替え
+  var mode='on', sc='inject';
+  var svg=document.getElementById('mech'), status=document.getElementById('status');
+  var mOn=document.getElementById('m-on'), mOff=document.getElementById('m-off');
+  var cBtns={normal:document.getElementById('c-normal'),inject:document.getElementById('c-inject'),mistake:document.getElementById('c-mistake')};
+  var text={
+    'on-normal':'<b>囲いあり・いつもの作業:</b> エージェントは作業フォルダに書き込み、許可リストの相手とだけ通信します。社内のシステムには、必要な分だけの権限（読み取り専用・下書きまでなど）で触れます。',
+    'on-inject':'<b>囲いあり・だまされた:</b> メールに紛れた悪意ある指示に従っても、作業フォルダの外のファイルには書けず、許可リストに無い相手には出られません。鍵のファイルを読ませない設定にしておけば、持ち出す元にも届きません。<span class="warn">ただし完全ではありません。許可した広いサイトが持ち出し口になることがあります。また道具によっては、読み取りは既定で広く許されていて、鍵などを読ませないには別の設定が要ります（Claude Code のサンドボックスなど）。</span>',
+    'on-mistake':'<b>囲いあり・思い違い:</b> 取り違えて壊せるのは、囲いの中（作業フォルダ）だけです。社内のシステムの削除や外部への送信のように影響の大きい操作は、人が承認してから実行します。',
+    'off-normal':'<b>囲いなし・いつもの作業:</b> いつもどおりの作業では、違いは見えません。ただし、だまされたり思い違いをしたりしたときに、被害を囲いの中に留める仕組みがありません。',
+    'off-inject':'<b>囲いなし・だまされた:</b> 悪意ある指示に従って、鍵のファイルを書き換えたり、知らない相手へ情報を送ったりできてしまうことがあります。',
+    'off-mistake':'<b>囲いなし・思い違い:</b> 取り違えの影響が、社内のシステムにまで届きます（削除など）。'
+  };
+  function render(){
+    mOn.setAttribute('aria-pressed',mode==='on'); mOff.setAttribute('aria-pressed',mode==='off');
+    for(var k in cBtns){ cBtns[k].setAttribute('aria-pressed',k===sc); }
+    svg.setAttribute('class',mode+' sc-'+sc);
+    status.innerHTML=text[mode+'-'+sc];
+  }
+  mOn.addEventListener('click',function(){mode='on';render();});
+  mOff.addEventListener('click',function(){mode='off';render();});
+  Object.keys(cBtns).forEach(function(k){cBtns[k].addEventListener('click',function(){sc=k;render();});});
+  render();
+
+  // チェックリスト
+  var boxes=[].slice.call(document.querySelectorAll('#checks input')), verdict=document.getElementById('verdict');
+  function judge(){
+    var n=boxes.filter(function(b){return b.checked;}).length;
+    verdict.textContent=n===boxes.length?'5つとも確認しました':(n+' / '+boxes.length+' が当てはまる');
+  }
+  boxes.forEach(function(b){b.addEventListener('change',judge);});
+  judge();
+
+  // 動きを減らす設定のときは、点の流れを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){svg.pauseAnimations();}
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
