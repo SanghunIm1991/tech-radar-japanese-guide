@@ -71,6 +71,7 @@
 | [mattpocock/skills](tools/mattpocock-skills.md) | Tools | Trial | 下書き |
 | [OpenSpec](tools/openspec.md) | Tools | Trial | 下書き |
 | [OpenWiki](tools/openwiki.md) | Tools | Trial | 下書き |
+| [Pi](tools/pi.md) | Tools | Trial | 下書き |
 | [VictoriaMetrics](platforms/victoriametrics.md)（[入門ページ](platforms/victoriametrics-intro.html)） | Platforms | Adopt | 下書き |
 | [Kafka share groups](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
 | [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
