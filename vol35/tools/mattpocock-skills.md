@@ -11,7 +11,7 @@
 
 ## 1. 一言でいうと
 
-**名前の手がかり**: mattpocock〈作者の Matt Pocock の GitHub のアカウント名〉＋ skills〈技能〉
+**名前の手がかり**: skills〈技能〉
 
 mattpocock/skills は、AI のコーディング**エージェント**に読ませる**スキル**を集めた、GitHub の公開のリポジトリです。作者の Matt Pocock が日々の開発で使っているもので、README は「雰囲気で書かせる開発（**vibe coding**）ではなく、本当のエンジニアリングのためのスキル」と位置づけています。ライセンスは MIT です（[README](https://github.com/mattpocock/skills)、[LICENSE](https://github.com/mattpocock/skills/blob/main/LICENSE)）。
 

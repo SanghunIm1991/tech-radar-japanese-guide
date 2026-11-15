@@ -58,7 +58,7 @@ OpenSpec は、AI のコーディング**エージェント**に作業させる�
 **代わりに失うもの・注意点**
 
 - **文書が増える**: 仕様は Markdown で、エージェントが大量に書き出します。差分をアーカイブすることで和らぎますが、拠り所の仕様を保つには規律が要ると Thoughtworks は注意しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openspec)）
-- **エージェント自身の進化**: Thoughtworks は前の版で、エージェントに備わる機能が、仕様駆動開発の道具を不要にしないかを見続けるよう勧めていました（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openspec)）
+- **エージェント自身の進化**: Thoughtworks は2026年4月の版（Assess）で、エージェントに備わる機能が、仕様駆動開発の道具を不要にしないかを見続けるよう勧めていました（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openspec)）
 - **変化が速い**: 最新の v2.0.0 では、スキルの置き場所が `.agents/skills/` にまとめられ、以前の `/opsx:` で始まるコマンドが無くなりました。v2.0.0 のリリースの説明は、`.agents/skills/` のスキルを直接書き換えていると `openspec update` で上書きされると注意しています。文書の一部も古くなっていると文書の目次自身が書いており、たとえば概念の説明は前の版のコマンド名（`/opsx:`）のままです（[リリースの一覧](https://github.com/Fission-AI/OpenSpec/releases)、[文書の目次](https://github.com/Fission-AI/OpenSpec/tree/main/docs)）
 - **外部との通信**: 匿名の利用統計（コマンド名と版だけで、引数・パス・中身・個人情報は含まないと README は説明）を集め、設定や環境変数で止められます。CI の中では送りません（[README](https://github.com/Fission-AI/OpenSpec)）。`openspec update` は、新しい版が無いかを npm の登録所に問い合わせます（[CLI の説明](https://github.com/Fission-AI/OpenSpec/blob/main/docs/cli.md)）
 - **モデルの力に頼る**: README は、推論の強いモデルで最もよく動くと書いています（[README](https://github.com/Fission-AI/OpenSpec)）
