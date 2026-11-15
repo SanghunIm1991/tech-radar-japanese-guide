@@ -125,15 +125,16 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .status .warn{display:block;margin-top:6px;color:var(--sub);font-size:14px}
 
 /* 囲いの強さの段階 */
-.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+/* 箱はすべて同じ大きさ・太さ。段階は下の矢印だけで表す */
+.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch}
 .step{border:2px solid var(--ink);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0;background:var(--surface)}
 .step b{font-family:var(--display);font-size:17px;line-height:1.4}
 .step span{font-size:13px;color:var(--sub);line-height:1.6}
-.step.s1{border-width:2px;min-height:110px}
-.step.s2{border-width:4px;min-height:130px}
-.step.s3{border-width:6px;min-height:150px}
-.step.s4{border-width:6px;min-height:150px}
-.ladder-axis{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);border-top:3px solid var(--pulse);padding-top:6px}
+.debate{grid-column:3 / 5;border:2px dashed var(--pulse);border-top:none;border-radius:0 0 10px 10px;padding:4px 10px 6px;font-size:13px;color:var(--pulse-text);font-weight:700;text-align:center;margin-top:-4px}
+.axis{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--sub);font-weight:700}
+.axis .shaft{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--line),var(--pulse))}
+.axis .head{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:14px solid var(--pulse)}
+.axis .m{display:none}
 .hint{font-size:14px;color:var(--sub)}
 
 /* 得る・失う */
@@ -144,11 +145,12 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
 
 /* チェックリスト */
-.check{display:flex;flex-direction:column;gap:10px}
-.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
-.check input{width:22px;height:22px;margin-top:4px;accent-color:var(--blue);flex:none}
-.check .hint{display:block;color:var(--sub);font-size:14px}
-.verdict{font-family:var(--display);font-weight:700;font-size:18px}
+/* 導入するときに決めること（問いのカード。件数の判定はしない） */
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--blue);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px;color:var(--blue)}
+.dq p{font-size:15px;line-height:1.7}
+.dq .hint{font-size:14px}
 
 /* 道具の例のカード */
 .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
@@ -179,8 +181,9 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   .pair{grid-template-columns:minmax(0,1fr)}
   .to svg{transform:rotate(90deg)}
   .radar{flex-direction:column;align-items:flex-start}
-  .ladder{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .step{min-height:0!important}
+  .ladder{grid-template-columns:minmax(0,1fr)}
+  .debate{grid-column:auto;border:2px dashed var(--pulse);border-radius:10px;margin-top:0}
+  .axis .d{display:none} .axis .m{display:inline}
 }
 @media (prefers-reduced-motion:reduce){
   .fence circle,.walker,.bonk{animation:none}
@@ -360,13 +363,14 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   <section class="card" aria-labelledby="s-ladder">
     <h2 id="s-ladder">囲いの強さには段階がある</h2>
     <div class="ladder">
-      <div class="step s1"><b>OS の機能で1つのプロセスを制限</b><span>Seatbelt（macOS）・bubblewrap（Linux）など</span></div>
-      <div class="step s2"><b>コンテナ</b><span>Docker など。Linux の名前空間と cgroups で区切る</span></div>
-      <div class="step s3"><b>カーネルを挟む方式</b><span>gVisor など。アプリの要求がホストのカーネルに直接届かない</span></div>
-      <div class="step s4"><b>軽量な仮想マシン</b><span>Firecracker など。起動が速く負担の小さいマイクロ VM</span></div>
+      <div class="step"><b>OS の機能で1つのプロセスを制限</b><span>Seatbelt（macOS）・bubblewrap（Linux）など</span></div>
+      <div class="step"><b>コンテナ</b><span>Docker など。Linux の名前空間と cgroups で区切る</span></div>
+      <div class="step"><b>カーネルを挟む方式</b><span>gVisor など。アプリの要求がホストのカーネルに直接届かない</span></div>
+      <div class="step"><b>軽量な仮想マシン</b><span>Firecracker など。起動が速く負担の小さいマイクロ VM</span></div>
+      <div class="debate">この2つは、どちらが強いか意見が分かれる</div>
     </div>
-    <div class="ladder-axis" aria-hidden="true"><span>弱い・手軽（目安）</span><span>強い・準備や負担が増えることがある（目安）</span></div>
-    <p class="hint">一般的な目安としての並べ方です（解説の筆者の整理）。右ほど隔離が強くなる傾向がありますが、どれが強いかは構成によって変わり、特に gVisor とマイクロ VM の比較は意見が分かれます。選び方の一例（筆者の見立て）: 自分の端末で使う開発用のエージェントなら OS の機能やコンテナで足りることが多く、外部の人が入力できる業務用のエージェントなら仮想マシン級の隔離も検討する。</p>
+    <div class="axis"><span class="d">右</span><span class="m">下</span><span>ほど隔離が強くなる傾向（目安）</span><span class="shaft" aria-hidden="true"></span><span class="head" aria-hidden="true"></span><span>準備や負担が増えることも</span></div>
+    <p class="hint">一般的な目安としての並べ方です（解説の筆者の整理）。並びの後ろほど隔離が強くなる傾向がありますが、どれが強いかは構成によって変わり、特に gVisor とマイクロ VM の比較は意見が分かれます。選び方の一例（筆者の見立て）: 自分の端末で使う開発用のエージェントなら OS の機能やコンテナで足りることが多く、外部の人が入力できる業務用のエージェントなら仮想マシン級の隔離も検討する。</p>
   </section>
 
   <div class="two">
@@ -390,15 +394,15 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   </div>
 
   <section class="card" aria-labelledby="s-check">
-    <h2 id="s-check">採用を考えるときのチェック</h2>
-    <div class="check" id="checks">
-      <label><input type="checkbox"><span>エージェントが触れるもの（ファイル・システム・外部サービス）を洗い出した<span class="hint">壊れたり漏れたりすると困るものはどれか。Thoughtworks は脅威モデリングにもとづいて囲い方を決めるよう勧めている</span></span></label>
-      <label><input type="checkbox"><span>リスクに合わせて、囲いの強さを選んだ<span class="hint">上の段階のどれにするか</span></span></label>
-      <label><input type="checkbox"><span>ネットワークの許可リストを、必要最小限にした<span class="hint">持ち出しの経路になる広い許可は避ける</span></span></label>
-      <label><input type="checkbox"><span>影響の大きい操作には、人の承認を挟む<span class="hint">送金・削除・外部への送信など</span></span></label>
-      <label><input type="checkbox"><span>エージェントの操作の記録を残し、異常に気づける<span class="hint">被害を小さくする助けになる</span></span></label>
+    <h2 id="s-check">導入するときに決める5つのこと</h2>
+    <p class="lead-note">Thoughtworks は、すべてのエージェントで当たり前に行うべきことだと見ています。使うかどうかより、<b>どう囲うか</b>を決めるのが要点です。次の5つは、その囲い方を決めるときに考えることです。</p>
+    <div class="decide">
+      <div class="dq"><b>何に触れるか？</b><p>エージェントが触れるファイル・システム・外部サービスを洗い出し、壊れたり漏れたりすると困るものを見極める。</p><p class="hint">Thoughtworks は、脅威モデリングにもとづいてリスクに応じた囲い方を決めるよう勧めている</p></div>
+      <div class="dq"><b>どの強さで囲うか？</b><p>リスクに合わせて、上の段階のどれにするかを選ぶ。</p></div>
+      <div class="dq"><b>どこへ接続させるか？</b><p>ネットワークの許可リストを必要最小限にする。</p><p class="hint">持ち出しの経路になる広い許可は避ける</p></div>
+      <div class="dq"><b>どの操作で人が承認するか？</b><p>送金・削除・外部への送信など、影響の大きい操作は人が承認してから実行する。</p></div>
+      <div class="dq"><b>どう気づくか？</b><p>エージェントの操作の記録を残し、異常に気づけるようにする。</p><p class="hint">被害を小さくする助けになる</p></div>
     </div>
-    <p class="verdict" id="verdict" aria-live="polite"></p>
   </section>
 
   <section class="card" aria-labelledby="s-tools">
@@ -476,15 +480,6 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   mOff.addEventListener('click',function(){mode='off';render();});
   Object.keys(cBtns).forEach(function(k){cBtns[k].addEventListener('click',function(){sc=k;render();});});
   render();
-
-  // チェックリスト
-  var boxes=[].slice.call(document.querySelectorAll('#checks input')), verdict=document.getElementById('verdict');
-  function judge(){
-    var n=boxes.filter(function(b){return b.checked;}).length;
-    verdict.textContent=n===boxes.length?'5つとも確認しました':(n+' / '+boxes.length+' が当てはまる');
-  }
-  boxes.forEach(function(b){b.addEventListener('change',judge);});
-  judge();
 
   // 動きを減らす設定のときは、点の流れを止める
   try{
