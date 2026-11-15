@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post-quantum cryptography 図解ページ（非公式）</title>
+<meta name="description" content="Post-quantum cryptography（耐量子計算機暗号）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。差し色は紫（タグと強調だけ）。
+   色の意味: 橙＝従来の暗号だけで守った記録、赤＝解読されうる記録、青＝PQC（ハイブリッド）で守った記録。失うものの枠と元の語は中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-ink:#FFFFFF; --blue-soft:#DCE5FB;
+  --pulse:#9B6BF0; --pulse-text:#5B2FB8; --pulse-soft:#ECE3FD;
+  --old:#E0781F; --old-soft:#FCE7D4; --danger:#C8423A; --danger-soft:#FBE1DE;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --muted-node:#C5CCDA;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-ink:#0F1626; --blue-soft:#22305A;
+  --pulse:#B794F6; --pulse-text:#C9AEF8; --pulse-soft:#2C2445;
+  --old:#F5A15C; --old-soft:#3D2A1A; --danger:#FF8A80; --danger-soft:#3D2226;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --muted-node:#3A4560;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;word-break:auto-phrase;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+.nb{display:inline-block}
+p{margin:0}
+
+/* 見出しの帯。線画は、格子（PQC の土台の数学の一つ）の点を中に持つ錠前 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--pulse);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero-row{display:flex;gap:24px;align-items:center}
+.hero-row > div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero h1{font-size:clamp(36px,8vw,80px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--pulse)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.lock{flex:none;width:120px;height:140px}
+.lock .body{fill:none;stroke:#DCE3F1;stroke-width:5}
+.lock .lat{fill:var(--pulse);animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:.45}50%{opacity:1}}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+.callout{border-left:6px solid var(--pulse);background:var(--pulse-soft);border-radius:0 12px 12px 0;padding:14px 18px;font-size:15px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--blue)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 3つの標準 */
+.stds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.std{border:2px solid var(--blue);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.std .id{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.std b{font-family:var(--display);font-size:22px;color:var(--blue)}
+.std span{font-size:14px}
+
+/* 試せる図: 毎年の記録の封筒 */
+.ctl{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:14px 18px}
+.ctl label{font-weight:700;font-size:15px}
+.ctl label b{font-family:var(--mono);color:var(--blue);margin-left:6px}
+.ctl input[type=range]{width:100%;accent-color:var(--blue);min-height:32px}
+.scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--sub)}
+.btn{font:inherit;font-size:15px;border:2px solid var(--danger);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink);font-weight:700;align-self:flex-start}
+.btn[aria-pressed="true"]{background:var(--danger);color:#FFFFFF}
+.years{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.yr{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.yr .env{width:100%;max-width:64px;aspect-ratio:4/3;border-radius:6px;border:3px solid var(--old);background:var(--old-soft);position:relative;transition:background .3s,border-color .3s}
+.yr .env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49%,currentColor 49% 51%,transparent 51%),linear-gradient(to bottom left,transparent 49%,currentColor 49% 51%,transparent 51%);background-size:100% 60%;background-repeat:no-repeat;color:var(--old);opacity:.7}
+.yr .y{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.yr .tag{font-size:11px;font-weight:700;color:var(--old);text-align:center;line-height:1.3}
+.yr.pqc .env{border-color:var(--blue);background:var(--blue-soft)}
+.yr.pqc .env::before{color:var(--blue)}
+.yr.pqc .tag{color:var(--blue)}
+.yr.broken .env{border-color:var(--danger);background:var(--danger-soft);transform:rotate(-6deg)}
+.yr.broken .env::before{color:var(--danger)}
+.yr.broken .tag{color:var(--danger)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:16px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:2px solid var(--old);background:var(--old-soft)}
+.legend i.p{border-color:var(--blue);background:var(--blue-soft)}
+.legend i.d{border-color:var(--danger);background:var(--danger-soft)}
+.status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
+.status b{color:var(--danger)}
+.status .warn{display:block;margin-top:6px;color:var(--sub);font-size:14px}
+
+/* ハイブリッド方式の図 */
+.hyb svg{display:block;width:100%;max-width:640px;height:auto}
+.n-old{fill:var(--old-soft);stroke:var(--old);stroke-width:3}
+.n-pqc{fill:var(--blue-soft);stroke:var(--blue);stroke-width:3}
+.n-mix{fill:var(--surface);stroke:var(--ink);stroke-width:3}
+.wire{fill:none;stroke:var(--sub);stroke-width:3}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:15px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:13px}
+
+/* 期限の年表 */
+.tl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;position:relative}
+.tl .pt{border-top:6px solid var(--pulse);background:var(--bg);border-radius:0 0 10px 10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tl .pt b{font-family:var(--mono);font-size:20px;color:var(--pulse-text)}
+.tl .pt span{font-size:14px;line-height:1.6}
+.tl .pt small{font-size:12px;color:var(--sub)}
+
+/* データの大きさの棒 */
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:grid;grid-template-columns:11em minmax(0,1fr);gap:10px;align-items:center;font-size:14px}
+.bar{display:block;height:16px;border-radius:3px}
+.bar.old{background:var(--old);width:2.6%}
+.bar.hyb{background:var(--blue);width:100%}
+.bar-note{font-size:13px;color:var(--sub)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
+.loss{border-top-color:var(--ink)}
+.gain h2{color:var(--blue)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 導入するときに決めること（問いのカード。件数の判定はしない） */
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--blue);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px;color:var(--blue)}
+.dq p{font-size:15px;line-height:1.7}
+
+/* 道具の例のカード */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tool a{font-family:var(--display);font-weight:900;font-size:18px}
+.tool .kind{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.tool p{font-size:14px;line-height:1.7}
+
+/* 評価 */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.timeline{flex:none;display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:16em}
+.timeline .now{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .hero-row{flex-direction:column;align-items:flex-start}
+  .lock{width:84px;height:98px}
+  .two,.terms,.stds,.tl{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar{flex-direction:column;align-items:flex-start}
+  .years{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .bar-row{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .lock .lat{animation:none;opacity:1}
+  .yr .env{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="post-quantum-cryptography.html">Post-quantum cryptography の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TECHNIQUES</span><span class="ring">ADOPT</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <div class="hero-row">
+      <div>
+        <h1>Post-quantum cryptography</h1>
+        <p class="name-hint">名前の手がかり: <span>Post</span> 〜の後 ＋ <span>quantum</span> 量子 ＋ <span>cryptography</span> 暗号の技術。量子コンピュータの時代の後も使える暗号</p>
+        <p class="lead">将来の量子コンピュータでも破られないように設計された新しい暗号（PQC）と、そこへ計画的に切り替えていく取り組み</p>
+      </div>
+      <svg class="lock" viewBox="0 0 120 140" aria-hidden="true">
+        <path class="body" d="M30 62 V40 a30 30 0 0 1 60 0 V62"/>
+        <rect class="body" x="10" y="62" width="100" height="72" rx="10"/>
+        <g class="lat">
+          <circle cx="32" cy="82" r="4"/><circle cx="52" cy="82" r="4"/><circle cx="72" cy="82" r="4"/><circle cx="92" cy="82" r="4"/>
+          <circle cx="42" cy="98" r="4"/><circle cx="62" cy="98" r="4"/><circle cx="82" cy="98" r="4"/>
+          <circle cx="32" cy="114" r="4"/><circle cx="52" cy="114" r="4"/><circle cx="72" cy="114" r="4"/><circle cx="92" cy="114" r="4"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-what">
+    <h2 id="s-what">PQC は「量子暗号」とは別物</h2>
+    <p>PQC は、今のコンピュータで動く普通の数学の暗号で、<b>従来のコンピュータでも量子コンピュータでも解きにくい問題</b>を土台にしています。量子の物理現象を使う「量子暗号」とは別のものです（NIST）。</p>
+    <p>インターネットの安全は、<b>公開鍵暗号</b>（RSA や楕円曲線暗号など）に支えられています。通信を暗号化するときの鍵の受け渡しや、文書やソフトウェアが本物だと示す<b>電子署名</b>に使われています。その安全は「大きな数の素因数分解」のような、今のコンピュータでは現実的な時間で解けない問題に頼っています。</p>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">3つの課題と、PQC の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>量子コンピュータが現れると、今の暗号の多くが破られる</h3><span class="term">公開鍵暗号（public key cryptography）</span><p>十分に強力な量子コンピュータは、公開鍵暗号が頼る数学の問題を桁違いに速く解けると考えられている。そうなれば、今広く使われている暗号の多くが破られうる（NIST）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>量子コンピュータでも解きにくい問題を土台にした方式に置き換える</h3><p>格子やハッシュ関数などを土台にした新しい方式にする。NIST は2024年8月に最初の3つの標準を公開した（<a href="#s-std">下の3枚のカード</a>）。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>今盗んで、あとで解読される</h3><span class="term">harvest now, decrypt later</span><p>攻撃者が暗号化された通信を今のうちに記録しておき、量子コンピュータができたときに解読する。何年も価値を持つ秘密（医療・金融・国家の情報など）が危ない（NIST）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>いちばん急ぐのは、鍵の受け渡し（鍵交換）</h3><p>今の通信の鍵交換を PQC（移行の途中では従来の方式と組み合わせたハイブリッド方式）にすれば、切り替えた後に記録された通信は、あとで解読されにくくなる。切り替える前の記録は守れないので、早いほど守れる範囲が広い（筆者の見立て。相手も PQC に対応している場合）。Thoughtworks は鍵交換の移行が最も急ぐとしている。<a href="#s-lab">下の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>切り替えに10〜20年かかる</h3><span class="term">移行（migration）</span><p>暗号の標準ができてからシステムに行き渡るまで、過去の例で10〜20年かかった。量子コンピュータが現れる時期の専門家の見積もりは、数年後から数十年後まで幅がある（NIST）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>期限から逆算して、計画的に移る</h3><p>まず暗号の使い道を棚卸しし、守る期間の長いデータから移す。方式を差し替えやすい設計（クリプトアジリティ）にしておく（<a href="#s-tl">下の期限の年表</a>）。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-std">
+    <h2 id="s-std">NIST の最初の3つの標準（2024年8月）</h2>
+    <div class="stds">
+      <div class="std"><span class="id">FIPS 203</span><b>ML-KEM</b><span>鍵カプセル化（通信の両側で、共通の秘密の鍵を安全に共有する）</span><span class="hint">土台: 格子</span></div>
+      <div class="std"><span class="id">FIPS 204</span><b>ML-DSA</b><span>電子署名</span><span class="hint">土台: 格子</span></div>
+      <div class="std"><span class="id">FIPS 205</span><b>SLH-DSA</b><span>電子署名</span><span class="hint">土台: ハッシュ関数</span></div>
+    </div>
+    <p class="hint">このほか、鍵カプセル化の2つめの方式として HQC が選ばれ、標準化が進んでいます。</p>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab"><span class="nb">試してみる:</span> <span class="nb">切り替えが遅いほど、</span><span class="nb">あとで解読されうる記録が増える</span></h2>
+    <p class="hint">攻撃者が、2026年から2035年まで毎年の通信を記録し続けているとします（封筒）。鍵交換を PQC（ハイブリッド方式）に切り替える年をスライダーで選び、「量子コンピュータが現れたとする」を押してください。年の並びと記録は、説明のための例です。量子コンピュータが現れる年は決めていません。</p>
+    <div class="ctl" id="ctl" hidden>
+      <label for="sw">鍵交換を PQC に切り替える年 <b id="sw-v">2030年</b></label>
+      <input id="sw" type="range" min="2026" max="2036" step="1" value="2030" aria-valuetext="2030年">
+      <div class="scale" aria-hidden="true"><span>2026年</span><span>右端は「切り替えない」</span></div>
+    </div>
+    <button type="button" class="btn" id="qc" aria-pressed="false" hidden>量子コンピュータが現れたとする</button>
+    <div class="years" id="years" aria-hidden="true"></div>
+    <div class="legend" aria-hidden="true"><span><i></i>従来の暗号だけで守った記録</span><span><i class="p"></i>PQC（ハイブリッド）で守った記録</span><span><i class="d"></i>解読されうる記録</span></div>
+    <p class="status" id="status" aria-live="polite">この図はスクリプトで動きます。要点: 切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て）。切り替えが早いほど、量子コンピュータが現れたときに解読されうる記録は少なくなります（相手も PQC に対応している場合）。</p>
+  </section>
+
+  <section class="card hyb" aria-labelledby="s-hyb">
+    <h2 id="s-hyb">ハイブリッド方式: 従来の暗号と PQC を組み合わせる</h2>
+    <p>新しい暗号はまだ実績が浅いため（筆者の見立て）、移行の途中では、従来の鍵交換と PQC を組み合わせる方式がよく使われます。<b>どちらか一方が安全である限り、全体の安全が保たれる</b>という考え方です。TLS 1.3 では、X25519 などの従来の鍵交換と ML-KEM を組み合わせる方式が IETF の規格（RFC 10024）になりました。主要なブラウザのいくつかは、すでに対応しています（NCSC のページの公開時点〈2025年3月〉の記述）。</p>
+    <svg viewBox="0 0 640 200" role="img" aria-label="従来の鍵交換 X25519 と、PQC の鍵カプセル化 ML-KEM の2つの結果を組み合わせて、通信を暗号化する鍵を作る図">
+      <rect x="10" y="20" width="200" height="64" rx="10" class="n-old"/><text x="110" y="48" text-anchor="middle" class="t-plain">従来の鍵交換</text><text x="110" y="70" text-anchor="middle" class="t-small">X25519 など</text>
+      <rect x="10" y="116" width="200" height="64" rx="10" class="n-pqc"/><text x="110" y="144" text-anchor="middle" class="t-plain">PQC の鍵カプセル化</text><text x="110" y="166" text-anchor="middle" class="t-small">ML-KEM</text>
+      <path class="wire" d="M210 52 H260 V100 H290"/><path class="wire" d="M210 148 H260 V100 H290"/>
+      <rect x="290" y="68" width="150" height="64" rx="10" class="n-mix"/><text x="365" y="96" text-anchor="middle" class="t-plain">2つの結果を</text><text x="365" y="118" text-anchor="middle" class="t-plain">組み合わせる</text>
+      <path class="wire" d="M440 100 H480"/>
+      <rect x="480" y="68" width="150" height="64" rx="10" class="n-mix"/><text x="555" y="96" text-anchor="middle" class="t-plain">通信を</text><text x="555" y="118" text-anchor="middle" class="t-plain">暗号化する鍵</text>
+    </svg>
+  </section>
+
+  <section class="card" aria-labelledby="s-tl">
+    <h2 id="s-tl">移行の期限の目安</h2>
+    <div class="tl">
+      <div class="pt"><b>2028</b><span>現状を把握し、移行の計画を立てる</span><small>NCSC の目安</small></div>
+      <div class="pt"><b>2031</b><span>優先度の高い移行を終える</span><small>NCSC の目安</small></div>
+      <div class="pt"><b>2035</b><span>すべての移行を終える<small>（NCSC の目安）</small></span><span>量子コンピュータに弱い方式を標準から外す。危険の大きいシステムはもっと早く移す<small>（NIST）</small></span></div>
+    </div>
+    <p class="hint">Thoughtworks は、各国の政府が2030〜2035年の移行を目標にしていることを挙げています。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li>量子コンピュータが現れても破られにくいと考えられる暗号</li>
+        <li>鍵交換を早く移すほど、切り替えた後に記録される通信が将来解読される危険を減らせる（筆者の見立て。相手も PQC に対応している場合）</li>
+        <li>移行の途中も、ハイブリッド方式なら、従来の暗号と PQC のどちらか一方が安全である限り、全体の安全が保たれる</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・難しさ</h2>
+      <div class="bars" role="img" aria-label="接続の最初に送る鍵のデータの大きさ。従来の X25519 だけなら32バイト、ハイブリッド方式の X25519MLKEM768 なら約1.2キロバイト">
+        <div class="bar-row"><span>従来（X25519）32バイト</span><span class="bar old"></span></div>
+        <div class="bar-row"><span>ハイブリッド 約1.2KB</span><span class="bar hyb"></span></div>
+      </div>
+      <p class="bar-note">TLS の接続の最初に送る鍵のデータの大きさ（IETF の規格による）。</p>
+      <ul>
+        <li><b>データが大きくなる</b>: PQC の鍵や暗号文は、従来より大きくなりがち（上の棒）</li>
+        <li><b>古い機器・作り直せない機器</b>: 性能が低い、更新できない IoT 機器などは移行が難しい（NCSC）</li>
+        <li><b>相互運用</b>: 移行の期間中は新旧両方に対応する。Web の証明書の仕組みと産業用の制御システムは特に難しい（NCSC）</li>
+        <li><b>気づかない後退</b>: 相手が対応していないと、黙って従来の暗号に戻る（フォールバックする）ことがある。実際に PQC が使われているかを確かめる（NCSC）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">PQC に取り組むときに決める5つのこと</h2>
+    <p class="lead-note">Thoughtworks はこの手法を Adopt に置き、新しいシステムでは必須にし、既存のシステムでは移行の計画を前倒しするよう勧めています。次の5つは、そのときに考えることです。</p>
+    <div class="decide">
+      <div class="dq"><b>新しいシステムでは？</b><p>最初から、量子コンピュータに耐える暗号を必須にする（Thoughtworks の勧め）。</p></div>
+      <div class="dq"><b>どこで何を使っているか？</b><p>どのシステムが、どこで、どんな暗号を使っているかを棚卸しする。扱うデータが何年守られる必要があるかも確かめる（NCSC、NIST）。</p></div>
+      <div class="dq"><b>どこから移すか？</b><p>長く価値を持つデータを扱うサービスから。急ぐのは鍵交換（Thoughtworks も同じ見方）。</p></div>
+      <div class="dq"><b>使っている道具は対応しているか？</b><p>言語・フレームワーク・ライブラリの最新版には対応が入りつつある。更新や設定の変更が要ることがある（Thoughtworks）。暗号は自分で実装しない（NCSC）。</p></div>
+      <div class="dq"><b>取引先はどうか？</b><p>使っている製品やクラウドの事業者に、PQC への対応の計画を確かめ（NCSC）、調達の要件に入れる（CISA のページに載った G7 の呼びかけも優先事項に挙げている）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-tools">
+    <h2 id="s-tools">実現するための道具の例</h2>
+    <p class="lead-note">推奨でも網羅でもない例です（2026-11-15 の時点）。暗号は自分で実装せず、信頼できるライブラリやサービスを使います。</p>
+    <div class="tools">
+      <div class="tool"><a href="https://openssl-library.org/news/openssl-3.5-notes/">OpenSSL</a><span class="kind">OSS</span><p>広く使われる暗号と TLS のライブラリ。3.5.0（2025年4月）から ML-KEM・ML-DSA・SLH-DSA に対応し、TLS の既定でハイブリッド方式を優先し、X25519MLKEM768 の鍵を最初から送る。</p></div>
+      <div class="tool"><a href="https://pkg.go.dev/crypto/mlkem">Go の crypto/mlkem</a><span class="kind">OSS（BSD-3-Clause。Go の標準ライブラリ）</span><p>ML-KEM（768 と 1024）の鍵カプセル化。多くの用途では ML-KEM-768 を勧めている。</p></div>
+      <div class="tool"><a href="https://github.com/open-quantum-safe/liboqs">liboqs（Open Quantum Safe）</a><span class="kind">OSS（MIT）</span><p>PQC の方式を多数そろえた C のライブラリ。研究と試作のためのもので、本番環境や機微なデータの保護に使うことは勧めていない。</p></div>
+      <div class="tool"><a href="https://docs.aws.amazon.com/kms/latest/developerguide/mldsa.html">AWS KMS の耐量子の鍵</a><span class="kind">商用のクラウドのサービス</span><p>鍵の管理のサービスで、ML-DSA（電子署名）と ML-KEM（鍵の確立）の鍵を作って使える。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="timeline">
+      <span><span class="now">2026年11月 Adopt</span></span>
+      <small>Radar のページの推移には、今回の版だけが載っています。新規か移動かの表示はなし</small>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+      <p>今の暗号化データを記録しておき将来解読する脅威があるため、特に鍵交換の移行を急ぐべきだと、Thoughtworks は見ています。NIST の標準が確定し、各国の政府が2030〜2035年の移行を目標にしていること、言語やフレームワークの対応も進んでいることを挙げ、新しいシステムでは必須にし、既存のシステムでは移行の計画を前倒しするよう勧めています。</p>
+      <p class="hint">関連の項目: Java post-quantum cryptography（Languages &amp; Frameworks、2025年11月に Assess）</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">青い字は元の語（英単語・略語・名前の元になった語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>量子コンピュータ</summary><p class="etym"><span class="w">quantum</span> ＝ 量子（もとはラテン語の「どれだけの量」） ／ <span class="w">computer</span> ＝ 計算するもの</p><p>量子力学の性質を使って計算するコンピュータ。特定の種類の問題を、今のコンピュータより桁違いに速く解けると考えられている。</p></details>
+      <details><summary>公開鍵暗号</summary><p class="etym"><span class="w">public key</span> ＝ 公開の鍵 ／ <span class="w">cryptography</span> ＝ 暗号の技術</p><p>公開してよい鍵と秘密の鍵の組を使う暗号。鍵の受け渡しや電子署名に使われる。RSA や楕円曲線暗号が代表例。</p></details>
+      <details><summary>電子署名</summary><p class="etym"><span class="w">digital signature</span> ＝ 電子の署名</p><p>データが本人によって作られ、改ざんされていないことを、暗号の技術で証明する仕組み。</p></details>
+      <details><summary>鍵交換・鍵カプセル化</summary><p class="etym"><span class="w">key exchange</span> ＝ 鍵の交換 ／ <span class="w">KEM</span> ＝ Key Encapsulation Mechanism（鍵をカプセルに包む仕組み）</p><p>通信する両者が、盗み見られても安全な方法で、共通の秘密の鍵を共有する仕組み。鍵カプセル化はその方式の一つ。</p></details>
+      <details><summary>格子・ハッシュ関数</summary><p class="etym"><span class="w">lattice</span> ＝ 格子 ／ <span class="w">hash</span> ＝ 細かく刻む ／ <span class="w">function</span> ＝ 関数</p><p>PQC の土台になる数学。格子は多次元の空間に規則正しく並んだ点の集まりで、PQC はそれにかかわる解くのが難しい問題を使う。ハッシュ関数はデータから固定長の要約値を作る関数。</p></details>
+      <details><summary>NIST・FIPS</summary><p class="etym"><span class="w">NIST</span> ＝ National Institute of Standards and Technology ／ <span class="w">FIPS</span> ＝ Federal Information Processing Standards（連邦の情報処理の標準）</p><p>NIST は米国の国立標準技術研究所。FIPS は NIST が定める米国政府向けの情報処理の標準で、PQC の標準もこれとして公開された。</p></details>
+      <details><summary>NCSC・CISA</summary><p class="etym"><span class="w">NCSC</span> ＝ National Cyber Security Centre ／ <span class="w">CISA</span> ＝ Cybersecurity and Infrastructure Security Agency</p><p>NCSC は英国の、CISA は米国の、サイバーセキュリティを担う政府機関。</p></details>
+      <details><summary>TLS</summary><p class="etym"><span class="w">TLS</span> ＝ Transport Layer Security（通信を運ぶ層の安全）</p><p>Web サイトとの通信などを暗号化する規格。URL が https で始まる通信で使われる。</p></details>
+      <details><summary>IETF・RFC</summary><p class="etym"><span class="w">IETF</span> ＝ Internet Engineering Task Force ／ <span class="w">RFC</span> ＝ Request for Comments（意見を求める文書）</p><p>IETF はインターネットの技術の標準を作る団体で、RFC はその文書。</p></details>
+      <details><summary>ハイブリッド方式</summary><p class="etym"><span class="w">hybrid</span> ＝ 混ざったもの</p><p>従来の暗号と PQC を組み合わせて使う方式。どちらかが破られても、もう一方で安全を保つ。</p></details>
+      <details><summary>クリプトアジリティ</summary><p class="etym"><span class="w">crypto</span> ＝ 暗号 ／ <span class="w">agility</span> ＝ 身軽さ</p><p>暗号の方式を、システムを大きく作り直さずに差し替えられるようにしておく設計。</p></details>
+      <details><summary>IoT</summary><p class="etym"><span class="w">IoT</span> ＝ Internet of Things（モノのインターネット）</p><p>インターネットにつながる機器（センサーや工場の機械など）。</p></details>
+      <details><summary>フォールバック</summary><p class="etym"><span class="w">fall back</span> ＝ 後ろへ下がる</p><p>新しい方式が使えないときに、黙って古い方式に戻ってしまうこと。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="post-quantum-cryptography.html">Post-quantum cryptography の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-15。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/techniques/post-quantum-cryptography">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 説明のための例: 2026〜2035年の毎年の記録。切り替えの年より前の記録は従来の暗号だけ、以降は PQC（ハイブリッド）
+  var FIRST=2026, LAST=2035;
+  var sw=document.getElementById('sw'), swV=document.getElementById('sw-v'), qc=document.getElementById('qc');
+  var years=document.getElementById('years'), status=document.getElementById('status');
+  var cells=[];
+  for(var y=FIRST;y<=LAST;y++){
+    var c=document.createElement('div'); c.className='yr';
+    var e=document.createElement('div'); e.className='env';
+    var t=document.createElement('span'); t.className='tag';
+    var n=document.createElement('span'); n.className='y'; n.textContent=y+'年';
+    c.appendChild(e); c.appendChild(t); c.appendChild(n); years.appendChild(c); cells.push({el:c,tag:t,y:y});
+  }
+  var appeared=false;
+  function render(){
+    var s=+sw.value, never=s>LAST;
+    var label=never?'切り替えない':(s+'年');
+    swV.textContent=label; sw.setAttribute('aria-valuetext',label);
+    qc.setAttribute('aria-pressed',String(appeared));
+    var old=0;
+    cells.forEach(function(c){
+      var pqc=!never && c.y>=s; if(!pqc) old++;
+      c.el.classList.toggle('pqc',pqc);
+      c.el.classList.toggle('broken',appeared && !pqc);
+      c.tag.textContent=pqc?'PQC':(appeared?'危険':'従来');
+    });
+    var total=cells.length, msg;
+    if(!appeared){
+      msg=never
+        ? '<b>切り替えない場合:</b> 10年分の記録が、どれも従来の暗号だけで守られています。'
+        : (old===0
+          ? '<b>'+s+'年に切り替えた場合:</b> すべての記録（10年分）が PQC（ハイブリッド）で守られています。'
+          : '<b>'+s+'年に切り替えた場合:</b> それより前の '+old+'年分の記録は、従来の暗号だけで守られています。'+(total-old)+'年分は PQC（ハイブリッド）で守られています。');
+      msg+='<span class="warn">「量子コンピュータが現れたとする」を押すと、何が起きるかが見られます。</span>';
+    }else{
+      if(never) msg='<b>切り替えないと、10年分の記録がすべて解読されうる状態になりました。</b>記録はどれも従来の暗号だけで守られたままだったためです。';
+      else if(old===0) msg='量子コンピュータが現れても、10年分の記録はどれも PQC で守られていて、解読されにくいままです（相手も PQC に対応している場合）。';
+      else msg='<b>従来の暗号だけで守った '+old+'年分の記録が、解読されうる状態になりました。</b>切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て。相手も PQC に対応している場合の話です）。 PQC で守った '+(total-old)+'年分は、解読されにくいままです。';
+      msg+='<span class="warn">切り替えが早いほど、解読されうる記録は少なくなります。量子コンピュータが現れる時期の専門家の見積もりは、数年後から数十年後まで幅があります（NIST）。何年も価値を持つ秘密ほど、早く守る必要があります。</span>';
+    }
+    status.innerHTML=msg;
+  }
+  document.getElementById('ctl').hidden=false; qc.hidden=false;
+  sw.addEventListener('input',render);
+  qc.addEventListener('click',function(){appeared=!appeared;render();});
+  render();
+})();
+</script>
+</body>
+</html>

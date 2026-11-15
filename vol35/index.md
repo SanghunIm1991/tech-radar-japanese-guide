@@ -35,7 +35,7 @@
 | Agent sandboxing | [図と動きで見る](techniques/agent-sandboxing-intro.html) | [Markdown](techniques/agent-sandboxing.md) | Techniques | Adopt | 下書き |
 | Mutation testing | [図と動きで見る](techniques/mutation-testing-intro.html) | [Markdown](techniques/mutation-testing.md) | Techniques | Adopt | 下書き |
 | Path-to-production mapping | [図と動きで見る](techniques/path-to-production-mapping-intro.html) | [Markdown](techniques/path-to-production-mapping.md) | Techniques | Adopt | 下書き |
-| Post-quantum cryptography | — | [Markdown](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
+| Post-quantum cryptography | [図と動きで見る](techniques/post-quantum-cryptography-intro.html) | [Markdown](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
 | Progressive context disclosure | — | [Markdown](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
 | Threat modeling | — | [Markdown](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
 | Agent plugin marketplace | — | [Markdown](techniques/agent-plugin-marketplace.md) | Techniques | Trial | 下書き |
