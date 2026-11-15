@@ -224,8 +224,11 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
         <path id="cook" d="M115 185 H385" fill="none"/>
         <g>
           <circle r="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
-          <rect x="18" y="-6" width="26" height="14" rx="3" fill="#0E8C7E" stroke="var(--ink)" stroke-width="2">
-            <animate attributeName="fill" dur="6s" repeatCount="indefinite" values="#0E8C7E;#0E8C7E;#7B4FD6;#7B4FD6;#0E8C7E" keyTimes="0;0.44;0.45;0.94;1" calcMode="discrete"/>
+          <rect x="18" y="-6" width="26" height="14" rx="3" fill="var(--pa)" stroke="var(--ink)" stroke-width="2">
+            <animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="1;1;0;0;1" keyTimes="0;0.44;0.45;0.99;1" calcMode="discrete"/>
+          </rect>
+          <rect x="18" y="-6" width="26" height="14" rx="3" fill="var(--pb)" stroke="var(--ink)" stroke-width="2" opacity="0">
+            <animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0;0;1;1;0" keyTimes="0;0.44;0.45;0.99;1" calcMode="discrete"/>
           </rect>
           <animateMotion dur="6s" repeatCount="indefinite" keyPoints="0;0;1;1;0" keyTimes="0;0.2;0.45;0.7;1" calcMode="linear"><mpath href="#cook"/></animateMotion>
         </g>
