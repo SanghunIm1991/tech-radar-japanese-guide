@@ -30,7 +30,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 a{color:var(--blue)}
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
-h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;word-break:auto-phrase;margin:0;line-height:1.3}
+/* 日本語は語の間に空白が無いので、見出しは語のまとまりごとに改行させる */
+.nb{display:inline-block}
 h2{font-size:clamp(24px,4vw,32px)}
 p{margin:0}
 code,.code{font-family:var(--mono)}
@@ -240,8 +242,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   </section>
 
   <section class="card" aria-labelledby="s-lab">
-    <h2 id="s-lab">試してみる: テストを強くすると、カバレッジは変わらず、見つけた数だけが増える</h2>
-    <p class="hint">テストのボタンを①から順に選ぶと、テストが増えます（選んだ段階までのテストを、全部まとめて動かします）。カバレッジ（実行した行の割合）と、ミュータントを見つけた数を比べてください。関数・テスト・ミュータントは、説明のために作った例です。</p>
+    <h2 id="s-lab"><span class="nb">試してみる:</span> <span class="nb">カバレッジが100%になっても、</span><span class="nb">誤りを見つけるとは限らない</span></h2>
+    <p class="hint">最初はテストが無い状態です。テストのボタンを①から順に選ぶと、テストが増えます（選んだ段階までのテストを、全部まとめて動かします）。カバレッジ（実行した行の割合）と、ミュータントを見つけた数を比べてください。関数・テスト・ミュータントは、説明のために作った例です。</p>
     <div class="lab">
       <div class="panel">
         <h3>テストする関数</h3>
@@ -250,15 +252,16 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 }</pre>
         <h3 id="lb-steps">テスト（上から順に足していく）</h3>
         <div class="steps" role="group" aria-labelledby="lb-steps">
-          <button type="button" data-step="0" aria-pressed="true">① 呼ぶだけ（アサーションなし）<code>canVote(30)</code></button>
+          <button type="button" data-step="-1" aria-pressed="true">テストなし（まだ書いていない）<code>—</code></button>
+          <button type="button" data-step="0" aria-pressed="false">① 呼ぶだけ（アサーションなし）<code>canVote(30)</code></button>
           <button type="button" data-step="1" aria-pressed="false">② 30歳は true か確かめる<code>expect(canVote(30)).toBe(true)</code></button>
           <button type="button" data-step="2" aria-pressed="false">③ さらに10歳は false か確かめる<code>expect(canVote(10)).toBe(false)</code></button>
-          <button type="button" data-step="3" aria-pressed="false">④ さらに境目の18歳は true か確かめる<code>expect(canVote(18)).toBe(true)</code></button>
+          <button type="button" data-step="3" aria-pressed="false">④ さらに境界の18歳は true か確かめる<code>expect(canVote(18)).toBe(true)</code></button>
         </div>
       </div>
       <div class="panel">
         <div class="meters">
-          <div class="meter"><div class="lb"><span>コードカバレッジ</span><b>100%</b></div><div class="track"><div class="fill cov" style="width:100%"></div></div></div>
+          <div class="meter"><div class="lb"><span>コードカバレッジ</span><b id="cov">0%</b></div><div class="track"><div class="fill cov" id="covbar" style="width:0%"></div></div></div>
           <div class="meter"><div class="lb"><span>ミュータントを見つけた数</span><b id="score">4つのうち 0</b></div><div class="track"><div class="fill mut" id="bar" style="width:0%"></div></div></div>
         </div>
         <h3>ツールが作ったミュータント（どれも1か所だけ変えた版）</h3>
@@ -271,7 +274,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
         <div class="legend" aria-hidden="true"><span><i class="k"></i>見つけた（killed: テストが失敗した）</span><span><i></i>生き残った（survived: テストの穴）</span></div>
       </div>
     </div>
-    <p class="status" id="status" aria-live="polite"><b>呼ぶだけのテスト:</b> 関数の行は実行されるので、カバレッジは100%です。でも結果を何も確かめていないので、どのミュータントを入れてもテストは成功し、4つとも生き残ります。</p>
+    <p class="status" id="status" aria-live="polite"><b>テストなし:</b> テストがまだ無いので、関数の行は一度も実行されず、カバレッジは0%です。ミュータントを入れても失敗するテストが無いので、4つとも生き残ります。</p>
   </section>
 
   <div class="two">
@@ -367,35 +370,40 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   //  ② 30歳 → true: age<18（false）と return false を見つける。age>18 と return true は 30 では true のまま
   //  ③ ＋10歳 → false: return true（true になる）も見つける。age>18 は 10 では false のまま
   //  ④ ＋18歳 → true: age>18（18 では false）も見つける
+  // 配列の先頭は「テストなし」。以降は①〜④
   var killed=[
+    [false,false,false,false],
     [false,false,false,false],
     [false,true,false,true],
     [false,true,true,true],
     [true,true,true,true]
   ];
   var text=[
-    '<b>呼ぶだけのテスト:</b> 関数の行は実行されるので、カバレッジは100%です。でも結果を何も確かめていないので、どのミュータントを入れてもテストは成功し、4つとも生き残ります。',
+    '<b>テストなし:</b> テストがまだ無いので、関数の行は一度も実行されず、カバレッジは0%です。ミュータントを入れても失敗するテストが無いので、4つとも生き残ります。',
+    '<b>呼ぶだけのテスト:</b> 関数の行が実行されるので、カバレッジは0%から100%に上がりました。でも結果を何も確かめていないので、見つけた数は0のままです。どのミュータントを入れてもテストは成功し、4つとも生き残ります。',
     '<b>30歳を確かめるテスト:</b> 条件を逆にした版と、常に false を返す版を見つけました。境界をずらした版（age &gt; 18）と、常に true を返す版は、30歳では元と同じ答えになるので生き残ります。カバレッジは100%のままです。',
-    '<b>10歳も確かめるテスト:</b> 常に true を返す版も見つけました。残るのは境界をずらした版（age &gt; 18）だけです。生き残りは「境目の値を確かめていない」というテストの穴を指しています。',
-    '<b>境目の18歳も確かめるテスト:</b> 4つとも見つけました。カバレッジはずっと100%のままでしたが、テストの強さはここまで変わっていました。実際のツールでは、どんなテストでも見つけられない等価ミュータントがあるため、いつも全部を見つけられるとは限りません。'
+    '<b>10歳も確かめるテスト:</b> 常に true を返す版も見つけました。残るのは境界をずらした版（age &gt; 18）だけです。生き残りは「境界の値を確かめていない」というテストの穴を指しています。',
+    '<b>境界の18歳も確かめるテスト:</b> 4つとも見つけました。カバレッジは①から100%のままでしたが、テストの強さはここまで変わっていました。実際のツールでは、どんなテストでも見つけられない等価ミュータントがあるため、いつも全部を見つけられるとは限りません。'
   ];
   var btns=[].slice.call(document.querySelectorAll('.steps button'));
   var cards=[].slice.call(document.querySelectorAll('#mutants .mc'));
+  var cov=document.getElementById('cov'), covbar=document.getElementById('covbar');
   var score=document.getElementById('score'), bar=document.getElementById('bar'), status=document.getElementById('status');
   function render(step){
-    btns.forEach(function(b){ var s=+b.getAttribute('data-step'); b.setAttribute('aria-pressed', String(s===step)); b.classList.toggle('inc', s<step); });
+    btns.forEach(function(b){ var s=+b.getAttribute('data-step'); b.setAttribute('aria-pressed', String(s===step)); b.classList.toggle('inc', s>=0 && s<step); });
+    cov.textContent=step<0?'0%':'100%'; covbar.style.width=step<0?'0%':'100%';
     var n=0;
     cards.forEach(function(c,i){
-      var k=killed[step][i]; if(k) n++;
+      var k=killed[step+1][i]; if(k) n++;
       c.classList.toggle('killed',k);
       c.querySelector('.st').textContent=k?'見つけた（テストが失敗）':'生き残った';
     });
     score.textContent='4つのうち '+n;
     bar.style.width=(n*25)+'%';
-    status.innerHTML=text[step];
+    status.innerHTML=text[step+1];
   }
   btns.forEach(function(b){ b.addEventListener('click',function(){ render(+b.getAttribute('data-step')); }); });
-  render(0);
+  render(-1);
 })();
 </script>
 </body>
