@@ -11,7 +11,7 @@
 
 ## 1. 一言でいうと
 
-**名前の手がかり**: Git〈この道具が拡張する、バージョン管理の道具の名前〉＋ AI〈Artificial Intelligence（人工知能）の略〉
+**名前の手がかり**: AI〈Artificial Intelligence（人工知能）の略〉
 
 Git AI は、リポジトリの中の「AI が書いたコード」を1行ずつ記録する、**Git** の拡張です。AI が書いた行ごとに、それを書いた**エージェント**（Claude Code や Cursor など）・**モデル**・セッションを結びつけて残します。オープンソースで、ライセンスは Apache-2.0 です（[GitHub の README](https://github.com/git-ai-project/git-ai)）。
 
@@ -33,7 +33,7 @@ AI のコーディングエージェントにコードを書かせる開発が�
 |---|---|
 | どの行を AI が書いたのかが分からない | エージェントが、コードを書くたびに自分で「この行を書いた」と報告する（**チェックポイント**）。AI らしさを推測して見分けるのではなく、エージェントの報告をそのまま記録する。コミットのときに、行ごとの記録を残す（[README](https://github.com/git-ai-project/git-ai)）。Thoughtworks は、行を足した時点で数えるだけの方法より細かく記録できる点を挙げている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/git-ai)） |
 | 書いた理由をあとから追えない | 行ごとに、書いたエージェント・モデル・セッションを結びつける。会話の記録そのものは Git の外に置く（後述）。Thoughtworks は、保管したセッションを使って、人もエージェントも、コードの元の文脈や設計の判断を問い合わせられる点を挙げている（[README](https://github.com/git-ai-project/git-ai)、[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/git-ai)） |
-| 履歴を整えると記録が崩れる | rebase・cherry-pick・squash・amend・reset などの操作のあと、最終的なコードの状態を調べて、記録を新しいコミットに写し直す。push と fetch で、記録をリモートと同期する（[README](https://github.com/git-ai-project/git-ai)） |
+| 履歴を整えると記録が崩れる | rebase・cherry-pick・squash・amend・reset などの操作のあと、最終的なコードの状態を調べて、記録を新しいコミットに写し直す。push と fetch で、記録をリモート（GitHub などの別の場所に置いたリポジトリ）と同期する（[README](https://github.com/git-ai-project/git-ai)） |
 
 ### 記録の置き場所: Git Notes
 
@@ -54,7 +54,7 @@ Git AI は、各エージェントの「道具を使う前・後」に呼ばれ�
 
 ### 無料の CLI とチーム向けの版
 
-手元で動く CLI は無料・オープンソースで、ログインなしに動きます。チーム向けの版は、プロンプトを安全に保管する場所や、プルリクエスト・チームごとの AI の割合やトークンの費用の集計を足すもので、自社で動かすか、開発元のクラウドで使えます（[公式サイト](https://usegitai.com/)）。会話の記録は、秘密の情報を消す処理をしたうえで Git の外に保存すると README は書いています（[README](https://github.com/git-ai-project/git-ai)）。
+手元で動く CLI は無料・オープンソースで、ログインなしに動きます。チーム向けの版は、プロンプトを安全に保管する場所や、**プルリクエスト**・チームごとの AI の割合や、トークン（AI のモデルが文章を区切って処理する単位で、単語や単語の一部ほどの大きさ。利用料金の基準になる）の費用の集計を足すもので、自社で動かすか、開発元のクラウドで使えます（[公式サイト](https://usegitai.com/)）。会話の記録は、秘密の情報を消す処理をしたうえで Git の外に保存すると README は書いています（[README](https://github.com/git-ai-project/git-ai)）。
 
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
@@ -122,6 +122,8 @@ Git AI は、各エージェントの「道具を使う前・後」に呼ばれ�
 | squash | 元の語: squash〈押しつぶす〉。複数のコミットを1つにまとめること |
 | cherry-pick | 元の語: cherry-pick〈さくらんぼを1粒ずつ摘む。いいものだけを選ぶ〉。ほかの枝から、特定のコミットだけを取り込む Git の操作 |
 | amend | 元の語: amend〈修正する〉。直前のコミットを作り直す Git の操作 |
+| reset | 元の語: reset〈元に戻す・設定し直す〉。今いる枝の指す先を、指定したコミットへ戻す Git の操作。設定によっては、作業中のファイルも元に戻る |
+| プルリクエスト | 元の語: pull request〈取り込みの依頼〉。自分の変更を共有のリポジトリに取り込んでもらうよう依頼し、レビューを受ける仕組み（GitHub などの機能） |
 | push / fetch | 元の語: push〈押す〉、fetch〈取ってくる〉。手元の履歴をリモートへ送ること／リモートから取ってくること |
 | CLI | 元の語: Command Line Interface の略。文字のコマンドを打って操作する使い方や道具 |
 | CI | 元の語: Continuous Integration の略（継続的な統合）。変更のたびに自動でビルドやテストを走らせる仕組み |

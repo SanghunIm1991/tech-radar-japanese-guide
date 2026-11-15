@@ -428,7 +428,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   cluster.addEventListener('click',function(){mode='cluster';render();});
   stop.addEventListener('click',function(){down=!down;render();});
 
-  // 判断の目安のスライダー（対数の目盛り: 毎秒1千件〜1億件）。目安の線は開発元の「毎秒100万件程度」
+  // 判断の目安のスライダー（対数の目盛り: 毎秒1,000件〜1億件）。目安の線は開発元の「毎秒100万件程度」
   var rate=document.getElementById('rate'), rateV=document.getElementById('rate-v'), rec=document.getElementById('rec');
   function fmt(n){
     if(n>=1e8) return (Math.round(n/1e7)/10)+'億件';

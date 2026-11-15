@@ -11,7 +11,7 @@
 
 ## 1. 一言でいうと
 
-**名前の手がかり**: Flux〈流れ・絶え間ない変化〉＋ Markdown〈英語の mark down は「書き留める」の意味〉
+**名前の手がかり**: Flux〈流れ・絶え間ない変化〉＋ Markdown〈英語の mark down は「書き留める」の意味。名前の由来ではない〉
 
 FluxMarkdown は、Mac の Finder でファイルを選んでスペースキーを押すだけで、**Markdown** の文書を、図や数式まで描かれた見た目でのぞける道具です。macOS に元からある **Quick Look**（ファイルを開かずに中身をすばやくプレビューする機能）に、Markdown を描く力を足す拡張として動きます（[GitHub の README](https://github.com/xykong/flux-markdown)、[Apple のサポート](https://support.apple.com/guide/mac-help/view-and-edit-files-with-quick-look-mh14119/mac)）。
 
