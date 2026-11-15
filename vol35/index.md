@@ -26,63 +26,63 @@
 | Platforms | 1 | 10 | 11 | — |
 | Languages & Frameworks | 1 | 6 | 7 | — |
 
-## 書いた解説
+## 書いた技術
 
-技術1つにつき1ファイルです。書いたものから順に追加します。
+技術ごとに、図と動きで見せる**図解ページ**（HTML）と、出典つきの**詳しい解説**（Markdown）があります。まず図解ページを開き、詳しく知りたいときや出典を確かめたいときに詳しい解説を読んでください。図解ページはまだ一部の技術だけで、作ったものから「—」を置き換えます。図解ページは、このサイトで開くと表示されます（GitHub のリポジトリで開くと HTML のソースが表示されます）。
 
-| 技術 | 象限 | リング | 状態 |
-|---|---|---|---|
-| [Agent sandboxing](techniques/agent-sandboxing.md)（[入門ページ](techniques/agent-sandboxing-intro.html)） | Techniques | Adopt | 下書き |
-| [Mutation testing](techniques/mutation-testing.md)（[入門ページ](techniques/mutation-testing-intro.html)） | Techniques | Adopt | 下書き |
-| [Path-to-production mapping](techniques/path-to-production-mapping.md)（[入門ページ](techniques/path-to-production-mapping-intro.html)） | Techniques | Adopt | 下書き |
-| [Post-quantum cryptography](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
-| [Progressive context disclosure](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
-| [Threat modeling](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
-| [Agent plugin marketplace](techniques/agent-plugin-marketplace.md) | Techniques | Trial | 下書き |
-| [Agent-maintained knowledge bases](techniques/agent-maintained-knowledge-bases.md) | Techniques | Trial | 下書き |
-| [Anchoring coding agents to a reference application](techniques/anchoring-coding-agents-to-a-reference-application.md) | Techniques | Trial | 下書き |
-| [Coding harness for general-purpose agents](techniques/coding-harness-for-general-purpose-agents.md) | Techniques | Trial | 下書き |
-| [Feedback flywheel](techniques/feedback-flywheel.md) | Techniques | Trial | 下書き |
-| [Graph-grounded codebase reasoning](techniques/graph-grounded-codebase-reasoning.md) | Techniques | Trial | 下書き |
-| [Grilling](techniques/grilling.md) | Techniques | Trial | 下書き |
-| [Interactive visual plans with agents](techniques/interactive-visual-plans-with-agents.md) | Techniques | Trial | 下書き |
-| [Managed agents runtime](techniques/managed-agents-runtime.md) | Techniques | Trial | 下書き |
-| [Open-weight models](techniques/open-weight-models.md) | Techniques | Trial | 下書き |
-| [Risk-tiered human oversight](techniques/risk-tiered-human-oversight.md) | Techniques | Trial | 下書き |
-| [Self-improving harness](techniques/self-improving-harness.md) | Techniques | Trial | 下書き |
-| [Small language models](techniques/small-language-models.md) | Techniques | Trial | 下書き |
-| [Stateful guardrails](techniques/stateful-guardrails.md) | Techniques | Trial | 下書き |
-| [Subagents for better context management](techniques/subagents-for-better-context-management.md) | Techniques | Trial | 下書き |
-| [Toxic flow analysis for AI](techniques/toxic-flow-analysis-for-ai.md) | Techniques | Trial | 下書き |
-| [Unattended overnight agentic builds](techniques/unattended-overnight-agentic-builds.md) | Techniques | Trial | 下書き |
-| [mise](tools/mise.md) | Tools | Adopt | 下書き |
-| [OpenAI Codex](tools/openai-codex.md) | Tools | Adopt | 下書き |
-| [OpenCode](tools/opencode.md) | Tools | Adopt | 下書き |
-| [Act](tools/act.md) | Tools | Trial | 下書き |
-| [Agent Package Manager](tools/agent-package-manager.md) | Tools | Trial | 下書き |
-| [ast-grep](tools/ast-grep.md) | Tools | Trial | 下書き |
-| [Beads](tools/beads.md) | Tools | Trial | 下書き |
-| [Chaos Mesh](tools/chaos-mesh.md) | Tools | Trial | 下書き |
-| [Cube Core](tools/cube-core.md) | Tools | Trial | 下書き |
-| [Figma Code Connect](tools/figma-code-connect.md) | Tools | Trial | 下書き |
-| [FluxMarkdown](tools/fluxmarkdown.md) | Tools | Trial | 下書き |
-| [Git AI](tools/git-ai.md) | Tools | Trial | 下書き |
-| [Linear](tools/linear.md) | Tools | Trial | 下書き |
-| [mattpocock/skills](tools/mattpocock-skills.md) | Tools | Trial | 下書き |
-| [OpenSpec](tools/openspec.md) | Tools | Trial | 下書き |
-| [OpenWiki](tools/openwiki.md) | Tools | Trial | 下書き |
-| [Pi](tools/pi.md) | Tools | Trial | 下書き |
-| [Sourcebot](tools/sourcebot.md) | Tools | Trial | 下書き |
-| [Timefold Solver](tools/timefold-solver.md) | Tools | Trial | 下書き |
-| [VictoriaMetrics](platforms/victoriametrics.md)（[入門ページ](platforms/victoriametrics-intro.html)） | Platforms | Adopt | 下書き |
-| [Kafka share groups](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
-| [KServe](platforms/kserve.md) | Platforms | Trial | 下書き |
-| [LibreChat](platforms/librechat.md) | Platforms | Trial | 下書き |
-| [LiteLLM](platforms/litellm.md) | Platforms | Trial | 下書き |
-| [Microsoft Copilot Retrieval API](platforms/microsoft-copilot-retrieval-api.md) | Platforms | Trial | 下書き |
-| [Restate](platforms/restate.md) | Platforms | Trial | 下書き |
-| [Talos Linux](platforms/talos-linux.md) | Platforms | Trial | 下書き |
-| [Temporal](platforms/temporal.md) | Platforms | Trial | 下書き |
-| [vCluster](platforms/vcluster.md) | Platforms | Trial | 下書き |
-| [VictoriaLogs](platforms/victorialogs.md) | Platforms | Trial | 下書き |
-| [Open Data Contract Standard (ODCS)](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
+| 技術 | 図解ページ | 詳しい解説 | 象限 | リング | 状態 |
+|---|---|---|---|---|---|
+| Agent sandboxing | [図と動きで見る](techniques/agent-sandboxing-intro.html) | [Markdown](techniques/agent-sandboxing.md) | Techniques | Adopt | 下書き |
+| Mutation testing | [図と動きで見る](techniques/mutation-testing-intro.html) | [Markdown](techniques/mutation-testing.md) | Techniques | Adopt | 下書き |
+| Path-to-production mapping | [図と動きで見る](techniques/path-to-production-mapping-intro.html) | [Markdown](techniques/path-to-production-mapping.md) | Techniques | Adopt | 下書き |
+| Post-quantum cryptography | — | [Markdown](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
+| Progressive context disclosure | — | [Markdown](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
+| Threat modeling | — | [Markdown](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
+| Agent plugin marketplace | — | [Markdown](techniques/agent-plugin-marketplace.md) | Techniques | Trial | 下書き |
+| Agent-maintained knowledge bases | — | [Markdown](techniques/agent-maintained-knowledge-bases.md) | Techniques | Trial | 下書き |
+| Anchoring coding agents to a reference application | — | [Markdown](techniques/anchoring-coding-agents-to-a-reference-application.md) | Techniques | Trial | 下書き |
+| Coding harness for general-purpose agents | — | [Markdown](techniques/coding-harness-for-general-purpose-agents.md) | Techniques | Trial | 下書き |
+| Feedback flywheel | — | [Markdown](techniques/feedback-flywheel.md) | Techniques | Trial | 下書き |
+| Graph-grounded codebase reasoning | — | [Markdown](techniques/graph-grounded-codebase-reasoning.md) | Techniques | Trial | 下書き |
+| Grilling | — | [Markdown](techniques/grilling.md) | Techniques | Trial | 下書き |
+| Interactive visual plans with agents | — | [Markdown](techniques/interactive-visual-plans-with-agents.md) | Techniques | Trial | 下書き |
+| Managed agents runtime | — | [Markdown](techniques/managed-agents-runtime.md) | Techniques | Trial | 下書き |
+| Open-weight models | — | [Markdown](techniques/open-weight-models.md) | Techniques | Trial | 下書き |
+| Risk-tiered human oversight | — | [Markdown](techniques/risk-tiered-human-oversight.md) | Techniques | Trial | 下書き |
+| Self-improving harness | — | [Markdown](techniques/self-improving-harness.md) | Techniques | Trial | 下書き |
+| Small language models | — | [Markdown](techniques/small-language-models.md) | Techniques | Trial | 下書き |
+| Stateful guardrails | — | [Markdown](techniques/stateful-guardrails.md) | Techniques | Trial | 下書き |
+| Subagents for better context management | — | [Markdown](techniques/subagents-for-better-context-management.md) | Techniques | Trial | 下書き |
+| Toxic flow analysis for AI | — | [Markdown](techniques/toxic-flow-analysis-for-ai.md) | Techniques | Trial | 下書き |
+| Unattended overnight agentic builds | — | [Markdown](techniques/unattended-overnight-agentic-builds.md) | Techniques | Trial | 下書き |
+| mise | — | [Markdown](tools/mise.md) | Tools | Adopt | 下書き |
+| OpenAI Codex | — | [Markdown](tools/openai-codex.md) | Tools | Adopt | 下書き |
+| OpenCode | — | [Markdown](tools/opencode.md) | Tools | Adopt | 下書き |
+| Act | — | [Markdown](tools/act.md) | Tools | Trial | 下書き |
+| Agent Package Manager | — | [Markdown](tools/agent-package-manager.md) | Tools | Trial | 下書き |
+| ast-grep | — | [Markdown](tools/ast-grep.md) | Tools | Trial | 下書き |
+| Beads | — | [Markdown](tools/beads.md) | Tools | Trial | 下書き |
+| Chaos Mesh | — | [Markdown](tools/chaos-mesh.md) | Tools | Trial | 下書き |
+| Cube Core | — | [Markdown](tools/cube-core.md) | Tools | Trial | 下書き |
+| Figma Code Connect | — | [Markdown](tools/figma-code-connect.md) | Tools | Trial | 下書き |
+| FluxMarkdown | — | [Markdown](tools/fluxmarkdown.md) | Tools | Trial | 下書き |
+| Git AI | — | [Markdown](tools/git-ai.md) | Tools | Trial | 下書き |
+| Linear | — | [Markdown](tools/linear.md) | Tools | Trial | 下書き |
+| mattpocock/skills | — | [Markdown](tools/mattpocock-skills.md) | Tools | Trial | 下書き |
+| OpenSpec | — | [Markdown](tools/openspec.md) | Tools | Trial | 下書き |
+| OpenWiki | — | [Markdown](tools/openwiki.md) | Tools | Trial | 下書き |
+| Pi | — | [Markdown](tools/pi.md) | Tools | Trial | 下書き |
+| Sourcebot | — | [Markdown](tools/sourcebot.md) | Tools | Trial | 下書き |
+| Timefold Solver | — | [Markdown](tools/timefold-solver.md) | Tools | Trial | 下書き |
+| VictoriaMetrics | [図と動きで見る](platforms/victoriametrics-intro.html) | [Markdown](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
+| Kafka share groups | — | [Markdown](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
+| KServe | — | [Markdown](platforms/kserve.md) | Platforms | Trial | 下書き |
+| LibreChat | — | [Markdown](platforms/librechat.md) | Platforms | Trial | 下書き |
+| LiteLLM | — | [Markdown](platforms/litellm.md) | Platforms | Trial | 下書き |
+| Microsoft Copilot Retrieval API | — | [Markdown](platforms/microsoft-copilot-retrieval-api.md) | Platforms | Trial | 下書き |
+| Restate | — | [Markdown](platforms/restate.md) | Platforms | Trial | 下書き |
+| Talos Linux | — | [Markdown](platforms/talos-linux.md) | Platforms | Trial | 下書き |
+| Temporal | — | [Markdown](platforms/temporal.md) | Platforms | Trial | 下書き |
+| vCluster | — | [Markdown](platforms/vcluster.md) | Platforms | Trial | 下書き |
+| VictoriaLogs | — | [Markdown](platforms/victorialogs.md) | Platforms | Trial | 下書き |
+| Open Data Contract Standard (ODCS) | — | [Markdown](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |

@@ -8,7 +8,7 @@
 | 象限 | Techniques（開発や運用の進め方・手法） |
 | リング | Adopt（2022年10月の版でも Adopt。今回あらためて取り上げられた） |
 | 状態 | 下書き |
-| 入門ページ | [図と動きで見る入門ページ](path-to-production-mapping-intro.html)（サイトで表示。GitHub のリポジトリではソースが表示されます） |
+| 図解ページ | [図と動きで見る図解ページ](path-to-production-mapping-intro.html)（この解説の内容を図と動きで見せるページ。サイトで表示。GitHub のリポジトリではソースが表示されます） |
 
 ## 1. 一言でいうと
 
