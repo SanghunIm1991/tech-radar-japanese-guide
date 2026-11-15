@@ -42,9 +42,10 @@ Technology Radar は、Thoughtworks が実際の案件での経験をもとに�
 
 ```
 vol35/                     版ごとのフォルダ
-  index.md                 その版の索引（テーマ・象限×リングごとの数・各解説へのリンク）
+  index.md                 その版の索引（テーマ・象限×リングごとの数・各技術の図解ページと詳しい解説へのリンク）
   platforms/               象限ごとのフォルダ
-    victoriametrics.md     技術1つにつき1ファイル
+    victoriametrics-intro.html  図解ページ（HTML。図と動きで見せる。主に読むページ）
+    victoriametrics.md     詳しい解説（Markdown。出典つき。技術1つにつき1ファイル）
   ...
 templates/                 解説ファイルのひな形（サイトには載せていません。GitHub のリポジトリで読めます）
 docs/                      作業の記録（判断の経緯・確認結果など。サイトには載せていません。GitHub のリポジトリで読めます）
