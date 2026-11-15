@@ -2,6 +2,8 @@
 
 Thoughtworks が発行する Technology Radar に載った技術を、IT エンジニア向けに日本語で解説する、**非公式**の資料集です。専門分野を問わず読めるように用語をやさしく説明しつつ、システムアーキテクトの観点（トレードオフ・採用の判断）も扱います。
 
+**サイトで読む**: https://sanghunim1991.github.io/tech-radar-japanese-guide/ （Vol.35 の索引は [vol35/](https://sanghunim1991.github.io/tech-radar-japanese-guide/vol35/)）。図と動きで見せる入門ページ（`*-intro.html`）は、サイトで開くと表示されます。GitHub のリポジトリで開くと HTML のソースが表示されます。
+
 > **ご注意**
 >
 > - このリポジトリは個人が作った非公式の資料です。Thoughtworks とは関係がありません。Thoughtworks による翻訳・承認・推奨を受けたものでもありません。
