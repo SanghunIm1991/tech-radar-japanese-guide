@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mutation testing 入門ページ（非公式）</title>
+<meta name="description" content="Mutation testing（ミューテーションテスト）の日本語解説をもとにした、動く図と触れる要素つきの入門ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。差し色は「生き残った変異（テストの穴）」を表す濃い桃色、見つけた側は青 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-ink:#FFFFFF; --blue-soft:#DCE5FB; --pulse:#D9467A; --pulse-text:#A51F50; --pulse-soft:#FBE0EA;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --node:#14203A; --node-ink:#FFFFFF; --muted-node:#C5CCDA;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-ink:#0F1626; --blue-soft:#22305A; --pulse:#FF7AA8; --pulse-text:#FF7AA8; --pulse-soft:#3D2232;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --node:#2B3858; --node-ink:#F4F6FA; --muted-node:#3A4560;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code,.code{font-family:var(--mono)}
+
+/* 見出しの帯。線画は、コードの1文字（+）が別の文字（−）に入れ替わる様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--pulse);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,10vw,96px);line-height:1;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--pulse)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.flip{font-family:var(--mono);font-size:clamp(18px,3.4vw,28px);color:#DCE3F1;display:flex;align-items:center;gap:.2em}
+.flip .ch{position:relative;display:inline-block;width:1em;height:1.4em;text-align:center}
+.flip .ch span{position:absolute;inset:0;font-weight:700}
+.flip .a{color:#DCE3F1;animation:outA 4s ease-in-out infinite}
+.flip .b{color:var(--pulse);opacity:0;animation:inB 4s ease-in-out infinite}
+@keyframes outA{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+@keyframes inB{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.flip .anim{display:inline-flex;align-items:center;gap:.2em}
+.flip .still{display:none}
+.flip .still em{font-style:normal;color:var(--pulse);font-weight:700}
+.flip small{font-family:var(--body);font-size:13px;color:var(--band-sub);margin-left:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.metaphor .big em{font-style:normal;color:var(--blue)}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:15px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:13px}
+.t-pink{fill:var(--pulse-text);font-family:var(--body);font-weight:700;font-size:14px}
+.t-blue{fill:var(--blue);font-family:var(--body);font-weight:700;font-size:14px}
+.beam{animation:sweep 6s ease-in-out infinite;transform-origin:110px 120px}
+@keyframes sweep{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--blue)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--pulse);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図 */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.panel{background:var(--bg);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h3{font-size:16px;font-family:var(--display)}
+pre{margin:0;font-family:var(--mono);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.fn{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.steps button{font:inherit;font-size:15px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;gap:2px}
+.steps button code{font-size:13px;color:var(--sub)}
+.steps button[aria-pressed="true"]{border:2px solid var(--blue);background:var(--blue-soft);font-weight:700}
+.steps button.inc{border-color:var(--blue)}
+.steps button.inc::after{content:"（含む）";font-size:12px;color:var(--blue);font-weight:700}
+.meters{display:flex;flex-direction:column;gap:12px}
+.meter{display:flex;flex-direction:column;gap:4px}
+.meter .lb{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:700}
+.meter .lb b{font-family:var(--display);font-size:20px}
+.track{height:16px;border-radius:4px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.fill{height:100%;transition:width .4s ease}
+.fill.cov{background:var(--muted-node)}
+.fill.mut{background:var(--blue)}
+.mutants{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mc{border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:0;border:2px solid var(--pulse);background:var(--pulse-soft);transition:background .3s,border-color .3s}
+.mc code{font-size:14px;font-weight:700}
+.mc .kind{font-size:12px;color:var(--sub)}
+.mc .st{font-size:13px;font-weight:700;color:var(--pulse-text)}
+.mc.killed{border-color:var(--blue);background:var(--blue-soft)}
+.mc.killed .st{color:var(--blue)}
+.status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
+.status b{color:var(--pulse-text)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:2px solid var(--pulse);background:var(--pulse-soft)}
+.legend i.k{border-color:var(--blue);background:var(--blue-soft)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
+.loss{border-top-color:var(--pulse)}
+.gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 導入するときに決めること（問いのカード。件数の判定はしない） */
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--blue);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px;color:var(--blue)}
+.dq p{font-size:15px;line-height:1.7}
+
+/* 道具の例のカード */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tool a{font-family:var(--display);font-weight:900;font-size:18px}
+.tool .kind{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.tool p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない） */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.timeline{flex:none;display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px}
+.timeline .now{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--blue)}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.lab{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:420px){ .mutants{grid-template-columns:minmax(0,1fr)} }
+@media (prefers-reduced-motion:reduce){
+  .flip .a,.flip .b,.beam{animation:none}
+  .flip .anim{display:none} .flip .still{display:inline}
+  .fill,.mc{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="mutation-testing.html">Mutation testing の解説（本文）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TECHNIQUES</span><span class="ring">ADOPT</span><span class="note">非公式の入門ページ・下書き</span>
+    </div>
+    <h1>Mutation testing</h1>
+    <p class="name-hint">名前の手がかり: <span>Mutation</span> 突然変異 ＋ <span>testing</span> 試すこと</p>
+    <p class="lead">プログラムにわざと小さな「バグ」を埋め込み、テストが見つけられるかで、テストそのものの質を測る手法</p>
+    <p class="flip" role="img" aria-label="コードの return a + b の + を - に入れ替えた、1文字だけ変えた版（ミュータント）の絵"><span class="anim" aria-hidden="true"><span>return a</span><span class="ch"><span class="a">+</span><span class="b">-</span></span><span>b</span></span><span class="still" aria-hidden="true">return a + b → return a <em>-</em> b</span><small aria-hidden="true">← 1文字だけ変えた版（ミュータント）</small></p>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 300" role="img" aria-label="警備員がライトで人の列を照らし、偽の不審者を1人は見つけ、もう1人は見逃している絵">
+        <rect x="20" y="230" width="460" height="6" rx="3" fill="var(--line)"/>
+        <g class="beam"><path d="M110 120 L470 70 L470 190 Z" fill="var(--blue)" fill-opacity=".12"/></g>
+        <circle cx="90" cy="110" r="20" fill="var(--blue)"/>
+        <rect x="70" y="132" width="40" height="70" rx="10" fill="var(--blue)"/>
+        <rect x="104" y="140" width="22" height="10" rx="3" fill="var(--ink)"/>
+        <text x="90" y="262" text-anchor="middle" class="t-blue">警備員（テスト）</text>
+        <g fill="var(--muted-node)">
+          <circle cx="220" cy="150" r="14"/><rect x="206" y="166" width="28" height="56" rx="8"/>
+          <circle cx="300" cy="150" r="14"/><rect x="286" y="166" width="28" height="56" rx="8"/>
+        </g>
+        <circle cx="260" cy="150" r="14" fill="var(--pulse)"/><rect x="246" y="166" width="28" height="56" rx="8" fill="var(--pulse)"/><circle cx="260" cy="150" r="24" fill="none" stroke="var(--blue)" stroke-width="4"/>
+        <text x="260" y="130" text-anchor="middle" class="t-blue">見つけた</text>
+        <circle cx="400" cy="150" r="14" fill="var(--pulse)"/><rect x="386" y="166" width="28" height="56" rx="8" fill="var(--pulse)"/>
+        <circle cx="400" cy="150" r="24" fill="none" stroke="var(--pulse)" stroke-width="3" stroke-dasharray="5 4"/>
+        <text x="400" y="112" text-anchor="middle" class="t-pink">見逃した</text>
+        <text x="400" y="262" text-anchor="middle" class="t-small">＝ 警備の穴</text>
+        <text x="300" y="290" text-anchor="middle" class="t-small">桃色が、わざと紛れ込ませた偽の不審者（ミュータント）</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">警備員の実力を確かめる、<em>抜き打ちの訓練</em></p>
+        <p>わざと偽の不審者を紛れ込ませてみて、見つけられなかった者が警備の穴を教えてくれます。ミューテーションテストでは、ツールがプログラムに小さな変更を1つ加えた版（<b>ミュータント</b>）を自動で作り、テストがそれを見つけられるか（テストが失敗するか）を確かめます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">テストの良し悪しを測るときの2つの課題と、ミューテーションテストの答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>カバレッジは「実行した」ことしか分からない</h3><span class="term">コードカバレッジ（code coverage）</span><p>何割の行が実行されたかは分かっても、結果が正しいかをテストが確かめたかは分からない。極端な例では、結果を何も確かめないテストでも、100%になりうる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>誤りを見つけられるかを、直接数える</h3><p>わざと誤りを埋め込んだ版でテストを動かし、テストが失敗した（見つけた）割合をスコアにする。結果を確かめないテストは、誤りを埋め込んでも失敗しないので、見逃し（生き残り）として表れる。<a href="#s-lab">下の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>AI が書いたテストで、数字が水増しされる</h3><span class="term">AI が生成したテスト</span><p>AI がコードとテストを大量に書くと、浅いテストでもカバレッジの数字は簡単に上がる（Thoughtworks の指摘）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>ロジックを変えたら落ちるかで確かめる</h3><p>生き残ったミュータントが、ロジックを変えても通ってしまうテストの場所を示す。Thoughtworks は、生成されたテストがロジックの変化を見逃したまま通らないようにする安全装置と位置づけ、AI のエージェントが作業の途中で自分で回せるようになったことも挙げている。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: テストを強くすると、カバレッジは変わらず、見つけた数だけが増える</h2>
+    <p class="hint">テストのボタンを①から順に選ぶと、テストが増えます（選んだ段階までのテストを、全部まとめて動かします）。カバレッジ（実行した行の割合）と、ミュータントを見つけた数を比べてください。関数・テスト・ミュータントは、説明のために作った例です。</p>
+    <div class="lab">
+      <div class="panel">
+        <h3>テストする関数</h3>
+        <pre class="fn">function canVote(age) {
+  return age &gt;= 18;
+}</pre>
+        <h3 id="lb-steps">テスト（上から順に足していく）</h3>
+        <div class="steps" role="group" aria-labelledby="lb-steps">
+          <button type="button" data-step="0" aria-pressed="true">① 呼ぶだけ（アサーションなし）<code>canVote(30)</code></button>
+          <button type="button" data-step="1" aria-pressed="false">② 30歳は true か確かめる<code>expect(canVote(30)).toBe(true)</code></button>
+          <button type="button" data-step="2" aria-pressed="false">③ さらに10歳は false か確かめる<code>expect(canVote(10)).toBe(false)</code></button>
+          <button type="button" data-step="3" aria-pressed="false">④ さらに境目の18歳は true か確かめる<code>expect(canVote(18)).toBe(true)</code></button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="meters">
+          <div class="meter"><div class="lb"><span>コードカバレッジ</span><b>100%</b></div><div class="track"><div class="fill cov" style="width:100%"></div></div></div>
+          <div class="meter"><div class="lb"><span>ミュータントを見つけた数</span><b id="score">4つのうち 0</b></div><div class="track"><div class="fill mut" id="bar" style="width:0%"></div></div></div>
+        </div>
+        <h3>ツールが作ったミュータント（どれも1か所だけ変えた版）</h3>
+        <div class="mutants" id="mutants">
+          <div class="mc" data-m="0"><code>age &gt; 18</code><span class="kind">境界を1つずらす</span><span class="st">生き残った</span></div>
+          <div class="mc" data-m="1"><code>age &lt; 18</code><span class="kind">条件を逆にする</span><span class="st">生き残った</span></div>
+          <div class="mc" data-m="2"><code>return true</code><span class="kind">戻り値を変える（常に true）</span><span class="st">生き残った</span></div>
+          <div class="mc" data-m="3"><code>return false</code><span class="kind">戻り値を変える（常に false）</span><span class="st">生き残った</span></div>
+        </div>
+        <div class="legend" aria-hidden="true"><span><i class="k"></i>見つけた（killed: テストが失敗した）</span><span><i></i>生き残った（survived: テストの穴）</span></div>
+      </div>
+    </div>
+    <p class="status" id="status" aria-live="polite"><b>呼ぶだけのテスト:</b> 関数の行は実行されるので、カバレッジは100%です。でも結果を何も確かめていないので、どのミュータントを入れてもテストは成功し、4つとも生き残ります。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li>「テストが通った」を信じてよいかの裏付け。テストが本当に誤りを見つけられるかを、数字で確かめられる</li>
+        <li>生き残ったミュータントが、テストの確かめ方が甘い場所を具体的に示す</li>
+        <li>AI に大量のテストを書かせるときの点検に使える</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの</h2>
+      <ul>
+        <li><b>時間がかかる</b>: ミュータントの数だけテストを実行する。PIT のドキュメントも、計算の負担が大きいと明言している</li>
+        <li><b>等価ミュータント</b>: 変えても動きが変わらないミュータントは、どんなテストでも見つけられず、スコアが100%に届かない原因になる</li>
+        <li><b>読み解きの手間</b>: 生き残りが「テストの穴」か「等価ミュータント」かは、人（または AI）が見て判断する（筆者の見立て）</li>
+        <li><b>スコアを目標にしすぎる危険</b>: 数字だけを追うと、意味の薄いテストで数字を上げる方向に流れかねない（筆者の見立て）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに決める5つのこと</h2>
+    <p class="lead-note">Thoughtworks はこの手法を Adopt に置いています。使うかどうかより、<b>どこに、どう組み込むか</b>を決めるのが要点です（筆者の見立て）。次の5つは、そのときに考えることです。</p>
+    <div class="decide">
+      <div class="dq"><b>どこに使うか？</b><p>全部のコードに毎回かけるのではなく、間違えると影響の大きい中核の業務ロジックから始める。</p><p class="hint">Thoughtworks も、対象のパッケージを絞るか、最近変えたコードだけを確かめるよう勧めている</p></div>
+      <div class="dq"><b>時間をどう抑えるか？</b><p>前回の結果を使い回し、変更の影響を受けた部分だけを実行し直すインクリメンタルな実行を使う。</p><p class="hint">StrykerJS にはインクリメンタルモードがある。PIT のインクリメンタル分析は実験的な機能の扱い（2026-11 時点）</p></div>
+      <div class="dq"><b>CI にどう組み込むか？</b><p>毎回の変更で回すか、夜間にまとめて回すか。スコアの下限でビルドを失敗させるなら、等価ミュータントを考えに入れて下限を決める。</p></div>
+      <div class="dq"><b>言語に合うツールはあるか？</b><p>使っている言語・テストの道具に対応したツールがあるかを確かめる（下の道具の例）。</p></div>
+      <div class="dq"><b>AI とどう組み合わせるか？</b><p>AI にテストを書かせているなら、生成されたテストが本当に結果を確かめているかの点検に使えるかを考える。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-tools">
+    <h2 id="s-tools">実現するための道具の例</h2>
+    <p class="lead-note">推奨でも網羅でもない例です（2026-11-15 の時点）。商用の製品は、公式の説明を確かめられたものが無かったので載せていません。</p>
+    <div class="tools">
+      <div class="tool"><a href="https://github.com/stryker-mutator/stryker-js">StrykerJS</a><span class="kind">OSS（Apache-2.0）</span><p>JavaScript・TypeScript 向け。Stryker には C#（Stryker.NET）・Scala（Stryker4s）向けもある。</p></div>
+      <div class="tool"><a href="https://github.com/hcoles/pitest">PIT（Pitest）</a><span class="kind">OSS（Apache-2.0）</span><p>Java など JVM 向け。行のカバレッジをもとに、変更した箇所に向けたテストを選んで実行する。</p></div>
+      <div class="tool"><a href="https://github.com/sourcefrog/cargo-mutants">cargo-mutants</a><span class="kind">OSS（MIT）</span><p>Rust 向け。cargo のサブコマンドとして動く。CI の説明に、プルリクエストのインクリメンタルなテストが載っている。</p></div>
+      <div class="tool"><a href="https://github.com/boxed/mutmut">mutmut</a><span class="kind">OSS（BSD-3-Clause）</span><p>Python 向け。前回からソースが変わった関数のミュータントだけを試し直す。Windows では WSL（Windows の中で Linux を動かす仕組み）の中で動かす。</p></div>
+      <div class="tool"><a href="https://github.com/infection/infection">Infection</a><span class="kind">OSS（BSD-3-Clause）</span><p>PHP 向けのミューテーションテストの枠組み。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="timeline">
+      <span>2026年4月 Trial</span>
+      <span><span class="now">2026年11月 Adopt</span></span>
+      <small>Radar のページの推移。新規か移動かの表示はなし</small>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（要旨）</div>
+      <p>AI がコードとテストを大量に書く時代には、カバレッジの数字は簡単に水増しできるため、テストが本当に誤りを見つけられるかを確かめるミューテーションテストが安全装置（ガードレール）として働くと、Thoughtworks は見ています。AI のエージェントが作業の中で自分で回し、テストの確かめ方を評価できるようになった点も挙げ、時間がかかるので、対象を特定のパッケージや最近の変更に絞るよう勧めています。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">青い字は元の語（英単語・略語・名前の元になった語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>アサーション</summary><p class="etym"><span class="w">assertion</span> ＝ 断言</p><p>テストの中で「結果はこうなっているはず」と確かめる部分。これが無いテストは、動かすだけで何も確かめない。</p></details>
+      <details><summary>コードカバレッジ</summary><p class="etym"><span class="w">code</span> ＝ プログラム ／ <span class="w">coverage</span> ＝ 覆う範囲</p><p>テストを実行したときに、プログラムのどれだけの部分（行や分岐）が実行されたかの割合。</p></details>
+      <details><summary>ミュータント</summary><p class="etym"><span class="w">mutant</span> ＝ 突然変異体</p><p>元のプログラムに小さな変更を1つ加えた版。わざと埋め込んだバグにあたる。</p></details>
+      <details><summary>ミューテーション演算子</summary><p class="etym"><span class="w">mutation</span> ＝ 突然変異 ／ <span class="w">operator</span> ＝ 演算子・操作するもの</p><p>ミュータントを作るための変更の種類。「+ を − に変える」「条件を逆にする」など。</p></details>
+      <details><summary>ミューテーションスコア</summary><p class="etym"><span class="w">score</span> ＝ 得点</p><p>有効なミュータント（コンパイルできて動いたもの）のうち、テストが見つけたものの割合（Stryker の定義。ツールによって数え方が少し違う）。高いほどテストが誤りに敏感。</p></details>
+      <details><summary>等価ミュータント</summary><p class="etym"><span class="w">equivalent</span> ＝ 等しい ／ <span class="w">mutant</span> ＝ 突然変異体</p><p>変更しても動きがまったく変わらないため、どんなテストでも見つけられないミュータント。</p></details>
+      <details><summary>インクリメンタル</summary><p class="etym"><span class="w">incremental</span> ＝ 少しずつ増える</p><p>前回の結果を使い回し、変更の影響を受けた部分だけを処理し直すこと。時間を短くできる。</p></details>
+      <details><summary>CI</summary><p class="etym"><span class="w">CI</span> ＝ Continuous Integration（継続的な統合）</p><p>コードを変更するたびに、ビルドやテストを自動で実行する仕組み。</p></details>
+      <details><summary>JVM</summary><p class="etym"><span class="w">JVM</span> ＝ Java Virtual Machine（Java の仮想の機械）</p><p>Java や Kotlin、Scala などのプログラムを動かす土台。</p></details>
+      <details><summary>WSL</summary><p class="etym"><span class="w">WSL</span> ＝ Windows Subsystem for Linux（Linux のための Windows の下位の仕組み）</p><p>Windows の中で Linux の環境を動かす仕組み。</p></details>
+      <details><summary>プルリクエスト</summary><p class="etym"><span class="w">pull request</span> ＝ 取り込みの依頼</p><p>自分の変更を取り込んでほしいと頼む、GitHub などの仕組み。変更の確認や自動テストの起点になる。</p></details>
+      <details><summary>プロパティベーステスト</summary><p class="etym"><span class="w">property</span> ＝ 性質 ／ <span class="w">based</span> ＝ もとにした</p><p>「どんな入力でもこの性質が成り立つはず」と書いておき、入力をたくさん自動で作って確かめるテストの手法。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページは <a href="mutation-testing.html">Mutation testing の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-15。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/techniques/mutation-testing">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // テストの段階ごとに、各ミュータントを見つけたか（true）。例: canVote(age) { return age >= 18; }
+  //  ① 呼ぶだけ: 何も確かめないので、どれも見つけられない
+  //  ② 30歳 → true: age<18（false）と return false を見つける。age>18 と return true は 30 では true のまま
+  //  ③ ＋10歳 → false: return true（true になる）も見つける。age>18 は 10 では false のまま
+  //  ④ ＋18歳 → true: age>18（18 では false）も見つける
+  var killed=[
+    [false,false,false,false],
+    [false,true,false,true],
+    [false,true,true,true],
+    [true,true,true,true]
+  ];
+  var text=[
+    '<b>呼ぶだけのテスト:</b> 関数の行は実行されるので、カバレッジは100%です。でも結果を何も確かめていないので、どのミュータントを入れてもテストは成功し、4つとも生き残ります。',
+    '<b>30歳を確かめるテスト:</b> 条件を逆にした版と、常に false を返す版を見つけました。境界をずらした版（age &gt; 18）と、常に true を返す版は、30歳では元と同じ答えになるので生き残ります。カバレッジは100%のままです。',
+    '<b>10歳も確かめるテスト:</b> 常に true を返す版も見つけました。残るのは境界をずらした版（age &gt; 18）だけです。生き残りは「境目の値を確かめていない」というテストの穴を指しています。',
+    '<b>境目の18歳も確かめるテスト:</b> 4つとも見つけました。カバレッジはずっと100%のままでしたが、テストの強さはここまで変わっていました。実際のツールでは、どんなテストでも見つけられない等価ミュータントがあるため、いつも全部を見つけられるとは限りません。'
+  ];
+  var btns=[].slice.call(document.querySelectorAll('.steps button'));
+  var cards=[].slice.call(document.querySelectorAll('#mutants .mc'));
+  var score=document.getElementById('score'), bar=document.getElementById('bar'), status=document.getElementById('status');
+  function render(step){
+    btns.forEach(function(b){ var s=+b.getAttribute('data-step'); b.setAttribute('aria-pressed', String(s===step)); b.classList.toggle('inc', s<step); });
+    var n=0;
+    cards.forEach(function(c,i){
+      var k=killed[step][i]; if(k) n++;
+      c.classList.toggle('killed',k);
+      c.querySelector('.st').textContent=k?'見つけた（テストが失敗）':'生き残った';
+    });
+    score.textContent='4つのうち '+n;
+    bar.style.width=(n*25)+'%';
+    status.innerHTML=text[step];
+  }
+  btns.forEach(function(b){ b.addEventListener('click',function(){ render(+b.getAttribute('data-step')); }); });
+  render(0);
+})();
+</script>
+</body>
+</html>

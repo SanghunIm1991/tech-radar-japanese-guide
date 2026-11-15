@@ -33,7 +33,7 @@
 | 技術 | 象限 | リング | 状態 |
 |---|---|---|---|
 | [Agent sandboxing](techniques/agent-sandboxing.md)（[入門ページ](techniques/agent-sandboxing-intro.html)） | Techniques | Adopt | 下書き |
-| [Mutation testing](techniques/mutation-testing.md) | Techniques | Adopt | 下書き |
+| [Mutation testing](techniques/mutation-testing.md)（[入門ページ](techniques/mutation-testing-intro.html)） | Techniques | Adopt | 下書き |
 | [Path-to-production mapping](techniques/path-to-production-mapping.md) | Techniques | Adopt | 下書き |
 | [Post-quantum cryptography](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
 | [Progressive context disclosure](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
