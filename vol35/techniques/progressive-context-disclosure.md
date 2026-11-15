@@ -8,8 +8,11 @@
 | 象限 | Techniques（開発や運用の進め方・手法） |
 | リング | Adopt（前の版の Trial から移動） |
 | 状態 | 下書き |
+| 図解ページ | [図と動きで見る図解ページ](progressive-context-disclosure-intro.html)（この解説の内容を図と動きで見せるページ。サイトで表示。GitHub のリポジトリではソースが表示されます） |
 
 ## 1. 一言でいうと
+
+**名前の手がかり**: Progressive〈段階的に進む〉＋ Context〈文脈・前後の情報〉＋ Disclosure〈開示・明かすこと〉。情報を段階的に明かしていく
 
 Progressive context disclosure は、**AI エージェント**（指示を受けて、自分でツールを使いながら作業を進める AI）に、必要な情報を最初から全部渡すのではなく、まず「何があるか」の短い一覧だけを見せ、詳しい中身は**必要になったときに読み込ませる**手法です。
 
@@ -43,9 +46,15 @@ flowchart LR
 
 **ほかの形**
 
-- **ツール定義の後読み**: Claude の API には、ツールの定義を最初はコンテキストに載せず、エージェントが検索して見つけたものだけを読み込む仕組みがあります。Anthropic は、複数の外部サービスをつないだ構成ではツールの定義だけで約55,000トークンを使うことがあり、この仕組みで85%以上減らせると主張しています（開発元の主張。[Claude: Tool search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool)）
+- **ツール定義の後読み**: Claude の API には、ツールの定義を最初はコンテキストに載せず、エージェントが検索して見つけたものだけを読み込む仕組みがあります。Anthropic は、複数の外部サービスをつないだ構成ではツールの定義だけで約55,000トークンを使うことがあり、この仕組みで多くの場合85%以上減らせると主張しています（開発元の主張。[Claude: Tool search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool)）
 - **必要なときに取りに行く**: 資料の中身を先に渡す代わりに、ファイルの場所やリンクだけを持たせ、エージェントが検索や読み込みのツールでその場で取りに行くやり方です。Anthropic は、これを「just in time」の取得と呼んでいます（[Anthropic: Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)）
 - **指示ファイルを短く保つ**: AGENTS.md は、コーディングエージェント向けの指示を書く Markdown のファイルです（[agents.md](https://agents.md/)）。Thoughtworks は、これを短く保ち、詳しい資料へのリンクを置くことを、この手法の例に挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/progressive-context-disclosure)）
+
+**第2節の課題への答え**
+
+- **コンテキストは限りある資源**: 最初に載せるのは一覧（スキル1つあたり約100トークンのメタデータ）だけにし、本文や資料は使うときだけ読み込みます（[Agent Skills の仕様](https://agentskills.io/specification)）。Anthropic は、望む結果につながる、情報の詰まったトークンをできるだけ少なく選ぶことを、コンテキストの設計の目標に挙げています（[Anthropic: Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)）。限られた「予算」を、今の作業に関係する情報に使えます
+- **入力が長いと性能が落ちる（context rot）**: 今の作業に関係のない情報を最初から入れないので、入力が短く保たれます。Thoughtworks は、この手法の効果として context rot の抑制を挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/progressive-context-disclosure)）。関係のない情報が減れば、答えに似た紛らわしい文が混ざる機会も減ると考えられます（筆者の見立て。効果の大きさを測った出典は確かめていません）
+- **指示が膨らみ、関係のない情報が大半を占める**: 手順書やツールの説明を1つの大きな指示にまとめず、スキルや別の資料に分け、AGENTS.md には詳しい資料へのリンクを置きます。Thoughtworks は、作業に合った指示をその場で渡すことで、「〜せよ」「〜するな」を大量に並べた指示の弊害を避けられるとしていました（2026年4月の版。[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/progressive-context-disclosure)）
 
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
@@ -80,6 +89,17 @@ flowchart LR
 - **RAG（検索拡張生成）**: 質問に関係のある文書を検索して、その部分だけを LLM に渡す手法。「必要な情報だけを渡す」点で近い仲間（一般的な説明）
 - **MCP**: AI のアプリと外部のツールやデータをつなぐ共通の約束事（[Model Context Protocol](https://modelcontextprotocol.io/)）
 
+### 実現するための道具の例
+
+次は、段階的なコンテキストの開示を、スキル（手順や資料のフォルダ）を必要なときに読み込む仕組みとして備えたコーディングエージェントの例です（推奨でも網羅でもありません。2026-11-15 の時点のものです）。OpenAI Codex と OpenCode は、Radar の同じ版の Tools の Adopt に載っています（このリポジトリの解説: [OpenAI Codex](../tools/openai-codex.md)、[OpenCode](../tools/opencode.md)）。
+
+| 名前 | 提供の形 | 何をするか |
+|---|---|---|
+| [Claude Code](https://code.claude.com/docs/en/skills) | 商用（Anthropic の有料プランなどで使う） | スキルの説明文を常に見せ、本文は使うときに読み込む（第3節） |
+| [OpenAI Codex](https://learn.chatgpt.com/docs/build-skills) | CLI は OSS（[Apache-2.0](https://github.com/openai/codex)）。OpenAI のサービスと使う | 各スキルの名前と説明文から始め、使うと決めたスキルの `SKILL.md` の本文を読み込む |
+| [OpenCode](https://opencode.ai/docs/skills) | OSS（[MIT](https://github.com/anomalyco/opencode)） | 一覧には ID・名前・説明文だけを載せ、本文は `skill` ツールで読み込む |
+| [GitHub Copilot](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) | 商用（GitHub） | 指示・スクリプト・資料のフォルダ（スキル）を、関係があるときに読み込む |
+
 ## 7. Radar での扱い
 
 - Vol.35（2026年11月）: **Adopt**（Trial から移動）
@@ -97,22 +117,24 @@ flowchart LR
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-08
-- Radar の評価の確認日: 2026-11-08
+- 内容の確認日: 2026-11-15（2026-11-08 に書き、2026-11-15 に名前の手がかり・課題ごとの答え・道具の例・元の語を足して、全体を点検し直した）
+- Radar の評価の確認日: 2026-11-15
 
 ## 用語集
 
+用語の説明の冒頭の「元の語」は、覚えるための手がかりとして、元の語（英単語の意味・略語の元の綴り・名前の元になった語）を短く示したものです。
+
 | 用語 | 説明 |
 |---|---|
-| LLM（大規模言語モデル） | 大量の文章で学習し、文章を読んで続きを作り出す AI のモデル |
-| AI エージェント | 指示を受けて、ファイルの読み書きやコマンドの実行などのツールを自分で使いながら、作業を何段階も進める AI の仕組み |
-| コンテキスト | LLM に一度に渡す、指示・会話・資料などの情報の全体 |
-| コンテキストウィンドウ | LLM が一度に読める量の上限。トークンの数で表す |
-| トークン | LLM が文章を数える単位。おおよそ単語や文字の断片にあたる。多くのサービスの料金はトークンの数で決まる |
-| context rot | 入力が長くなるにつれて、LLM の正確さが落ちていく現象 |
-| context engineering | LLM に何を、いつ、どれだけ見せるかを設計すること |
-| Agent Skills | 作業の手順・スクリプト・資料を1つのフォルダにまとめ、エージェントが必要なときに読み込めるようにする形式 |
-| AGENTS.md | コーディングエージェント向けに、ビルドやテストの手順、コードの書き方の決まりなどを書いておく Markdown のファイル |
-| MCP | AI のアプリと外部のツールやデータをつなぐための共通の約束事（プロトコル） |
-| RAG（検索拡張生成） | 質問に関係のある文書を検索し、その部分を LLM に渡して答えさせる手法 |
-| ツール定義 | エージェントが使えるツールの名前・説明・受け取る値を書いたもの。これもトークンを使う |
+| LLM（大規模言語モデル） | 元の語: Large Language Model の略（大規模な言語のモデル）。大量の文章で学習し、文章を読んで続きを作り出す AI のモデル |
+| AI エージェント | 元の語: agent〈代わりに行動する者・代理人〉。指示を受けて、ファイルの読み書きやコマンドの実行などのツールを自分で使いながら、作業を何段階も進める AI の仕組み |
+| コンテキスト | 元の語: context〈文脈・前後の状況〉。LLM に一度に渡す、指示・会話・資料などの情報の全体 |
+| コンテキストウィンドウ | 元の語: context〈文脈〉＋ window〈窓〉。LLM が一度に読める量の上限。トークンの数で表す |
+| トークン | 元の語: token〈しるし・引換券〉。LLM が文章を数える単位。おおよそ単語や文字の断片にあたる。多くのサービスの料金はトークンの数で決まる |
+| context rot | 元の語: context〈文脈〉＋ rot〈腐ること・劣化〉。入力が長くなるにつれて、LLM の正確さが落ちていく現象 |
+| context engineering | 元の語: context〈文脈〉＋ engineering〈設計して作り上げること〉。LLM に何を、いつ、どれだけ見せるかを設計すること |
+| Agent Skills | 元の語: agent〈代理人〉＋ skill〈技能〉。作業の手順・スクリプト・資料を1つのフォルダにまとめ、エージェントが必要なときに読み込めるようにする形式 |
+| AGENTS.md | 元の語: agents〈エージェントたち〉＋ .md（Markdown のファイルの拡張子）。コーディングエージェント向けに、ビルドやテストの手順、コードの書き方の決まりなどを書いておく Markdown のファイル |
+| MCP | 元の語: Model Context Protocol の略（モデルにコンテキストを渡すための約束事）。AI のアプリと外部のツールやデータをつなぐための共通の約束事（プロトコル） |
+| RAG（検索拡張生成） | 元の語: Retrieval-Augmented Generation の略（検索で補強した生成）。質問に関係のある文書を検索し、その部分を LLM に渡して答えさせる手法 |
+| ツール定義 | 元の語: tool〈道具〉＋ definition〈定義〉。エージェントが使えるツールの名前・説明・受け取る値を書いたもの。これもトークンを使う |

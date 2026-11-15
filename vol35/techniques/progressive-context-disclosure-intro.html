@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progressive context disclosure 図解ページ（非公式）</title>
+<meta name="description" content="Progressive context disclosure（段階的なコンテキストの開示）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。差し色は「一覧（目次）」を表す青緑。
+   試せる図の色の意味: 濃い灰＝常に渡す決まり、青緑＝一覧（名前と説明文）、青＝この依頼に関係する本文・資料、灰のしま＝この依頼に関係しない本文・資料 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-soft:#DCE5FB;
+  --list:#139A8A; --list-text:#0B6E63; --list-soft:#D5F1EC;
+  --rule:#4F5B75; --off:#B9C1D0; --off-soft:#E4E8EF;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-soft:#22305A;
+  --list:#3CC9B6; --list-text:#5ED8C7; --list-soft:#173A3A;
+  --rule:#8592AD; --off:#4A5570; --off-soft:#252F47;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--list);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;word-break:auto-phrase;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+.nb{display:inline-block}
+p{margin:0}
+
+/* 見出しの帯。線画は、並んだ見出しの札のうち1枚だけが開く様子（一覧から必要なものだけを開く） */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--list);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(34px,7.5vw,76px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:#F4F6FA}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.tabs{display:block;width:100%;height:64px}
+.tabs rect{fill:none;stroke:#5B6A8C;stroke-width:2}
+.tabs .open{fill:#7C9BFF;stroke:#7C9BFF;transform-box:fill-box;transform-origin:top;animation:unfold 4s ease-in-out infinite}
+@keyframes unfold{0%,15%{transform:scaleY(1)}35%,75%{transform:scaleY(2.4)}95%,100%{transform:scaleY(1)}}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.metaphor .big em{font-style:normal;color:var(--blue)}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+.t-list{fill:var(--list-text);font-family:var(--body);font-weight:700;font-size:13px}
+.t-open{fill:var(--blue);font-family:var(--body);font-weight:700;font-size:14px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--ink)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図: コンテキストの中身の棒を2本並べる */
+.controls{display:flex;flex-direction:column;gap:12px}
+.ctl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl-row .lb{font-size:14px;font-weight:700;color:var(--sub);min-width:4.5em}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ ";color:var(--ink)}
+.request{font-size:15px;background:var(--bg);border-radius:10px;padding:10px 14px}
+.request b{font-family:var(--display)}
+.bars{display:flex;flex-direction:column;gap:16px}
+.brow{display:flex;flex-direction:column;gap:6px}
+.brow .head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
+.brow .head .tk{font-family:var(--mono);font-size:15px}
+.bar{display:flex;height:30px;border-radius:4px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.bar span{display:block;height:100%;transition:width .4s ease}
+.seg-rule{background:var(--rule)}
+.seg-list{background:var(--list)}
+.seg-on{background:var(--blue)}
+.seg-off{background:repeating-linear-gradient(45deg,var(--off) 0 6px,var(--off-soft) 6px 10px)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:16px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.status{font-size:15px;background:var(--bg);border-radius:12px;padding:14px 18px}
+.status b{color:var(--ink)}
+
+/* ほかの形 */
+.forms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.form{border-top:6px solid var(--line);background:var(--bg);border-radius:0 0 10px 10px;padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.form b{font-family:var(--display);font-size:17px;line-height:1.4}
+.form p{font-size:14px;line-height:1.7}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--line)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 導入するときに決めること（問いのカード。件数の判定はしない） */
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--line);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px;color:var(--ink)}
+.dq p{font-size:15px;line-height:1.7}
+
+/* 道具の例のカード */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tool a{font-family:var(--display);font-weight:900;font-size:18px}
+.tool .kind{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.tool p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表） */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.timeline{flex:none;display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:16em}
+.timeline .now{background:var(--list);color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.forms{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .tabs .open{animation:none;transform:scaleY(2.4)}
+  .bar span{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="progressive-context-disclosure.html">Progressive context disclosure の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TECHNIQUES</span><span class="ring">ADOPT</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1><span class="nb">Progressive</span> <span class="nb">context</span> <span class="nb">disclosure</span></h1>
+    <p class="name-hint">名前の手がかり: <span>Progressive</span> 段階的に進む ＋ <span>Context</span> 文脈・前後の情報 ＋ <span>Disclosure</span> 開示・明かすこと</p>
+    <p class="lead">AI エージェントに、必要な情報を最初から全部渡すのではなく、まず「何があるか」の短い一覧だけを見せ、詳しい中身は必要になったときに読み込ませる手法</p>
+    <svg class="tabs" viewBox="0 0 960 64" preserveAspectRatio="xMidYMin meet" role="img" aria-label="横に並んだ見出しの札のうち、1枚だけが下に開く絵">
+      <rect x="40" y="6" width="120" height="18" rx="3"/><rect x="190" y="6" width="120" height="18" rx="3"/><rect x="340" y="6" width="120" height="18" rx="3"/><rect x="490" y="6" width="120" height="18" rx="3"/><rect class="open" x="640" y="6" width="120" height="18" rx="3"/><rect x="790" y="6" width="120" height="18" rx="3"/>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 290" role="img" aria-label="マニュアルの目次から、経費精算の第5章だけを開いている絵">
+        <rect x="30" y="30" width="190" height="230" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="125" y="62" text-anchor="middle" class="t-plain">マニュアルの目次</text>
+        <g class="t-list">
+          <text x="50" y="96">第1章 入社の手続き</text>
+          <text x="50" y="126">第2章 勤怠</text>
+          <text x="50" y="156">第3章 社内の道具</text>
+          <text x="50" y="186">第4章 出張</text>
+          <text x="50" y="216">第5章 経費精算</text>
+          <text x="50" y="246">第6章 安全の決まり</text>
+        </g>
+        <rect x="42" y="198" width="168" height="26" rx="4" fill="none" stroke="var(--blue)" stroke-width="3">
+          <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.2;0.3;0.9;1" dur="5s" begin="-0.1s" repeatCount="indefinite"/>
+        </rect>
+        <path d="M212 211 C 250 211, 250 150, 280 150" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round">
+          <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.3;0.4;0.9;1" dur="5s" begin="-0.1s" repeatCount="indefinite"/>
+        </path>
+        <g>
+          <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.35;0.45;0.9;1" dur="5s" begin="-0.1s" repeatCount="indefinite"/>
+          <rect x="280" y="70" width="190" height="170" rx="6" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="3"/>
+          <text x="375" y="102" text-anchor="middle" class="t-open">第5章 経費精算</text>
+          <g stroke="var(--blue)" stroke-width="3" stroke-linecap="round" opacity=".55"><path d="M300 128 H450"/><path d="M300 152 H440"/><path d="M300 176 H450"/><path d="M300 200 H420"/></g>
+        </g>
+        <text x="250" y="284" text-anchor="middle" class="t-small">目次だけを持ち、要るときにその章を開く</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">分厚いマニュアルを全部読ませず、目次だけを渡して、<em>「経費精算のときは第5章を」</em>と開いてもらう</p>
+        <p>新人に、仕事を始める前にマニュアルの全部を読ませるのではなく、目次だけを渡しておき、必要な章をその都度開いてもらうようなものです。AI エージェントでは、目次にあたるのが「名前と説明文の一覧」、章にあたるのが「詳しい手順や資料」です。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">エージェントへの情報の渡し方の3つの課題と、この手法の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。LLM（大規模言語モデル）が一度に読める範囲を<b>コンテキストウィンドウ</b>、その中に入れる指示や資料を<b>コンテキスト</b>と呼び、量は<b>トークン</b>（文字や単語の断片を数える単位）で数えます。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>コンテキストは限りある資源</h3><span class="term">コンテキストウィンドウ（context window）</span><p>上限に収まれば何を入れてもよいわけではない。Anthropic は、トークンが増えるほど、LLM が注意を向けられる量の「予算」が薄まると説明している。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>最初は一覧だけ。本文は使うときに読む</h3><p>最初に載せるのは一覧（スキル1つあたり約100トークンの名前と説明文）だけにし、本文や資料は使うときだけ読み込む（Agent Skills の仕様）。Anthropic は、情報の詰まったトークンをできるだけ少なく選ぶことを、コンテキストの設計の目標に挙げている。<a href="#s-lab">下の図で見られます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>入力が長いと、性能が落ちる</h3><span class="term">コンテキストの劣化（context rot）</span><p>Chroma の研究は、18 の LLM で、課題が単純でも入力が長くなるにつれて性能が落ちると報告した。答えに似ているが答えではない文が混ざると、さらに落ちた。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>関係のない情報を、最初から入れない</h3><p>入力が短く保たれる。Thoughtworks は、この手法の効果として context rot の抑制を挙げている。紛らわしい文が混ざる機会も減ると考えられる（筆者の見立て。効果の大きさを測った出典は確かめていない）。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>指示が膨らみ、関係のない情報が大半を占める</h3><span class="term">指示（instructions）</span><p>ルール・ツールの説明・手順書を全部最初に渡すと、今の作業に関係のない情報が大半になる。Thoughtworks は2026年4月の版で、「〜せよ」「〜するな」を大量に並べた指示がかえって性能を下げると指摘していた。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>手順を分け、詳しい資料へのリンクを置く</h3><p>手順書やツールの説明を1つの大きな指示にまとめず、スキルや別の資料に分ける。AGENTS.md（エージェント向けの指示ファイル）には詳しい資料へのリンクを置く。Thoughtworks は、作業に合った指示をその場で渡すことで、この弊害を避けられるとしていた（2026年4月の版）。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: <span class="nb">全部を最初に渡すときと、</span><span class="nb">段階的に開示するときの、</span><span class="nb">コンテキストの中身</span></h2>
+    <p class="hint">5つのスキル（作業の手順をまとめたもの）を持つエージェントに、「リリースノートを書いて」と頼む例です。2本の棒は、それぞれの渡し方でコンテキストに入っている中身です。段階のボタンで、エージェントの立ち上げから資料が必要になるまでを順に進めてください（括弧の中は、詳しい解説の第3節の段階の名前です）。スキルの数・トークンの数は、説明のために作った例です。</p>
+    <div class="request">依頼の例: <b>「リリースノートを書いて」</b>（関係があるのは、5つのうち「リリースノートを書く」のスキル）</div>
+    <div class="controls" id="controls" hidden>
+      <div class="ctl-row" role="group" aria-label="段階">
+        <span class="lb">段階</span>
+        <button type="button" class="btn" data-stage="1" aria-pressed="true">① 立ち上げ（発見）</button>
+        <button type="button" class="btn" data-stage="2" aria-pressed="false">② 依頼が来る（起動）</button>
+        <button type="button" class="btn" data-stage="3" aria-pressed="false">③ さらに資料が必要になる（実行）</button>
+      </div>
+      <div class="ctl-row">
+        <span class="lb">試す</span>
+        <button type="button" class="btn" id="t-vague" aria-pressed="false">スキルの説明文があいまいなら</button>
+      </div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <noscript><p class="hint">この図はスクリプトで描きます。例の要約: 全部を最初に渡すと、エージェントを立ち上げた時点で5つのスキルの本文と資料がすべて入り（36,500トークン）、その大半はこの依頼に関係しません。段階的に開示すると、立ち上げた時点は決まりと一覧だけ（2,000トークン）で、依頼が来たら関係するスキルの本文を、さらに必要になったら資料を読み込み、最後でも9,000トークンです。スキルの説明文があいまいだと、関係に気づかず本文が読み込まれません（見落とし）。</p></noscript>
+    <div class="legend" id="legend" aria-hidden="true" hidden>
+      <span><i style="background:var(--rule)"></i>常に渡す決まり</span>
+      <span><i style="background:var(--list)"></i>一覧（名前と説明文）</span>
+      <span><i style="background:var(--blue)"></i>この依頼に関係する本文・資料</span>
+      <span><i style="background:repeating-linear-gradient(45deg,var(--off) 0 4px,var(--off-soft) 4px 7px)"></i>この依頼に関係しない本文・資料</span>
+    </div>
+    <p class="status" id="status" aria-live="polite" hidden></p>
+    <p class="hint" id="lab-note" hidden>数字は説明のための例です（一覧はスキル1つあたり約100トークン、本文は仕様が勧める5,000トークン未満に収めた値にしました）。実際の差は構成によって違うので、減った量は実際の作業で測ります。</p>
+  </section>
+
+  <section class="card" aria-labelledby="s-forms">
+    <h2 id="s-forms">スキルのほかにも、いくつかの形がある</h2>
+    <p class="lead-note">Thoughtworks は、この手法は本格的な AI のアプリではほぼ当たり前になったと見ています。上の図はスキルの形（一覧→本文→資料）で、ほかに次の形があります（詳しい解説の第3節）。</p>
+    <div class="forms">
+      <div class="form"><b>ツール定義の後読み</b><p>Claude の API では、ツールの定義を最初は載せず、検索して見つけたものだけを読み込める。複数の外部サービスをつなぎ、ツールの定義だけで約55,000トークンを使うことがある構成で、多くの場合85%以上減らせると Anthropic は主張している（開発元の主張）。</p></div>
+      <div class="form"><b>必要なときに取りに行く</b><p>資料の中身を先に渡す代わりに、ファイルの場所やリンクだけを持たせ、エージェントがその場で取りに行く。Anthropic はこれを「just in time」の取得と呼んでいる。</p></div>
+      <div class="form"><b>指示ファイルを短く保つ</b><p>AGENTS.md を短く保ち、詳しい資料へのリンクを置く。Thoughtworks が、この手法の例に挙げている。</p></div>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>費用と速さ</b>: 毎回送るトークンが減り、料金と応答時間を抑えやすい（Thoughtworks もトークンと費用の削減を挙げている）</li>
+        <li><b>精度</b>: 関係のない情報が減り、context rot の影響を受けにくい。Claude のドキュメントは、ツールが30〜50個を超えると正しいツールを選ぶ精度が落ちるとしている</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>見落とし</b>: 必要だと気づかなければ読み込まれない（Anthropic の注意）</li>
+        <li><b>説明文の書き方に左右される</b>: 一覧の説明文が判断材料のすべて</li>
+        <li><b>読み込んだ本文は残る</b>: Claude Code では、一度読み込んだスキルの本文はその後もコンテキストに残り、一覧の説明文も毎回トークンを使う</li>
+        <li><b>遅さと手間</b>: その場で探すのは、先に用意したデータを使うより時間がかかる</li>
+        <li><b>何でも後読みにはしない</b>: Claude のドキュメントは、ツールが10個未満なら tool search を使わないほうがよく、よく使う3〜5個は最初から載せておくよう勧めている</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに決める5つのこと</h2>
+    <p class="lead-note">Thoughtworks はこの手法を Adopt に置いています。使うかどうかより、どこまで後読みにし、どう確かめるかが要点です（筆者の見立て）。</p>
+    <div class="decide">
+      <div class="dq"><b>分けるほどの量か？</b><p>全部を渡しても短いなら、無理に分けなくてよい。指示が膨らんできたら分ける（筆者の見立て）。</p></div>
+      <div class="dq"><b>何を最初から渡すか？</b><p>安全のための決まりなど、どの作業でも守らせたいものは最初から渡し、特定の作業でしか使わない手順を後読みにする。Anthropic も、最初に読み込む情報と、その場で探す情報の組み合わせを勧めている。</p></div>
+      <div class="dq"><b>説明文で呼ばれるか？</b><p>「いつ使うか」が分かるように書き、呼ばれるべき場面で呼ばれているかを確かめる。</p></div>
+      <div class="dq"><b>費用をどう測るか？</b><p>Claude の tool search の場合、後読みで読み込まれた分も、通常の入力トークンとして数えられる。後読みにしたツールの定義も、リクエストには毎回すべて含めて送る（コンテキストに載るのは見つかったものだけ）。減った量は実際の作業で測る。</p></div>
+      <div class="dq"><b>使うエージェントは対応しているか？</b><p>Agent Skills や AGENTS.md は公開の形式だが、どこまで対応しているかはツールによって違いうる（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-tools">
+    <h2 id="s-tools">実現するための道具の例</h2>
+    <p class="lead-note">スキル（手順や資料のフォルダ）を必要なときに読み込む仕組みを備えたコーディングエージェントの例です。推奨でも網羅でもありません（2026-11-15 の時点）。OpenAI Codex と OpenCode は、Radar の同じ版の Tools の Adopt に載っています。</p>
+    <div class="tools">
+      <div class="tool"><a href="https://code.claude.com/docs/en/skills">Claude Code</a><span class="kind">商用（Anthropic の有料プランなどで使う）</span><p>スキルの説明文を常に見せ、本文は使うときに読み込む。</p></div>
+      <div class="tool"><a href="https://learn.chatgpt.com/docs/build-skills">OpenAI Codex</a><span class="kind">CLI は OSS（Apache-2.0）。OpenAI のサービスと使う</span><p>各スキルの名前と説明文から始め、使うと決めたスキルの SKILL.md の本文を読み込む。</p></div>
+      <div class="tool"><a href="https://opencode.ai/docs/skills">OpenCode</a><span class="kind">OSS（MIT）</span><p>一覧には ID・名前・説明文だけを載せ、本文は skill ツールで読み込む。</p></div>
+      <div class="tool"><a href="https://docs.github.com/en/copilot/concepts/agents/about-agent-skills">GitHub Copilot</a><span class="kind">商用（GitHub）</span><p>指示・スクリプト・資料のフォルダ（スキル）を、関係があるときに読み込む。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="timeline">
+      <span>2026年4月 Trial</span>
+      <span><span class="now">2026年11月 Adopt</span></span>
+      <small>Radar のページの推移。今回の版で Trial から移動</small>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+      <p>最小限の情報から始めて必要に応じて足していくこの手法は、本格的な AI のアプリではほぼ当たり前になったと、Thoughtworks は見ています。AGENTS.md、スキル、RAG（検索拡張生成）などを例に挙げ、効果として費用の削減と context rot の抑制を挙げています。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の付いた等幅の字は元の語（英単語・略語・名前の元になった語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>LLM（大規模言語モデル）</summary><p class="etym"><span class="w">LLM</span> ＝ Large Language Model（大規模な言語のモデル）</p><p>大量の文章で学習し、文章を読んで続きを作り出す AI のモデル。</p></details>
+      <details><summary>AI エージェント</summary><p class="etym"><span class="w">agent</span> ＝ 代わりに行動する者・代理人</p><p>指示を受けて、ファイルの読み書きやコマンドの実行などのツールを自分で使いながら、作業を何段階も進める AI の仕組み。</p></details>
+      <details><summary>コンテキスト</summary><p class="etym"><span class="w">context</span> ＝ 文脈・前後の状況</p><p>LLM に一度に渡す、指示・会話・資料などの情報の全体。</p></details>
+      <details><summary>コンテキストウィンドウ</summary><p class="etym"><span class="w">context</span> ＝ 文脈 ／ <span class="w">window</span> ＝ 窓</p><p>LLM が一度に読める量の上限。トークンの数で表す。</p></details>
+      <details><summary>トークン</summary><p class="etym"><span class="w">token</span> ＝ しるし・引換券</p><p>LLM が文章を数える単位。おおよそ単語や文字の断片にあたる。多くのサービスの料金はトークンの数で決まる。</p></details>
+      <details><summary>context rot</summary><p class="etym"><span class="w">context</span> ＝ 文脈 ／ <span class="w">rot</span> ＝ 腐ること・劣化</p><p>入力が長くなるにつれて、LLM の正確さが落ちていく現象。</p></details>
+      <details><summary>context engineering</summary><p class="etym"><span class="w">context</span> ＝ 文脈 ／ <span class="w">engineering</span> ＝ 設計して作り上げること</p><p>LLM に何を、いつ、どれだけ見せるかを設計すること。この手法はその基本の手法の1つ。</p></details>
+      <details><summary>Agent Skills</summary><p class="etym"><span class="w">agent</span> ＝ 代理人 ／ <span class="w">skill</span> ＝ 技能</p><p>作業の手順・スクリプト・資料を1つのフォルダにまとめ、エージェントが必要なときに読み込めるようにする形式。中心に SKILL.md を置く。</p></details>
+      <details><summary>AGENTS.md</summary><p class="etym"><span class="w">agents</span> ＝ エージェントたち ／ <span class="w">.md</span> ＝ Markdown のファイルの拡張子</p><p>コーディングエージェント向けに、ビルドやテストの手順、コードの書き方の決まりなどを書いておく Markdown のファイル。</p></details>
+      <details><summary>MCP</summary><p class="etym"><span class="w">MCP</span> ＝ Model Context Protocol（モデルにコンテキストを渡すための約束事）</p><p>AI のアプリと外部のツールやデータをつなぐための共通の約束事（プロトコル）。</p></details>
+      <details><summary>RAG（検索拡張生成）</summary><p class="etym"><span class="w">RAG</span> ＝ Retrieval-Augmented Generation（検索で補強した生成）</p><p>質問に関係のある文書を検索し、その部分を LLM に渡して答えさせる手法。</p></details>
+      <details><summary>ツール定義</summary><p class="etym"><span class="w">tool</span> ＝ 道具 ／ <span class="w">definition</span> ＝ 定義</p><p>エージェントが使えるツールの名前・説明・受け取る値を書いたもの。これもトークンを使う。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="progressive-context-disclosure.html">Progressive context disclosure の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-15。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/techniques/progressive-context-disclosure">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 説明のための例。単位はトークン。スキルは5つ、依頼に関係するのは1つ（リリースノートを書く）
+  var RULE=1500, LIST=500, BODY=4000, RES=3000, OTHERS=4;
+  var ALL=RULE+BODY+RES+OTHERS*(BODY+RES);   // 36,500
+  var stage=1, vague=false;
+  var bars=document.getElementById('bars'), status=document.getElementById('status');
+  var stageBtns=document.querySelectorAll('[data-stage]'), bVague=document.getElementById('t-vague');
+  function makeRow(title){
+    var row=document.createElement('div'); row.className='brow';
+    var head=document.createElement('div'); head.className='head';
+    var nm=document.createElement('span'); nm.textContent=title;
+    var tk=document.createElement('span'); tk.className='tk';
+    head.appendChild(nm); head.appendChild(tk);
+    var bar=document.createElement('div'); bar.className='bar'; bar.setAttribute('role','img');
+    var segs={};
+    ['rule','list','on','off'].forEach(function(k){ var s=document.createElement('span'); s.className='seg-'+k; bar.appendChild(s); segs[k]=s; });
+    row.appendChild(head); row.appendChild(bar); bars.appendChild(row);
+    return {tk:tk,bar:bar,segs:segs,title:title};
+  }
+  var rAll=makeRow('全部を最初に渡す'), rPro=makeRow('段階的に開示する');
+  function fmt(n){ return n.toLocaleString('ja-JP')+' トークン'; }
+  function paint(r,v){
+    var total=v.rule+v.list+v.on+v.off;
+    ['rule','list','on','off'].forEach(function(k){ r.segs[k].style.width=(v[k]/ALL*100)+'%'; });
+    r.tk.textContent=fmt(total);
+    r.bar.setAttribute('aria-label', r.title+': 合計'+fmt(total)+'。うち常に渡す決まり'+fmt(v.rule)+'、一覧'+fmt(v.list)+'、この依頼に関係する本文・資料'+fmt(v.on)+'、この依頼に関係しない本文・資料'+fmt(v.off));
+  }
+  function render(){
+    for(var i=0;i<stageBtns.length;i++){ stageBtns[i].setAttribute('aria-pressed',String(Number(stageBtns[i].getAttribute('data-stage'))===stage)); }
+    bVague.setAttribute('aria-pressed',String(vague));
+    // 全部を最初に渡す: 段階によらず同じ
+    paint(rAll,{rule:RULE,list:0,on:BODY+RES,off:OTHERS*(BODY+RES)});
+    // 段階的に開示する
+    var on=0;
+    if(!vague){ if(stage>=2) on+=BODY; if(stage>=3) on+=RES; }
+    paint(rPro,{rule:RULE,list:LIST,on:on,off:0});
+    var msg;
+    if(stage===1){
+      msg='エージェントを立ち上げたところです。全部を最初に渡すほうには、まだ依頼が来ていないのに、5つのスキルの本文と資料がすべて入っています。段階的に開示するほうは、<b>決まりと一覧だけ</b>です（一覧はスキル1つあたり約100トークン）。';
+      if(vague) msg+=' 説明文があいまいでも、立ち上げた時点では違いはありません。依頼が来てから差が出ます。';
+    }else if(!vague){
+      if(stage===2) msg='依頼が来ました。段階的に開示するほうは、一覧の説明文から関係があると判断し、<b>そのスキルの本文だけ</b>を読み込みます。全部を最初に渡すほうは変わらず、中身の大半はこの依頼に関係しないスキルです。';
+      else msg='本文から参照された資料が必要になり、読み込みました。最後まで進んでも、段階的に開示するほうは全部を最初に渡すほうの<b>約4分の1</b>です（説明のための例）。なお、Claude Code の場合、一度読み込んだスキルの本文は、その後もコンテキストに残ります。';
+    }else{
+      msg='説明文があいまいで、エージェントが依頼との関係に気づかず、<b>本文を読み込みませんでした</b>'+(stage===3?'。資料も読み込まれません':'')+'。トークンは少ないままですが、リリースノートの手順を知らないまま作業を進める恐れがあります（見落とし。説明のための例）。Anthropic は、適切な手がかりが無いと大事な情報を見落とすと注意しています。説明文には「いつ使うか」が分かるように書きます。';
+    }
+    status.innerHTML=msg;
+  }
+  for(var i=0;i<stageBtns.length;i++){ stageBtns[i].addEventListener('click',function(){ stage=Number(this.getAttribute('data-stage')); render(); }); }
+  bVague.addEventListener('click',function(){ vague=!vague; render(); });
+  ['controls','legend','status','lab-note'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 動きを減らす設定のときは、たとえの絵を、第5章を開いた状態で止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg'); for(var j=0;j<svgs.length;j++){ svgs[j].setCurrentTime(3.5); svgs[j].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
