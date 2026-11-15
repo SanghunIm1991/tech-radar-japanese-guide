@@ -8,8 +8,11 @@
 | 象限 | Techniques（開発や運用の進め方・手法） |
 | リング | Adopt（前の版には無く、再び載った。直前の掲載は2025年4月の版で Adopt） |
 | 状態 | 下書き |
+| 図解ページ | [図と動きで見る図解ページ](threat-modeling-intro.html)（この解説の内容を図と動きで見せるページ。サイトで表示。GitHub のリポジトリではソースが表示されます） |
 
 ## 1. 一言でいうと
+
+**名前の手がかり**: Threat〈脅威〉＋ Modeling〈模型（モデル）を作ること〉
 
 Threat modeling（脅威モデリング）は、作っているシステムの構成を図などで表し、「どこで、何が、どう悪用されうるか」をチームで洗い出して、対策を決める手法です。**コードを書く前の設計の段階で弱点を見つける**のが特徴です。
 
@@ -17,7 +20,7 @@ Threat modeling（脅威モデリング）は、作っているシステムの�
 
 ## 2. 解決する課題（なぜ生まれたか）
 
-セキュリティの対策というと、**脆弱性診断**（できあがったシステムに攻撃を試して弱点を探す検査）や、ソースコードを自動で調べるツールが思い浮かびます。これらで見つけられるのは主に「実装の誤り」です。「そもそもこの機能に、外部から誰でも呼べる入口があるのはおかしい」といった**設計の誤り**は、決まった規則で調べるツールでは見つけにくく、しかも見つかった時点では直す費用が大きくなっています（筆者の見立て）。Microsoft は、問題を早い段階で見つければ、比較的簡単に、費用も抑えて直せるとしています（[Microsoft: Threat Modeling Tool の脅威の分類](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)）。
+セキュリティの対策というと、**脆弱性診断**（できあがったシステムに攻撃を試して弱点を探す検査）や、ソースコードを自動で調べるツールが思い浮かびます。これらで見つけられるのは主に「実装の誤り」です。「そもそもこの機能に、外部から誰でも呼べる入口があるのはおかしい」といった**設計の誤り**は、決まった規則で調べるツールでは見つけにくく、しかも見つかった時点では直す費用が大きくなっています（筆者の見立て）。Microsoft は、脅威モデリングの道具の説明で、問題を早い段階で見つければ、比較的簡単に、費用も抑えて直せるとしています（[Microsoft: Threat Modeling Tool の脅威の分類](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)）。
 
 もう1つの課題は、セキュリティを「最後にまとめて確認するもの」にしてしまうことです。OWASP（Web などのソフトウェアのセキュリティに取り組む非営利の団体）の解説は、脅威モデリングを設計の段階など開発の早い時期に行うのが理想で、一度やって終わりではなく、システムとともに更新し続けるものだとしています（[OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）。
 
@@ -29,16 +32,16 @@ Threat modeling（脅威モデリング）は、作っているシステムの�
 
 1. **何を作っているのか**: システムの構成を図にする。よく使われるのは**データフロー図**（DFD。データがどこから来て、どの処理を通り、どこに保存されるかを描いた図）です。特に大事なのが**信頼境界**（社外と社内、利用者の端末とサーバーなど、信頼の度合いが変わる境目）を描き込むことです（[OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）
 2. **何がまずいことになりうるか**: 図の要素やデータの流れごとに、起こりうる脅威を挙げる
-3. **それにどう対処するか**: 脅威ごとに、低減する・取り除く・他者に移す（保険や外部サービスなど）・受け入れる、のどれかを決める。OWASP は、他者に移してもリスク自体は減らないので、残ったリスクの持ち主を記録するよう注意しています（同上）
+3. **それにどう対処するか**: 脅威ごとに、低減する・取り除く・他者に移す（契約や金銭面の責任を他者に負わせる）・受け入れる、のどれかを決める。OWASP は、他者に移してもリスク自体は減らないので、残ったリスクの持ち主を記録するよう注意しています（同上）
 4. **十分にやれたか**: 図が実際の構成と合っているか、対策がテストできる形になっているかを見直す（同上）
 
-2つめの問いで漏れなく考えるための道具が **STRIDE** です。Microsoft が広めた分類で、脅威を6つに分けます（[Microsoft: 脅威の分類](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)、守る性質との対応は [OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）。
+2つめの問いで漏れなく考えるための道具が **STRIDE** です。Microsoft も使っている分類で、脅威を6つに分けます（[Microsoft: 脅威の分類](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)、守る性質との対応は [OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）。
 
 | 分類 | 意味 | 破られる性質 |
 |---|---|---|
 | Spoofing | なりすまし | 認証 |
 | Tampering | 改ざん | 完全性 |
-| Repudiation | 「やっていない」と言い逃れされる | 操作の記録と否認防止（OWASP は Accounting、Microsoft は Non-repudiation と呼ぶ） |
+| Repudiation | 「やっていない」と言い逃れされる | 操作の記録と否認防止（OWASP は Accounting とし、Microsoft は否認に対抗する能力を Non-repudiation と説明している） |
 | Information disclosure | 情報漏えい | 機密性 |
 | Denial of service | サービスを使えなくする | 可用性 |
 | Elevation of privilege | 本来より強い権限を得る | 認可 |
@@ -53,20 +56,26 @@ flowchart LR
 
 **小さく、何度も行う**: martinfowler.com に載った、Thoughtworks の Jim Gumbley らによる手引き（2025年）は、システム全体を対象にした終日の会議は参加者が圧倒されて続かないとし、1つの機能など範囲を絞った短い会（簡易版なら15〜30分）を、スプリントの計画など普段の場に組み込むよう勧めています。見つけた対策は、バックログの項目や受け入れ基準として開発の計画に入れます。セキュリティの専門家がいなくても始められるとしています（[martinfowler.com: Threat Modeling Guide for Software Teams](https://martinfowler.com/articles/agile-threat-modelling.html)）。
 
+**第2節の課題への答え**
+
+- **設計の誤りはツールで見つけにくく、後で直すと高くつく**: コードを書く前に、DFD と信頼境界の図の上で、要素やデータの流れごとに「何がまずいことになりうるか」を STRIDE などで問います（[OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）。「外部から誰でも呼べる入口がある」といった設計の誤りを、図の段階で見つけられます。Microsoft は、脅威モデリングの道具の説明で、早い段階で見つけた問題は、比較的簡単に、費用も抑えて直せるとしています（[Microsoft: 脅威の分類](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)）
+- **セキュリティを最後にまとめて確認するものにしてしまう**: 1つの機能など範囲を絞った短い会を、スプリントの計画など普段の場に組み込み、見つけた対策をバックログの項目や受け入れ基準にします（[martinfowler.com](https://martinfowler.com/articles/agile-threat-modelling.html)）。OWASP は、脅威モデルをシステムとともに保守・更新し続けるものとし（[OWASP: Threat Modeling Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html)）、新しい機能のリリース・事故の発生・構成の変更を見直しのきっかけに挙げています（[OWASP Community](https://community.owasp.org/Threat_Modeling)）。設計が変わったら4つの問いの最初に戻る、と考えると分かりやすいでしょう（筆者の見立て）。Thoughtworks も今回の版で、脅威モデリングを、人が主導して定期的に行う開発の一部にするべきだとしています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
+- **生成 AI による新しい危険**: Thoughtworks は、プロンプトインジェクションや AI が自分の判断で動くことの危険は、決まった規則での検査やスキャンでは見落とされうるとし、MITRE ATLAS（AI への攻撃の手口の一覧）などの既知の脅威から始めて自分たちのシステムに当てはめることを勧めています。会の終わりには、AI の結果のぶれをどこで許し、どこに決まった規則で必ず止めるガードレールを置くかを決めるよう勧めています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）。OWASP の LLM 向けの一覧も、見落としの確認に使えます（[OWASP: Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/)）
+
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
 **位置づけ**: 設計の判断に、セキュリティの観点を早い時期から入れるための手法です。脆弱性診断や自動のスキャンを置き換えるものではなく、それらが苦手な「設計の誤り」を受け持つ、補い合う関係にあります（筆者の見立て）。
 
 **得られるもの**
 
-- **手戻りの削減**: 早い段階で見つけた問題は、比較的簡単に、費用も抑えて直せる（[Microsoft](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)）
+- **手戻りの削減**: 早い段階で見つけた問題は、比較的簡単に、費用も抑えて直せる（脅威モデリングの道具の説明。[Microsoft](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)）
 - **共通理解**: Manifesto は、対話が共通の理解を生み、文書はそれを記録するものだとしています（[Threat Modeling Manifesto](https://www.threatmodelingmanifesto.org/)）
 - **AI の扱いの線引き**: 生成 AI のどの振る舞いなら多少ぶれても許せ、どこは決まった規則で必ず止める仕組み（ガードレール）が要るかを決める場になる（Thoughtworks の今回の評価の論点の1つ。[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
 
 **代わりに失うもの・注意点**
 
 - **時間と人手**: 範囲を広げすぎると続きません（[martinfowler.com](https://martinfowler.com/articles/agile-threat-modelling.html)）
-- **網羅の保証はない**: 参加者が思いつかない脅威は出てきません。Manifesto は、特別な才能のある人にしかできないと考えることや、たった1つの完璧な図にこだわって複数の見方で表すことを怠ることを、避けるべき型として挙げています（[Threat Modeling Manifesto](https://www.threatmodelingmanifesto.org/)）
+- **網羅の保証はない**: 参加者が思いつかない脅威は出てきません（筆者の見立て）。Manifesto は、特別な才能のある人にしかできないと考えることや、たった1つの完璧な図にこだわって複数の見方で表すことを怠ることを、避けるべき型として挙げています（[Threat Modeling Manifesto](https://www.threatmodelingmanifesto.org/)）
 - **古くなる**: 設計が変わったのに見直さなければ、図と実物がずれます。OWASP は、新しい機能のリリース、事故の発生、構成の変更を見直しのきっかけに挙げています（[OWASP Community](https://community.owasp.org/Threat_Modeling)）
 
 ## 5. 採用を判断するときの観点
@@ -77,21 +86,34 @@ Adopt は「多くの場面で採用してよい」という評価なので（[R
 - **参加者**: 開発者だけでなく、プロダクトの責任者やテスト担当も入れる（[martinfowler.com](https://martinfowler.com/articles/agile-threat-modelling.html)。多様な視点は Manifesto の勧める型の1つ）
 - **成果の行き先**: 対策を課題管理のバックログに入れ、ほかの作業と同じように優先順位を付けて追う。会議の記録だけで終わらせない
 - **分類の選び方**: 一般には STRIDE、個人データを扱うならプライバシーの脅威の分類である LINDDUN を足す（[LINDDUN](https://linddun.org/)）。生成 AI を使うなら、OWASP の LLM 向けの一覧を見落としの確認に使う（[OWASP](https://genai.owasp.org/llm-top-10/)）
-- **道具**: 専用の道具には、無料のオープンソースで STRIDE や LINDDUN に対応した OWASP Threat Dragon（[OWASP Threat Dragon](https://owasp.org/www-project-threat-dragon/)）や、Microsoft Threat Modeling Tool（[Microsoft Learn](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool)）があります
+- **道具**: ホワイトボードや作図の道具でも始められます。専用の道具の例は第6節の「実現するための道具の例」にあります。図をコードや設定ファイルで書く道具なら、ソースコードと一緒に変更の履歴を残せます（筆者の見立て）
 - **AI に手伝わせる範囲**: 図の下書きや脅威の候補出しは AI に手伝わせられる。Thoughtworks の考え方は第7節を参照
 
 ## 6. 関連技術・代替技術
 
 - **LINDDUN**: ベルギーのルーヴェン・カトリック大学（KU Leuven）が公表した、プライバシーの脅威の分類と手法（[LINDDUN](https://linddun.org/)）
 - **MAESTRO**: Cloud Security Alliance のブログで2025年に提案された、エージェント型 AI 向けの脅威モデリングの枠組み。AI の構成を7つの層に分けて考えます（[CSA のブログ](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)）
-- **MITRE ATLAS**: Radar のこの項目のページで、AI への脅威の一覧として紹介され、ATLAS の項目へリンクが張られている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
+- **MITRE ATLAS**: AI への脅威の一覧。Radar のこの項目のページで紹介され、同じ版の Techniques の Assess の項目としてリンクが張られている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
+- **Toxic flow analysis for AI**: プロンプトインジェクションがどこから入りうるかを、データの流れから調べる手法。Radar のこの項目のページで紹介され、同じ版の Techniques の Trial に載っている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)、このリポジトリの[解説](toxic-flow-analysis-for-ai.md)）
 - **Agent sandboxing**: AI エージェントの動ける範囲を囲う手法。AI に権限を与えすぎる危険への対策の1つ（筆者の見立て。[解説](agent-sandboxing.md)）
+
+### 実現するための道具の例
+
+次は、脅威モデリングの図を描き、脅威と対策を記録・分析する道具の例です（推奨でも網羅でもありません。2026-11-15 の時点のものです）。
+
+| 名前 | 提供の形 | 何をするか |
+|---|---|---|
+| [OWASP Threat Dragon](https://owasp.org/www-project-threat-dragon/) | OSS（[Apache-2.0](https://github.com/OWASP/threat-dragon)）。Web 版とデスクトップ版 | DFD を描き、図の要素ごとに脅威と対策を記録する。STRIDE・LINDDUN などの分類に対応し、規則で脅威の候補を出す機能もある |
+| [Microsoft Threat Modeling Tool](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool) | Microsoft が提供 | ソフトウェアの設計の図を描き、要素ごとに STRIDE に沿って脅威と対策の検討を案内する |
+| [OWASP pytm](https://github.com/OWASP/pytm) | OSS（[MIT](https://github.com/OWASP/pytm/blob/master/LICENSE)。使っている MITRE の CAPEC の資料は MITRE の許諾） | Python のコードでシステムを書き表し、DFD・シーケンス図・脅威の一覧を生成する |
+| [Threagile](https://github.com/Threagile/threagile) | OSS（MIT） | YAML のファイルでシステムの構成を書き表し、規則に沿ってリスクを分析して、図や報告書を生成する |
+| [IriusRisk](https://www.iriusrisk.com/) | 商用（無料の Community Edition もある。ThreatModeler の傘下） | 脅威モデリングを自動化するプラットフォーム。AI の機能（Bex）は、課題管理の Jira の中でソフトウェアのセキュリティを評価する |
 
 ## 7. Radar での扱い
 
 - Vol.35（2026年11月）: **Adopt**（前の版には無く、再び載った。直前の掲載は2025年4月の版で Adopt）
 - 過去の版: 2015年5月の版で Trial として初めて載り、2015年11月・2016年4月・2016年11月・2022年10月・2025年4月の版では Adopt（Radar のページの推移による）
-- Thoughtworks の評価の要旨: 脅威モデリングは、人が主導して定期的に行う開発の一部であるべきだとしています（エージェントの助けを借りるのはよい）。主な理由は、生成 AI に特有の危険が、決まった規則での検査では見落とされやすいことです
+- Thoughtworks の評価の要旨: 脅威モデリングは、人が主導して定期的に行う開発の一部であるべきだとしています（エージェントの助けを借りるのはよい）。主な理由は、生成 AI に特有の危険が、決まった規則での検査では見落とされうることです
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling
 
 ## 8. 深掘りするときの一次情報
@@ -105,19 +127,22 @@ Adopt は「多くの場面で採用してよい」という評価なので（[R
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-09
-- Radar の評価の確認日: 2026-11-09
+- 内容の確認日: 2026-11-15（2026-11-09 に書き、2026-11-15 に名前の手がかり・課題ごとの答え・道具の例・元の語を足して、全体を点検し直した）
+- Radar の評価の確認日: 2026-11-15
 
 ## 用語集
 
+用語の説明の冒頭の「元の語」は、覚えるための手がかりとして、元の語（英単語の意味・略語の元の綴り・名前の元になった語）を短く示したものです。
+
 | 用語 | 説明 |
 |---|---|
-| 脆弱性 | 脅威に悪用されうる、システムの弱点。設計の誤りと実装の誤りがある |
-| データフロー図（DFD） | 外部の利用者・処理・データの保存先と、その間のデータの流れを描いた図。脅威モデリングの土台によく使う |
-| 信頼境界 | 信頼の度合いが変わる境目。インターネットと社内のネットワークの間など。境界をまたぐデータの流れは、特に脅威が生まれやすい |
-| STRIDE | 脅威をなりすまし・改ざん・否認・情報漏えい・サービス妨害・権限昇格の6つに分けて考える分類。頭文字を並べた名前 |
-| LINDDUN | 個人データの扱いに関する脅威を7つに分けて考える分類と手法 |
-| OWASP | Web などのソフトウェアのセキュリティに取り組む非営利の団体。手引きや危険の一覧を公開している |
-| プロンプトインジェクション | AI への入力（読み込ませる文書やWebページを含む）に指示のような文を紛れ込ませ、AI に本来と違う動きをさせる攻撃 |
-| ガードレール | AI の出力や行動を、決まった規則で確かめて止める仕組み。AI の判断に任せず、必ず守らせたい線を引くために使う |
-| バックログ | チームがこれから行う作業の一覧。優先順位を付けて上から取り組む |
+| 脆弱性 | 元の語: vulnerability〈傷つきやすさ〉。脅威に悪用されうる、システムの弱点。設計の誤りと実装の誤りがある |
+| データフロー図（DFD） | 元の語: Data Flow Diagram の略（データの流れの図）。外部の利用者・処理・データの保存先と、その間のデータの流れを描いた図。脅威モデリングの土台によく使う |
+| 信頼境界 | 元の語: trust〈信頼〉＋ boundary〈境界〉。信頼の度合いが変わる境目。インターネットと社内のネットワークの間など。境界は攻撃される点になりやすい（OWASP） |
+| STRIDE | 元の語: Spoofing・Tampering・Repudiation・Information disclosure・Denial of service・Elevation of privilege の頭文字。脅威をなりすまし・改ざん・否認・情報漏えい・サービス妨害・権限昇格の6つに分けて考える分類 |
+| LINDDUN | 元の語: Linking・Identifying・Non-repudiation・Detecting・Data disclosure・Unawareness・Non-compliance の頭文字。個人データの扱いに関する脅威を7つに分けて考える分類と手法 |
+| OWASP | 元の語: Open Worldwide Application Security Project の略（アプリケーションのセキュリティに世界で開かれた形で取り組むプロジェクト）。Web などのソフトウェアのセキュリティに取り組む非営利の団体。手引きや危険の一覧を公開している |
+| MITRE ATLAS | 元の語: ATLAS は Adversarial Threat Landscape for AI Systems の略（AI のシステムに対する攻撃者の脅威の全体像）。MITRE がまとめた、AI のシステムを狙う攻撃者の戦術・手口の公開の知識ベース |
+| プロンプトインジェクション | 元の語: prompt〈促すもの。AI への指示の文〉＋ injection〈注入〉。AI への入力（読み込ませる文書やWebページを含む）に指示のような文を紛れ込ませ、AI に本来と違う動きをさせる攻撃 |
+| ガードレール | 元の語: guardrail〈道路の防護柵〉。AI の出力や行動を、決まった規則で確かめて止める仕組み。AI の判断に任せず、必ず守らせたい線を引くために使う |
+| バックログ | 元の語: backlog〈たまった未処理の仕事〉。チームがこれから行う作業の一覧。優先順位を付けて上から取り組む |

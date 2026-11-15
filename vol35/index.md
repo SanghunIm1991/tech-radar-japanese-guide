@@ -37,7 +37,7 @@
 | Path-to-production mapping | [図と動きで見る](techniques/path-to-production-mapping-intro.html) | [Markdown](techniques/path-to-production-mapping.md) | Techniques | Adopt | 下書き |
 | Post-quantum cryptography | [図と動きで見る](techniques/post-quantum-cryptography-intro.html) | [Markdown](techniques/post-quantum-cryptography.md) | Techniques | Adopt | 下書き |
 | Progressive context disclosure | [図と動きで見る](techniques/progressive-context-disclosure-intro.html) | [Markdown](techniques/progressive-context-disclosure.md) | Techniques | Adopt | 下書き |
-| Threat modeling | — | [Markdown](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
+| Threat modeling | [図と動きで見る](techniques/threat-modeling-intro.html) | [Markdown](techniques/threat-modeling.md) | Techniques | Adopt | 下書き |
 | Agent plugin marketplace | — | [Markdown](techniques/agent-plugin-marketplace.md) | Techniques | Trial | 下書き |
 | Agent-maintained knowledge bases | — | [Markdown](techniques/agent-maintained-knowledge-bases.md) | Techniques | Trial | 下書き |
 | Anchoring coding agents to a reference application | — | [Markdown](techniques/anchoring-coding-agents-to-a-reference-application.md) | Techniques | Trial | 下書き |
