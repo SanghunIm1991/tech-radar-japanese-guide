@@ -16,7 +16,7 @@
   --blue:#2F5BD3; --blue-ink:#FFFFFF; --blue-soft:#DCE5FB;
   --pulse:#9B6BF0; --pulse-text:#5B2FB8; --pulse-soft:#ECE3FD;
   --old:#E0781F; --old-soft:#FCE7D4; --danger:#C8423A; --danger-soft:#FBE1DE;
-  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --muted-node:#C5CCDA;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
   --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
   --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
@@ -27,7 +27,7 @@
   --blue:#7C9BFF; --blue-ink:#0F1626; --blue-soft:#22305A;
   --pulse:#B794F6; --pulse-text:#C9AEF8; --pulse-soft:#2C2445;
   --old:#F5A15C; --old-soft:#3D2A1A; --danger:#FF8A80; --danger-soft:#3D2226;
-  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --muted-node:#3A4560;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
   color-scheme:dark }}
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -66,7 +66,6 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
 .lead-note{font-size:14px;color:var(--sub)}
 .hint{font-size:14px;color:var(--sub)}
-.callout{border-left:6px solid var(--pulse);background:var(--pulse-soft);border-radius:0 12px 12px 0;padding:14px 18px;font-size:15px}
 
 /* 課題と答えの対 */
 .pairs{display:flex;flex-direction:column;gap:14px}
@@ -96,6 +95,7 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--sub)}
 .btn{font:inherit;font-size:15px;border:2px solid var(--danger);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink);font-weight:700;align-self:flex-start}
 .btn[aria-pressed="true"]{background:var(--danger);color:#FFFFFF}
+@media (prefers-color-scheme: dark){ .btn[aria-pressed="true"]{color:#14203A} }
 .years{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
 .yr{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
 .yr .env{width:100%;max-width:64px;aspect-ratio:4/3;border-radius:6px;border:3px solid var(--old);background:var(--old-soft);position:relative;transition:background .3s,border-color .3s}
@@ -113,7 +113,8 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .legend i.p{border-color:var(--blue);background:var(--blue-soft)}
 .legend i.d{border-color:var(--danger);background:var(--danger-soft)}
 .status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
-.status b{color:var(--danger)}
+.status b{color:var(--ink)}
+.status b.bad{color:var(--danger)}
 .status .warn{display:block;margin-top:6px;color:var(--sub);font-size:14px}
 
 /* ハイブリッド方式の図 */
@@ -426,9 +427,9 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
           : '<b>'+s+'年に切り替えた場合:</b> それより前の '+old+'年分の記録は、従来の暗号だけで守られています。'+(total-old)+'年分は PQC（ハイブリッド）で守られています。');
       msg+='<span class="warn">「量子コンピュータが現れたとする」を押すと、何が起きるかが見られます。</span>';
     }else{
-      if(never) msg='<b>切り替えないと、10年分の記録がすべて解読されうる状態になりました。</b>記録はどれも従来の暗号だけで守られたままだったためです。';
+      if(never) msg='<b class="bad">切り替えないと、10年分の記録がすべて解読されうる状態になりました。</b>記録はどれも従来の暗号だけで守られたままだったためです。';
       else if(old===0) msg='量子コンピュータが現れても、10年分の記録はどれも PQC で守られていて、解読されにくいままです（相手も PQC に対応している場合）。';
-      else msg='<b>従来の暗号だけで守った '+old+'年分の記録が、解読されうる状態になりました。</b>切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て。相手も PQC に対応している場合の話です）。 PQC で守った '+(total-old)+'年分は、解読されにくいままです。';
+      else msg='<b class="bad">従来の暗号だけで守った '+old+'年分の記録が、解読されうる状態になりました。</b>切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て。相手も PQC に対応している場合の話です）。PQC で守った '+(total-old)+'年分は、解読されにくいままです。';
       msg+='<span class="warn">切り替えが早いほど、解読されうる記録は少なくなります。量子コンピュータが現れる時期の専門家の見積もりは、数年後から数十年後まで幅があります（NIST）。何年も価値を持つ秘密ほど、早く守る必要があります。</span>';
     }
     status.innerHTML=msg;
