@@ -144,7 +144,6 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
 ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
 
-/* チェックリスト */
 /* 導入するときに決めること（問いのカード。件数の判定はしない） */
 .decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
 .dq{border-left:6px solid var(--blue);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -184,6 +183,10 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   .ladder{grid-template-columns:minmax(0,1fr)}
   .debate{grid-column:auto;border:2px dashed var(--pulse);border-radius:10px;margin-top:0}
   .axis .d{display:none} .axis .m{display:inline}
+  /* 1列のときは箱が縦に並ぶので、矢印も縦・下向きにする */
+  .axis{flex-direction:column;align-items:flex-start;gap:4px}
+  .axis .shaft{flex:none;width:6px;height:40px;margin-left:6px;background:linear-gradient(180deg,var(--line),var(--pulse))}
+  .axis .head{border-left:9px solid transparent;border-right:9px solid transparent;border-top:14px solid var(--pulse);border-bottom:none}
 }
 @media (prefers-reduced-motion:reduce){
   .fence circle,.walker,.bonk{animation:none}
@@ -367,9 +370,9 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <div class="step"><b>コンテナ</b><span>Docker など。Linux の名前空間と cgroups で区切る</span></div>
       <div class="step"><b>カーネルを挟む方式</b><span>gVisor など。アプリの要求がホストのカーネルに直接届かない</span></div>
       <div class="step"><b>軽量な仮想マシン</b><span>Firecracker など。起動が速く負担の小さいマイクロ VM</span></div>
-      <div class="debate">この2つは、どちらが強いか意見が分かれる</div>
+      <div class="debate">gVisor（カーネルを挟む方式）とマイクロ VM は、どちらが強いか意見が分かれる</div>
     </div>
-    <div class="axis"><span class="d">右</span><span class="m">下</span><span>ほど隔離が強くなる傾向（目安）</span><span class="shaft" aria-hidden="true"></span><span class="head" aria-hidden="true"></span><span>準備や負担が増えることも</span></div>
+    <div class="axis"><span><span class="d">右</span><span class="m">下</span>ほど隔離が強くなる傾向（目安）</span><span class="shaft" aria-hidden="true"></span><span class="head" aria-hidden="true"></span><span>準備や負担が増えることも</span></div>
     <p class="hint">一般的な目安としての並べ方です（解説の筆者の整理）。並びの後ろほど隔離が強くなる傾向がありますが、どれが強いかは構成によって変わり、特に gVisor とマイクロ VM の比較は意見が分かれます。選び方の一例（筆者の見立て）: 自分の端末で使う開発用のエージェントなら OS の機能やコンテナで足りることが多く、外部の人が入力できる業務用のエージェントなら仮想マシン級の隔離も検討する。</p>
   </section>
 
@@ -400,8 +403,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <div class="dq"><b>何に触れるか？</b><p>エージェントが触れるファイル・システム・外部サービスを洗い出し、壊れたり漏れたりすると困るものを見極める。</p><p class="hint">Thoughtworks は、脅威モデリングにもとづいてリスクに応じた囲い方を決めるよう勧めている</p></div>
       <div class="dq"><b>どの強さで囲うか？</b><p>リスクに合わせて、上の段階のどれにするかを選ぶ。</p></div>
       <div class="dq"><b>どこへ接続させるか？</b><p>ネットワークの許可リストを必要最小限にする。</p><p class="hint">持ち出しの経路になる広い許可は避ける</p></div>
-      <div class="dq"><b>どの操作で人が承認するか？</b><p>送金・削除・外部への送信など、影響の大きい操作は人が承認してから実行する。</p></div>
-      <div class="dq"><b>どう気づくか？</b><p>エージェントの操作の記録を残し、異常に気づけるようにする。</p><p class="hint">被害を小さくする助けになる</p></div>
+      <div class="dq"><b>どの操作で人が承認するか？</b><p>送金・削除・外部への送信など、影響の大きい操作は人が承認してから実行する。</p><p class="hint">OWASP の勧め</p></div>
+      <div class="dq"><b>どう気づくか？</b><p>エージェントの操作の記録を残し、異常に気づけるようにする。</p><p class="hint">被害を小さくする助けになる（OWASP の勧め）</p></div>
     </div>
   </section>
 
