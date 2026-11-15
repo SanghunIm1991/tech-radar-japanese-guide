@@ -90,13 +90,26 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 /* 試せる図: 毎年の記録の封筒 */
 .ctl{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:14px 18px}
 .ctl label{font-weight:700;font-size:15px}
-.ctl label b{font-family:var(--mono);color:var(--blue);margin-left:6px}
-.ctl input[type=range]{width:100%;accent-color:var(--blue);min-height:32px}
+.ctl label b{font-family:var(--mono);color:var(--ink);margin-left:6px}
+.ctl input[type=range]{width:100%;accent-color:var(--ink);min-height:32px}
 .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--sub)}
-.btn{font:inherit;font-size:15px;border:2px solid var(--danger);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink);font-weight:700;align-self:flex-start}
-.btn[aria-pressed="true"]{background:var(--danger);color:#FFFFFF}
-@media (prefers-color-scheme: dark){ .btn[aria-pressed="true"]{color:#14203A} }
-.years{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+.kinds{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+/* 攻撃の段取り: ①②は今できる、③だけが量子コンピュータを待つ */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;counter-reset:st}
+.step{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.step b{font-family:var(--display);font-size:16px;line-height:1.4}
+.step b::before{counter-increment:st;content:counter(st) " ";font-family:var(--mono)}
+.step .when{font-size:13px;font-weight:700;border-radius:4px;padding:1px 8px;width:max-content;background:var(--ink);color:var(--surface)}
+.step.wait{background:var(--bg)}
+.step.wait .when{background:transparent;color:var(--sub);border:1px solid var(--sub)}
+.step span:last-child{font-size:13px;color:var(--sub);line-height:1.6}
+.years{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.yr.past .y{font-weight:700;color:var(--ink)}
+.yr.expired .env{border-style:dashed;opacity:.55}
+.yr.expired .tag{color:var(--sub)}
 .yr{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
 .yr .env{width:100%;max-width:64px;aspect-ratio:4/3;border-radius:6px;border:3px solid var(--old);background:var(--old-soft);position:relative;transition:background .3s,border-color .3s}
 .yr .env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49%,currentColor 49% 51%,transparent 51%),linear-gradient(to bottom left,transparent 49%,currentColor 49% 51%,transparent 51%);background-size:100% 60%;background-repeat:no-repeat;color:var(--old);opacity:.7}
@@ -112,6 +125,7 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .legend i{display:inline-block;width:16px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:2px solid var(--old);background:var(--old-soft)}
 .legend i.p{border-color:var(--blue);background:var(--blue-soft)}
 .legend i.d{border-color:var(--danger);background:var(--danger-soft)}
+.legend i.x{border-style:dashed;opacity:.55}
 .status{background:var(--bg);border-radius:10px;padding:14px 18px;font-size:15px}
 .status b{color:var(--ink)}
 .status b.bad{color:var(--danger)}
@@ -181,11 +195,11 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 @media (max-width:720px){
   .hero-row{flex-direction:column;align-items:flex-start}
   .lock{width:84px;height:98px}
-  .two,.terms,.stds,.tl{grid-template-columns:minmax(0,1fr)}
+  .two,.terms,.stds,.tl,.steps{grid-template-columns:minmax(0,1fr)}
+  .years{grid-template-columns:repeat(4,minmax(0,1fr))}
   .pair{grid-template-columns:minmax(0,1fr)}
   .to svg{transform:rotate(90deg)}
   .radar{flex-direction:column;align-items:flex-start}
-  .years{grid-template-columns:repeat(5,minmax(0,1fr))}
   .bar-row{grid-template-columns:minmax(0,1fr)}
 }
 @media (prefers-reduced-motion:reduce){
@@ -264,17 +278,31 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   </section>
 
   <section class="card" aria-labelledby="s-lab">
-    <h2 id="s-lab"><span class="nb">試してみる:</span> <span class="nb">切り替えが遅いほど、</span><span class="nb">あとで解読されうる記録が増える</span></h2>
-    <p class="hint">攻撃者が、2026年から2035年まで毎年の通信を記録し続けているとします（封筒）。鍵交換を PQC（ハイブリッド方式）に切り替える年をスライダーで選び、「量子コンピュータが現れたとする」を押してください。年の並びと記録は、説明のための例です。量子コンピュータが現れる年は決めていません。</p>
-    <div class="ctl" id="ctl" hidden>
-      <label for="sw">鍵交換を PQC に切り替える年 <b id="sw-v">2030年</b></label>
-      <input id="sw" type="range" min="2026" max="2036" step="1" value="2030" aria-valuetext="2030年">
-      <div class="scale" aria-hidden="true"><span>2026年</span><span>右端は「切り替えない」</span></div>
+    <h2 id="s-lab"><span class="nb">試してみる:</span> <span class="nb">長く価値を持つ秘密は、</span><span class="nb">量子コンピュータがいつ現れても、</span><span class="nb">切り替える前の記録は</span><span class="nb">さかのぼって危うくなる</span></h2>
+    <p class="hint">攻撃の段取りは3つです。量子コンピュータを待つのは3つめだけで、1つめと2つめは今でも行えます。</p>
+    <div class="steps">
+      <div class="step"><b>通信を傍受する</b><span class="when">今できる</span><span>暗号化された通信を写し取る</span></div>
+      <div class="step"><b>保存しておく</b><span class="when">今できる</span><span>解読できる日まで取っておく</span></div>
+      <div class="step wait"><b>量子コンピュータで解読する</b><span class="when">現れたら</span><span>従来の暗号だけで守った記録が対象</span></div>
     </div>
-    <button type="button" class="btn" id="qc" aria-pressed="false" hidden>量子コンピュータが現れたとする</button>
+    <p class="hint">攻撃者が2020年から毎年の通信を記録し続けているとします。今は2026年で、2025年までの記録は、もう保管庫にあります。<span id="lab-howto" hidden>下の封筒が毎年の記録です。秘密の種類・鍵交換を PQC（ハイブリッド方式）に切り替える年・量子コンピュータが現れる年を動かしてください。</span>年の並び・記録・秘密が価値を持つ年数・現れる年の範囲は、説明のための例です。</p>
+    <div class="ctl" id="ctl" hidden>
+      <span style="font-weight:700;font-size:15px" id="kind-lb">秘密の種類</span>
+      <div class="kinds" role="group" aria-labelledby="kind-lb">
+        <button type="button" class="btn" data-life="30" aria-pressed="true">長く価値を持つ秘密（例: 30年）</button>
+        <button type="button" class="btn" data-life="3" aria-pressed="false">すぐに価値が切れる秘密（例: 3年）</button>
+      </div>
+      <label for="sw">鍵交換を PQC に切り替える年 <b id="sw-v">切り替えない</b></label>
+      <input id="sw" type="range" min="2026" max="2036" step="1" value="2036" aria-valuetext="切り替えない">
+      <div class="scale" aria-hidden="true"><span>2026年（今）</span><span>右端は「切り替えない」</span></div>
+      <label for="qa">量子コンピュータが現れる年（仮） <b id="qa-v">2040年</b></label>
+      <input id="qa" type="range" min="2030" max="2050" step="1" value="2040" aria-valuetext="2040年">
+      <div class="scale" aria-hidden="true"><span>2030年</span><span>2050年</span></div>
+    </div>
     <div class="years" id="years" aria-hidden="true"></div>
-    <div class="legend" aria-hidden="true"><span><i></i>従来の暗号だけで守った記録</span><span><i class="p"></i>PQC（ハイブリッド）で守った記録</span><span><i class="d"></i>解読されうる記録</span></div>
-    <p class="status" id="status" aria-live="polite">この図はスクリプトで動きます。要点: 切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て）。切り替えが早いほど、量子コンピュータが現れたときに解読されうる記録は少なくなります（相手も PQC に対応している場合）。</p>
+    <p class="hint" id="past-note" hidden>太字の年（2020〜2025年）は、今より前の、もう保管庫にある記録です。</p>
+    <div class="legend" id="legend" aria-hidden="true" hidden><span><i class="d"></i>解読されうる、まだ価値のある記録</span><span><i class="x"></i>解読されうるが、そのころには価値が切れている記録</span><span><i class="p"></i>PQC（ハイブリッド）で守った記録</span></div>
+    <p class="status" id="status" aria-live="polite">この図はスクリプトで動きます。要点: 傍受して保存するところまでは今でも行えるので、長く価値を持つ秘密は、量子コンピュータがいつ現れるかに関わらず、従来の暗号のまま記録された時点で、すでに危険にさらされていると考えられます。現れる時期が変えるのは、いつ解読されうるかだけです（筆者の見立て）。鍵交換を PQC に切り替えた後の記録は解読されにくくなりますが、切り替える前の記録はあとから守れません（筆者の見立て。相手も PQC に対応している場合）。</p>
   </section>
 
   <section class="card hyb" aria-labelledby="s-hyb">
@@ -393,50 +421,62 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 
 <script>
 (function(){
-  // 説明のための例: 2026〜2035年の毎年の記録。切り替えの年より前の記録は従来の暗号だけ、以降は PQC（ハイブリッド）
-  var FIRST=2026, LAST=2035;
-  var sw=document.getElementById('sw'), swV=document.getElementById('sw-v'), qc=document.getElementById('qc');
+  // 説明のための例: 2020〜2035年の毎年の記録。今は2026年で、2025年までの記録はもう攻撃者の保管庫にある。
+  // 切り替えの年より前の記録は従来の暗号のまま。現れる年に、記録の年＋価値の年数に届いていなければ「まだ価値のある記録」が解読されうる
+  var FIRST=2020, LAST=2035, NOW=2026, QMIN=2030, QMAX=2050;
+  var sw=document.getElementById('sw'), swV=document.getElementById('sw-v');
+  var qa=document.getElementById('qa'), qaV=document.getElementById('qa-v');
+  var kinds=document.querySelectorAll('[data-life]');
   var years=document.getElementById('years'), status=document.getElementById('status');
-  var cells=[];
+  var cells=[], life=30;
   for(var y=FIRST;y<=LAST;y++){
-    var c=document.createElement('div'); c.className='yr';
+    var c=document.createElement('div'); c.className='yr'+(y<NOW?' past':'');
     var e=document.createElement('div'); e.className='env';
     var t=document.createElement('span'); t.className='tag';
     var n=document.createElement('span'); n.className='y'; n.textContent=y+'年';
     c.appendChild(e); c.appendChild(t); c.appendChild(n); years.appendChild(c); cells.push({el:c,tag:t,y:y});
   }
-  var appeared=false;
-  function render(){
-    var s=+sw.value, never=s>LAST;
+  function span(a,b){ return a===b ? a+'年' : a+'〜'+b+'年'; }
+  // announce が false のとき（スライダーを動かしている途中）は、図だけを更新し、読み上げる説明文は動かし終えたとき（change）に更新する
+  function render(announce){
+    var s=+sw.value, never=s>LAST, q=+qa.value;
     var label=never?'切り替えない':(s+'年');
     swV.textContent=label; sw.setAttribute('aria-valuetext',label);
-    qc.setAttribute('aria-pressed',String(appeared));
-    var old=0;
+    qaV.textContent=q+'年'; qa.setAttribute('aria-valuetext',q+'年');
+    for(var i=0;i<kinds.length;i++){ kinds[i].setAttribute('aria-pressed',String(+kinds[i].getAttribute('data-life')===life)); }
+    var expo=[], expd=[], pq=[];
     cells.forEach(function(c){
-      var pqc=!never && c.y>=s; if(!pqc) old++;
+      var pqc=!never && c.y>=s, ex=!pqc && q<=c.y+life, gone=!pqc && !ex;
+      if(pqc) pq.push(c.y); else if(ex) expo.push(c.y); else expd.push(c.y);
       c.el.classList.toggle('pqc',pqc);
-      c.el.classList.toggle('broken',appeared && !pqc);
-      c.tag.textContent=pqc?'PQC':(appeared?'危険':'従来');
+      c.el.classList.toggle('broken',ex);
+      c.el.classList.toggle('expired',gone);
+      c.tag.textContent=pqc?'PQC':(ex?'危険':'価値切れ');
     });
-    var total=cells.length, msg;
-    if(!appeared){
-      msg=never
-        ? '<b>切り替えない場合:</b> 10年分の記録が、どれも従来の暗号だけで守られています。'
-        : (old===0
-          ? '<b>'+s+'年に切り替えた場合:</b> すべての記録（10年分）が PQC（ハイブリッド）で守られています。'
-          : '<b>'+s+'年に切り替えた場合:</b> それより前の '+old+'年分の記録は、従来の暗号だけで守られています。'+(total-old)+'年分は PQC（ハイブリッド）で守られています。');
-      msg+='<span class="warn">「量子コンピュータが現れたとする」を押すと、何が起きるかが見られます。</span>';
+    if(announce===false) return;
+    var pre=expo.length+expd.length, msg;
+    msg = expo.length
+      ? '<b class="bad">解読されうる、まだ価値のある記録: '+expo.length+'年分（'+span(expo[0],expo[expo.length-1])+'）</b>'
+      : '<b>解読されうる、まだ価値のある記録はありません。</b>';
+    msg += never
+      ? ' 切り替えないので、'+pre+'年分の記録がすべて従来の暗号のまま保管庫に入っていきます。'
+      : ' 切り替える前の '+pre+'年分（'+span(FIRST,s-1)+'）は、従来の暗号のまま保管庫に入り、あとから PQC にしても守れません。';
+    if(expd.length===pre) msg += 'ただし、そのすべてが、'+q+'年に解読されうるころには価値が切れています（例の想定）。';
+    else if(expd.length) msg += 'うち '+expd.length+'年分（'+span(expd[0],expd[expd.length-1])+'）は、'+q+'年に解読されうるころには価値が切れています（例の想定）。';
+    if(pq.length) msg += pq.length+'年分（'+span(pq[0],LAST)+'）は PQC で守られ、解読されにくいままです（相手も PQC に対応している場合）。';
+    if(life===30){
+      msg += '<span class="warn">現れる年をこの例の範囲（'+QMIN+'〜'+QMAX+'年）のどこに動かしても、まだ価値のある記録の数は変わりません。変わるのは、いつ解読されうるかだけです。数を減らせるのは切り替える年だけで、今（'+NOW+'年）切り替えても、'+(NOW-1)+'年までの記録は守れません。従来の暗号のまま記録された時点で、すでに危険にさらされていると考えられます（筆者の見立て）。</span>';
     }else{
-      if(never) msg='<b class="bad">切り替えないと、10年分の記録がすべて解読されうる状態になりました。</b>記録はどれも従来の暗号だけで守られたままだったためです。';
-      else if(old===0) msg='量子コンピュータが現れても、10年分の記録はどれも PQC で守られていて、解読されにくいままです（相手も PQC に対応している場合）。';
-      else msg='<b class="bad">従来の暗号だけで守った '+old+'年分の記録が、解読されうる状態になりました。</b>切り替える前に記録された通信は、あとから PQC にしても守れません（筆者の見立て。相手も PQC に対応している場合の話です）。PQC で守った '+(total-old)+'年分は、解読されにくいままです。';
-      msg+='<span class="warn">切り替えが早いほど、解読されうる記録は少なくなります。量子コンピュータが現れる時期の専門家の見積もりは、数年後から数十年後まで幅があります（NIST）。何年も価値を持つ秘密ほど、早く守る必要があります。</span>';
+      msg += '<span class="warn">すぐに価値が切れる秘密なら、量子コンピュータが現れるのが遅いほど、解読されても困らない記録が増えます。「長く価値を持つ秘密」を選んで比べてください。NIST も、何年も価値を持ち続ける秘密が、今記録されて将来解読されるおそれを挙げています。</span>';
     }
     status.innerHTML=msg;
   }
-  document.getElementById('ctl').hidden=false; qc.hidden=false;
-  sw.addEventListener('input',render);
-  qc.addEventListener('click',function(){appeared=!appeared;render();});
+  ['ctl','legend','past-note','lab-howto'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  [sw,qa].forEach(function(el){
+    el.addEventListener('input',function(){ render(false); });
+    el.addEventListener('change',function(){ render(true); });
+  });
+  for(var k=0;k<kinds.length;k++){ kinds[k].addEventListener('click',function(){ life=+this.getAttribute('data-life'); render(); }); }
   render();
 })();
 </script>
