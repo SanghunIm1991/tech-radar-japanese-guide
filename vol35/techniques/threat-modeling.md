@@ -93,7 +93,7 @@ Adopt は「多くの場面で採用してよい」という評価なので（[R
 
 - **LINDDUN**: ベルギーのルーヴェン・カトリック大学（KU Leuven）が公表した、プライバシーの脅威の分類と手法（[LINDDUN](https://linddun.org/)）
 - **MAESTRO**: Cloud Security Alliance のブログで2025年に提案された、エージェント型 AI 向けの脅威モデリングの枠組み。AI の構成を7つの層に分けて考えます（[CSA のブログ](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)）
-- **MITRE ATLAS**: AI への脅威の一覧。Radar のこの項目のページで紹介され、同じ版の Techniques の Assess の項目としてリンクが張られている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
+- **MITRE ATLAS**: AI のシステムを狙う攻撃者の戦術・手口の公開の知識ベース（[github.com/mitre-atlas/atlas-data](https://github.com/mitre-atlas/atlas-data)）。Radar のこの項目のページで紹介され、同じ版の Techniques の Assess の項目としてリンクが張られている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)）
 - **Toxic flow analysis for AI**: プロンプトインジェクションがどこから入りうるかを、データの流れから調べる手法。Radar のこの項目のページで紹介され、同じ版の Techniques の Trial に載っている（[Radar のページ](https://www.thoughtworks.com/en-us/radar/techniques/threat-modeling)、このリポジトリの[解説](toxic-flow-analysis-for-ai.md)）
 - **Agent sandboxing**: AI エージェントの動ける範囲を囲う手法。AI に権限を与えすぎる危険への対策の1つ（筆者の見立て。[解説](agent-sandboxing.md)）
 
@@ -142,7 +142,7 @@ Adopt は「多くの場面で採用してよい」という評価なので（[R
 | STRIDE | 元の語: Spoofing・Tampering・Repudiation・Information disclosure・Denial of service・Elevation of privilege の頭文字。脅威をなりすまし・改ざん・否認・情報漏えい・サービス妨害・権限昇格の6つに分けて考える分類 |
 | LINDDUN | 元の語: Linking・Identifying・Non-repudiation・Detecting・Data disclosure・Unawareness・Non-compliance の頭文字。個人データの扱いに関する脅威を7つに分けて考える分類と手法 |
 | OWASP | 元の語: Open Worldwide Application Security Project の略（アプリケーションのセキュリティに世界で開かれた形で取り組むプロジェクト）。Web などのソフトウェアのセキュリティに取り組む非営利の団体。手引きや危険の一覧を公開している |
-| MITRE ATLAS | 元の語: ATLAS は Adversarial Threat Landscape for AI Systems の略（AI のシステムに対する攻撃者の脅威の全体像）。MITRE がまとめた、AI のシステムを狙う攻撃者の戦術・手口の公開の知識ベース |
+| MITRE ATLAS | 元の語: ATLAS は Adversarial Threat Landscape for AI Systems の略（AI のシステムに対する攻撃者の脅威の全体像）。MITRE がまとめた、AI のシステムを狙う攻撃者の戦術・手口の公開の知識ベース（[MITRE ATLAS のデータのリポジトリ](https://github.com/mitre-atlas/atlas-data)） |
 | プロンプトインジェクション | 元の語: prompt〈促すもの。AI への指示の文〉＋ injection〈注入〉。AI への入力（読み込ませる文書やWebページを含む）に指示のような文を紛れ込ませ、AI に本来と違う動きをさせる攻撃 |
 | ガードレール | 元の語: guardrail〈道路の防護柵〉。AI の出力や行動を、決まった規則で確かめて止める仕組み。AI の判断に任せず、必ず守らせたい線を引くために使う |
 | バックログ | 元の語: backlog〈たまった未処理の仕事〉。チームがこれから行う作業の一覧。優先順位を付けて上から取り組む |

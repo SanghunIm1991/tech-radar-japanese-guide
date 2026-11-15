@@ -16,7 +16,7 @@
   --blue:#2F5BD3;
   --threat:#C8423A; --threat-text:#A8322B; --threat-soft:#FBE1DE;
   --guard:#1F8A5B; --guard-text:#17704A; --guard-soft:#DAF1E5;
-  --zone:#F6F8FB; --zone-ai:#F3F0FA;
+  --zone:#F6F8FB; --zone-ai:#F3F0FA; --mark-ink:#FFFFFF;
   --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
   --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
   --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
@@ -28,7 +28,7 @@
   --blue:#7C9BFF;
   --threat:#FF8A80; --threat-text:#FF9C93; --threat-soft:#3D2226;
   --guard:#5ED39A; --guard-text:#6FDCA6; --guard-soft:#18372A;
-  --zone:#141D31; --zone-ai:#1C1A33;
+  --zone:#141D31; --zone-ai:#1C1A33; --mark-ink:#14203A;
   --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
   color-scheme:dark }}
 *,*::before,*::after{box-sizing:border-box}
@@ -126,7 +126,7 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .dfd .zl{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
 .dfd .bl{fill:var(--sub);font-family:var(--body);font-weight:700;font-size:11px}
 .dfd .mk circle{fill:var(--threat);stroke:var(--surface);stroke-width:3}
-.dfd .mk text{fill:#FFFFFF;font-family:var(--mono);font-weight:700;font-size:14px}
+.dfd .mk text{fill:var(--mark-ink);font-family:var(--mono);font-weight:700;font-size:14px}
 .dfd .new .fl{stroke:var(--ink);stroke-width:4}
 .result{display:flex;flex-direction:column;gap:10px}
 .res{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
@@ -365,7 +365,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       </svg>
     </div>
     <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 信頼境界をまたぐ利用者と Web アプリの間の流れに、なりすまし・改ざん・権限昇格（管理用の機能が外から呼べる）の例、データベースに情報漏えいの例、Web アプリにサービス妨害と否認の例を置いています。AI のアシスタントを足すと、読み込む Web ページからのプロンプトインジェクションと、AI に権限を与えすぎる危険が加わります。AI の結果のぶれを許す所と、ガードレールで止める所を決める例もあります。</p></noscript>
-    <div class="legend" aria-hidden="true"><span><i></i>脅威の印（例）</span><span><i class="g"></i>対処の例</span><span><i class="b"></i>信頼境界</span><span>太い線: 設計の変更で増えた流れ</span></div>
+    <div class="legend" aria-hidden="true"><span><i></i>脅威の印（例）</span><span><i class="g"></i>対処の例</span><span><i class="b"></i>信頼境界</span><span id="lg-new" hidden>太い線: 設計の変更で増えた流れ</span></div>
     <div class="result" aria-live="polite">
       <div class="res" id="res"></div>
       <p class="status" id="status"></p>
@@ -505,6 +505,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   }
   function render(){
     aiPart.hidden=!ai;
+    document.getElementById('lg-new').hidden=!ai;
     bAi.setAttribute('aria-pressed',String(ai));
     for(var i=0;i<lensBtns.length;i++){ lensBtns[i].setAttribute('aria-pressed',String(lensBtns[i].getAttribute('data-lens')===lens)); }
     while(marks.firstChild) marks.removeChild(marks.firstChild);
@@ -521,7 +522,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     } else {
       var d=L[lens]; d.marks.forEach(mark); card(d);
       msg=(lens==='S'||lens==='T'||lens==='E')?'OWASP は、信頼境界は攻撃される点になりやすいとしています。この例の脅威は、コードを書く前の図の段階で見つかっています。':'図の要素ごとに分類の目で見ると、思いつきだけより漏れが減ります。ただし、参加者が思いつかない脅威は出てきません（網羅の保証はない。筆者の見立て）。';
-      if(ai) msg+=' AI の部品の危険は「AI の危険の一覧」のボタンで見られます。';
+      if(ai) msg+=' AI の部品の危険は「AI の危険」のボタンで見られます。';
     }
     status.textContent=msg;
   }
