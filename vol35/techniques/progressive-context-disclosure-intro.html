@@ -176,7 +176,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     </div>
     <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
     <h1><span class="nb">Progressive</span> <span class="nb">context</span> <span class="nb">disclosure</span></h1>
-    <p class="name-hint">名前の手がかり: <span>Progressive</span> 段階的に進む ＋ <span>Context</span> 文脈・前後の情報 ＋ <span>Disclosure</span> 開示・明かすこと</p>
+    <p class="name-hint">名前の手がかり: <span>Progressive</span> 段階的に進む ＋ <span>Context</span> 文脈・前後の状況 ＋ <span>Disclosure</span> 開示・明かすこと</p>
     <p class="lead">AI エージェントに、必要な情報を最初から全部渡すのではなく、まず「何があるか」の短い一覧だけを見せ、詳しい中身は必要になったときに読み込ませる手法</p>
     <svg class="tabs" viewBox="0 0 960 64" preserveAspectRatio="xMidYMin meet" role="img" aria-label="横に並んだ見出しの札のうち、1枚だけが下に開く絵">
       <rect x="40" y="6" width="120" height="18" rx="3"/><rect x="190" y="6" width="120" height="18" rx="3"/><rect x="340" y="6" width="120" height="18" rx="3"/><rect x="490" y="6" width="120" height="18" rx="3"/><rect class="open" x="640" y="6" width="120" height="18" rx="3"/><rect x="790" y="6" width="120" height="18" rx="3"/>
@@ -276,7 +276,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     <h2 id="s-forms">スキルのほかにも、いくつかの形がある</h2>
     <p class="lead-note">Thoughtworks は、この手法は本格的な AI のアプリではほぼ当たり前になったと見ています。上の図はスキルの形（一覧→本文→資料）で、ほかに次の形があります（詳しい解説の第3節）。</p>
     <div class="forms">
-      <div class="form"><b>ツール定義の後読み</b><p>Claude の API では、ツールの定義を最初は載せず、検索して見つけたものだけを読み込める。複数の外部サービスをつなぎ、ツールの定義だけで約55,000トークンを使うことがある構成で、多くの場合85%以上減らせると Anthropic は主張している（開発元の主張）。</p></div>
+      <div class="form"><b>ツール定義の後読み</b><p>Claude の API では、ツールの定義を最初は載せず、検索して見つけたものだけを読み込める。複数の外部サービスをつないだ構成では、ツールの定義だけで約55,000トークンを使うことがある。この仕組みで多くの場合85%以上減らせると Anthropic は主張している（開発元の主張）。</p></div>
       <div class="form"><b>必要なときに取りに行く</b><p>資料の中身を先に渡す代わりに、ファイルの場所やリンクだけを持たせ、エージェントがその場で取りに行く。Anthropic はこれを「just in time」の取得と呼んでいる。</p></div>
       <div class="form"><b>指示ファイルを短く保つ</b><p>AGENTS.md を短く保ち、詳しい資料へのリンクを置く。Thoughtworks が、この手法の例に挙げている。</p></div>
     </div>
