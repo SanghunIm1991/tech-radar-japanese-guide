@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Path-to-production mapping 入門ページ（非公式）</title>
+<meta name="description" content="Path-to-production mapping（本番までの道のりの見える化）の日本語解説をもとにした、動く図と触れる要素つきの入門ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。差し色は「待ち時間」を表す橙。正味の作業時間は青 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3; --blue-ink:#FFFFFF; --blue-soft:#DCE5FB; --pulse:#E8590C; --pulse-text:#A63F00; --pulse-soft:#FDE6D8;
+  --note:#FFE58A; --note-ink:#3D3200; --parcel:#B07A4A;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF; --muted-node:#C5CCDA;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF; --blue-ink:#0F1626; --blue-soft:#22305A; --pulse:#FF9A5C; --pulse-text:#FF9A5C; --pulse-soft:#3D2A1E;
+  --note:#5A4C12; --note-ink:#FFF3C4; --parcel:#C9915E;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0; --muted-node:#3A4560;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--pulse);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+
+/* 見出しの帯。線画は、本番までの道に並ぶ駅のうち、1つだけが詰まって脈打つ様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:var(--pulse);color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.hero h1{font-size:clamp(38px,8.5vw,84px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--pulse)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.route{display:block;width:100%;height:56px}
+.route line{stroke:#5B6A8C;stroke-width:3}
+.route circle{fill:#DCE3F1}
+.route .jam{fill:var(--pulse);animation:throb 1.8s ease-in-out infinite;transform-origin:744px 28px}
+@keyframes throb{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+.route text{fill:var(--band-sub);font-family:var(--body);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.metaphor .big em{font-style:normal;color:var(--pulse-text)}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+.t-wait{fill:var(--pulse-text);font-family:var(--body);font-weight:700;font-size:15px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.a{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.a{background:var(--bg)}
+.q h3,.a h3{font-size:19px}
+.a h3{color:var(--blue)}
+.q .term{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.a p{font-size:15px;line-height:1.75}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図: 手順ごとの横棒（青＝正味の作業時間、橙＝待ち時間） */
+.toggles{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ ";color:var(--blue)}
+.map{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:9.5em minmax(0,1fr);gap:10px;align-items:center}
+.row .nm{font-size:14px;font-weight:700;line-height:1.4}
+.row .nm .hrs{font-family:var(--body);color:var(--ink)}
+.row .nm small{display:block;font-weight:500;color:var(--sub);font-size:12px;font-family:var(--mono)}
+.bar{display:flex;height:22px;border-radius:4px;overflow:hidden;background:var(--bg)}
+.bar .pt{background:var(--blue);transition:width .4s ease}
+.bar .wt{background:repeating-linear-gradient(45deg,var(--pulse) 0 6px,var(--pulse-soft) 6px 10px);transition:width .4s ease}
+.row.top .nm{color:var(--pulse-text)}
+.row.top .nm::after{content:"いちばん大きな待ち";display:block;font-size:12px;background:var(--pulse);color:#14203A;border-radius:4px;padding:0 6px;width:max-content;margin-top:2px}
+.sticky{grid-column:2;justify-self:start;background:var(--note);color:var(--note-ink);font-size:13px;padding:4px 10px;border-radius:2px;box-shadow:0 2px 0 rgba(0,0,0,.12);transform:rotate(-1deg)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:16px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px;background:var(--blue)}
+.legend i.w{background:repeating-linear-gradient(45deg,var(--pulse) 0 4px,var(--pulse-soft) 4px 7px)}
+.legend i.n{background:var(--note)}
+.total{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:14px 18px}
+.total .lb{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
+.total .lb b{font-family:var(--display);font-size:22px}
+.total .lb .delta{font-size:15px;color:var(--blue)}
+.status{font-size:15px}
+.status b{color:var(--pulse-text)}
+
+/* ワークショップの進め方（順番のある手順） */
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;counter-reset:st}
+.st{position:relative;border-top:6px solid var(--blue);background:var(--bg);border-radius:0 0 10px 10px;padding:12px 12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.st b{font-family:var(--display);font-size:16px;line-height:1.4}
+.st b::before{counter-increment:st;content:counter(st) " ";font-family:var(--mono);color:var(--blue)}
+.st span{font-size:13px;color:var(--sub);line-height:1.6}
+.st.pain{border-top-color:var(--pulse)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--blue)}
+.loss{border-top-color:var(--pulse)}
+.gain h2{color:var(--blue)} .loss h2{color:var(--pulse-text)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 導入するときに決めること（問いのカード。件数の判定はしない） */
+.decide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--blue);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px;color:var(--blue)}
+.dq p{font-size:15px;line-height:1.7}
+
+/* 道具の例のカード（描く道具と測る道具に分ける） */
+.tgroup{display:flex;flex-direction:column;gap:8px}
+.tgroup h3{font-size:17px}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tool a{font-family:var(--display);font-weight:900;font-size:18px}
+.tool .kind{font-family:var(--mono);font-size:12px;color:var(--sub)}
+.tool p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない） */
+.radar{display:flex;gap:24px;align-items:center;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.timeline{flex:none;display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:16em}
+.timeline .now{background:var(--pulse);color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--blue)}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar{flex-direction:column;align-items:flex-start}
+  .flow{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:minmax(0,1fr)}
+  .sticky{grid-column:1}
+}
+@media (prefers-reduced-motion:reduce){
+  .route .jam{animation:none}
+  .bar .pt,.bar .wt{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="path-to-production-mapping.html">Path-to-production mapping の解説（本文）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TECHNIQUES</span><span class="ring">ADOPT</span><span class="note">非公式の入門ページ・下書き</span>
+    </div>
+    <h1>Path-to-production mapping</h1>
+    <p class="name-hint">名前の手がかり: <span>Path</span> 道 <span>to production</span> 本番（もとは「生産」）＋ <span>mapping</span> 地図を作ること</p>
+    <p class="lead">開発者の端末から本番環境までの全部の手順を、関係者が集まって1枚の図に書き出し、どこで詰まっているかを見つける手法</p>
+    <svg class="route" viewBox="0 0 960 56" preserveAspectRatio="xMidYMid meet" role="img" aria-label="端末から本番までの道に並ぶ駅のうち、1つの駅が詰まっている絵">
+      <line x1="40" y1="28" x2="920" y2="28"/>
+      <circle cx="40" cy="28" r="8"/><circle cx="216" cy="28" r="8"/><circle cx="392" cy="28" r="8"/><circle cx="568" cy="28" r="8"/><circle class="jam" cx="744" cy="28" r="9"/><circle cx="920" cy="28" r="8"/>
+      <text x="40" y="52" text-anchor="middle">端末</text><text x="920" y="52" text-anchor="middle">本番</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 280" role="img" aria-label="倉庫から家まで荷物が運ばれる道で、途中の中継所に荷物が3日止まっている絵">
+        <path id="road" d="M70 200 H430" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/>
+        <rect x="20" y="130" width="90" height="70" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <path d="M14 134 L65 100 L116 134" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <text x="65" y="225" text-anchor="middle" class="t-plain">倉庫</text>
+        <rect x="200" y="150" width="70" height="50" fill="var(--pulse-soft)" stroke="var(--pulse)" stroke-width="3"/>
+        <text x="235" y="225" text-anchor="middle" class="t-plain">中継所</text>
+        <g fill="var(--parcel)" stroke="var(--ink)" stroke-width="1.5"><rect x="206" y="128" width="18" height="18"/><rect x="226" y="128" width="18" height="18"/><rect x="246" y="128" width="18" height="18"/><rect x="216" y="110" width="18" height="18"/><rect x="236" y="110" width="18" height="18"/></g>
+        <circle cx="235" cy="70" r="22" fill="var(--surface)" stroke="var(--pulse)" stroke-width="3"/>
+        <path d="M235 56 V70 H246" fill="none" stroke="var(--pulse)" stroke-width="3" stroke-linecap="round"/>
+        <text x="282" y="70" class="t-wait">3日止まる</text>
+        <rect x="390" y="140" width="80" height="60" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <path d="M384 144 L430 108 L476 144" fill="none" stroke="var(--ink)" stroke-width="3"/>
+        <text x="430" y="225" text-anchor="middle" class="t-plain">家</text>
+        <text x="250" y="262" text-anchor="middle" class="t-small">倉庫で速く包んでも、届く日はほとんど変わらない</text>
+        <rect class="parcel" x="-11" y="-11" width="22" height="22" fill="var(--parcel)" stroke="var(--ink)" stroke-width="2">
+          <animateMotion dur="6s" repeatCount="indefinite" keyPoints="0;0.42;0.42;1" keyTimes="0;0.15;0.8;1" calcMode="linear"><mpath href="#road"/></animateMotion>
+        </rect>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">荷物の道のりを全部書き出して、<em>「この中継所で3日も止まっている」</em>と気づく</p>
+        <p>荷物を速く包む（コードを速く書く）だけでは、届くのは速くなりません。ソフトウェアも、書いたあとにレビュー・テスト・ビルド・検証・承認・<b>デプロイ</b>（配置）など多くの手順を通って、ようやく<b>本番環境</b>（利用者が実際に使う環境）に届きます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">本番までの道のりで起きる3つの課題と、この手法の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。手順は別のチームや道具が担うことが多く、全体を見渡せている人はほとんどいません。DORA も、価値の流れ全体を見渡せている人はおらず、ほかの部分の出来事に驚くことが多いと述べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>待ち時間が気づかれない</h3><span class="term">待ち時間（wait time）</span><p>承認待ちや、検証用の環境の空き待ちが、気づかれないまま積み重なる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>手順ごとに時間を書いて、待ちを見える形にする</h3><p>関わる全員で手順を1枚に並べ、手順ごとに「受け取ってから次に渡すまでの時間（リードタイム）」と「正味の作業時間（プロセスタイム）」を書く（DORA の勧め）。2つの定義から、その差がおおよその待ち時間になる。<a href="#s-lab">下の図で見られます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>一部だけ速くしても、全体は速くならない</h3><span class="term">ボトルネック（bottleneck）</span><p>本当の詰まりが別の場所にあると、ある手順を速くしても全体の時間はほとんど変わらない。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>端から端まで描いて、いちばん大きな待ちから直す</h3><p>何日もかかる流れの中で数分を縮めても効果は小さい（DORA）。Thoughtworks も、コードを書く速さだけでなく、端から端までの流れを改善するよう勧めている。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>手作業ややり方の違いが、事故を生む</h3><span class="term">ばらつき（inconsistency）</span><p>手作業の手順や、チームによって違うやり方が、事故の原因になる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="a"><h3>困りごとを書き出し、直す場所を見つける</h3><p>手順を並べたあと、遅れ・危うさ・やり方のばらつきを困りごととして書き出す。参加者がそれまで知らなかった問題に気づく、と Thoughtworks は述べている。描いた図は、自動化できる場所を探す出発点にもなる（Martin Fowler）。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: どこを速くすると、全体が速くなるか</h2>
+    <p class="hint">1つの変更が端末から本番まで届く道のりを、手順ごとの横棒で描いた例です。青は正味の作業時間、橙のしまは待ち時間です。下のボタンで改善を試し、全体の時間の変わり方を比べてください。手順・時間・困りごとは、説明のために作った例です。</p>
+    <div class="toggles" role="group" aria-label="試す改善" id="toggles" hidden>
+      <button type="button" class="btn" id="t-ai" aria-pressed="false">AI でコードを書く時間を半分にする</button>
+      <button type="button" class="btn" id="t-ok" aria-pressed="false">承認待ちを減らす</button>
+    </div>
+    <div class="map" id="map"></div>
+    <noscript><p class="hint">この図はスクリプトで描きます。例の要約: 6つの手順の正味の作業は合わせて11時間、届くまでの合計は111時間（約4.6日）。いちばん大きな待ちは承認の約2日。コードを書く時間を半分にしても全体は3時間しか縮まず、承認待ちを4時間に減らすと全体は67時間になります。</p></noscript>
+    <div class="legend" aria-hidden="true"><span><i></i>正味の作業時間（プロセスタイム）</span><span><i class="w"></i>待ち時間</span><span><i class="n"></i>困りごと（付箋）</span></div>
+    <div class="total">
+      <div class="lb"><span>全体の時間（リードタイムの合計）</span><b id="total"></b></div>
+      <div class="lb"><span class="delta" id="delta"></span></div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-flow">
+    <h2 id="s-flow">ワークショップの進め方</h2>
+    <p class="lead-note">もとになったのは、製造業の<b>バリューストリームマッピング</b>（トヨタが生み出した、モノと情報の流れを図にしてむだを見つける道具）です。今の状態の図を先に作り、次に目指す状態の図を作るのが基本です。</p>
+    <div class="flow">
+      <div class="st"><b>関わる人が集まる</b><span>作る人から、動かし続ける人まで</span></div>
+      <div class="st"><b>手順を順に並べる</b><span>端末から本番まで、共有のボードに</span></div>
+      <div class="st"><b>手順ごとに書き添える</b><span>関わる人・道具・作業・できるもの</span></div>
+      <div class="st pain"><b>困りごとを書き出す</b><span>遅れ・危うさ・やり方のばらつき</span></div>
+      <div class="st"><b>大きな詰まりから直す</b><span>数字は大まかで足りる（DORA）</span></div>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li>本番までの道のりの全体が、関わる全員に見える</li>
+        <li>いちばん大きな待ち（詰まり）がどこかが分かり、効く場所から直せる</li>
+        <li>結合の強い部品など、自動化を妨げる設計の課題が見えてくることがある（筆者の見立て）</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>全員の時間</b>: 関係者全員が集まる準備と調整の手間</li>
+        <li><b>図はすぐ古くなる</b>: 定期的に（たとえば半年ごとに）やり直す（DORA）</li>
+        <li><b>一部だけを描く落とし穴</b>: 部分最適に陥る</li>
+        <li><b>変える権限が要る</b>: 権限が無いと、図を作って終わりになりがち</li>
+        <li><b>完璧を求めない</b>: 正確な図や細かい数字にこだわると、話し合いが進まない</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに決める5つのこと</h2>
+    <p class="lead-note">Thoughtworks はこの手法を Adopt に置き、社内では標準的なやり方だとしています。上の進め方とは別に、始める前と後に決めておくことです。</p>
+    <div class="decide">
+      <div class="dq"><b>誰を呼ぶか？</b><p>開発・テスト・運用・セキュリティ・承認者など、道のりに関わる全員。DORA は、すべてのチームの代表の参加が欠かせないとしている。抜けた役割の手順は、図に出てこないため（筆者の見立て）。</p></div>
+      <div class="dq"><b>どこからどこまで描くか？</b><p>「開発者の端末から本番まで」を基本に、1つの変更が通る道のりを描く。</p></div>
+      <div class="dq"><b>何を指標にするか？</b><p>改善の効果は DORA の5つの指標で測れる。ただし指標そのものを目標にすると、数字だけをよく見せる行動を招く（DORA の注意）。</p></div>
+      <div class="dq"><b>AI で速くなった分に見合うか？</b><p>コードを書く速さが上がったなら、レビュー・テスト・デプロイの側も速くなっているかを確かめる（Thoughtworks の指摘による）。</p></div>
+      <div class="dq"><b>どう続けるか？</b><p>図を作って終わりにせず、共有の場所に置いて、改善のたびに更新する。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-tools">
+    <h2 id="s-tools">実現するための道具の例</h2>
+    <p class="lead-note">推奨でも網羅でもない例です（2026-11-15 の時点）。手法の中心はワークショップでの話し合いで、共有のホワイトボード（またはオンラインの同等のもの）で行えます（Radar の2022年の版の説明）。</p>
+    <div class="tgroup">
+      <h3>図を描く</h3>
+      <div class="tools">
+        <div class="tool"><a href="https://miro.com/templates/value-stream-mapping/">Miro</a><span class="kind">商用のクラウドのサービス</span><p>オンラインで共有するホワイトボード。バリューストリームマップのテンプレートがある（Miro が作ったものと、利用者が作ったものがある）。</p></div>
+        <div class="tool"><a href="https://github.com/excalidraw/excalidraw">Excalidraw</a><span class="kind">OSS（MIT）。関連のサービスとして Excalidraw+ もある</span><p>手描き風の図を描く、オンラインのホワイトボード。矢印と図形で流れを描ける。</p></div>
+      </div>
+    </div>
+    <div class="tgroup">
+      <h3>流れの時間を測る</h3>
+      <div class="tools">
+        <div class="tool"><a href="https://docs.gitlab.com/user/group/value_stream_analytics/">GitLab の Value Stream Analytics</a><span class="kind">商用（無料版で使えるのは一部）</span><p>開発の流れの段階ごとにかかった時間（中央値）を計算する。リードタイムや DORA の指標も表示する。</p></div>
+        <div class="tool"><a href="https://github.com/apache/devlake">Apache DevLake</a><span class="kind">OSS（Apache-2.0）</span><p>ばらばらの DevOps の道具からデータを集めて分析し、DORA の指標などをダッシュボードで見せる。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="timeline">
+      <span>2022年10月 Adopt</span>
+      <span><span class="now">2026年11月 Adopt</span></span>
+      <small>Radar のページの推移。新規か移動かの表示はなし</small>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+      <p>社内では標準的なやり方だとしたうえで、AI のエージェントがコードを書くようになって（エージェント型のコーディング）コードを書く速さが上がると、本番までの道のりのほかの場所の詰まりが目立ったり、ひどくなったりすると、Thoughtworks は見ています。そのため、コードを書く速さだけでなく端から端までの流れを改善することが大事で、そのための手法として、あらためて重要になったとしています。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">青い字は元の語（英単語・略語・名前の元になった語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>ワークショップ</summary><p class="etym"><span class="w">workshop</span> ＝ 作業場</p><p>関係者が集まり、手を動かしながら一緒に考えたり決めたりする会。</p></details>
+      <details><summary>コードレビュー</summary><p class="etym"><span class="w">code</span> ＝ プログラム ／ <span class="w">review</span> ＝ 見直し</p><p>書いたコードを、ほかの人が読んで確かめること。</p></details>
+      <details><summary>ビルド</summary><p class="etym"><span class="w">build</span> ＝ 組み立てる</p><p>ソースコードを、動かせる形（実行できるファイルなど）に組み立てること。</p></details>
+      <details><summary>本番環境</summary><p class="etym"><span class="w">production</span> ＝ 生産</p><p>利用者が実際に使っている環境。これに対し、開発や検証のための環境がある。</p></details>
+      <details><summary>デプロイ</summary><p class="etym"><span class="w">deploy</span> ＝ 部隊を配置する</p><p>作ったソフトウェアを、サーバーなどの動かす場所に配置して使える状態にすること。</p></details>
+      <details><summary>ボトルネック</summary><p class="etym"><span class="w">bottleneck</span> ＝ 瓶の首</p><p>全体の流れの中で、いちばん詰まっている場所。ここを直さないと全体は速くならない。</p></details>
+      <details><summary>バリューストリームマッピング</summary><p class="etym"><span class="w">value</span> ＝ 価値 ／ <span class="w">stream</span> ＝ 流れ ／ <span class="w">mapping</span> ＝ 地図を作ること</p><p>製品やサービスが顧客に届くまでの手順と、モノ・情報の流れを図にして、むだを見つける手法。</p></details>
+      <details><summary>リードタイム</summary><p class="etym"><span class="w">lead time</span> ＝ 前もって要る時間</p><p>作業を受け取ってから、次に渡す（または完成する）までにかかる時間。待ち時間を含む。</p></details>
+      <details><summary>プロセスタイム</summary><p class="etym"><span class="w">process</span> ＝ 工程 ／ <span class="w">time</span> ＝ 時間</p><p>邪魔が入らず、必要なものがそろっていれば、作業にかかる正味の時間。</p></details>
+      <details><summary>継続的デリバリー（CD）</summary><p class="etym"><span class="w">CD</span> ＝ Continuous Delivery（継続的な届け）</p><p>ソフトウェアの変更を、いつでも安全に素早く本番に出せる状態を保つ考え方と、そのための取り組み。</p></details>
+      <details><summary>デプロイメントパイプライン</summary><p class="etym"><span class="w">deployment</span> ＝ 配置 ／ <span class="w">pipeline</span> ＝ 管の道</p><p>コードの変更を、ビルド・テスト・検証を経て本番まで運ぶ一連の自動化された流れ。</p></details>
+      <details><summary>DORA</summary><p class="etym"><span class="w">DORA</span> ＝ DevOps Research and Assessment（DevOps の研究と評価）</p><p>ソフトウェアを届ける力について調査・研究しているプログラム。その成果の指標がよく使われる。</p></details>
+      <details><summary>部分最適</summary><p class="etym">日本語の言葉（部分＋最適〈いちばんよい状態〉）</p><p>全体ではなく一部だけをよくしようとして、全体としては改善しない（または悪くなる）こと。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページは <a href="path-to-production-mapping.html">Path-to-production mapping の解説</a>の要約です。出典（一次情報へのリンク）と詳しい説明は解説を参照してください。内容の確認日: 2026-11-15。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/techniques/path-to-production-mapping">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 説明のための例。時間の単位は「時間」。lt = リードタイム（受け取ってから次に渡すまで）、pt = プロセスタイム（正味の作業）
+  var steps=[
+    {nm:'コードを書く',sub:'開発者の端末',lt:8,pt:6},
+    {nm:'コードレビュー',sub:'ほかの人が読む',lt:24,pt:1},
+    {nm:'ビルド・自動テスト',sub:'自動',lt:1,pt:0.5},
+    {nm:'検証用の環境',sub:'環境の空き待ち',lt:26,pt:2,note:'困りごと（例）: 環境の設定が手作業で、チームごとにやり方が違う'},
+    {nm:'承認',sub:'承認者',lt:48,pt:0.5,note:'困りごと（例・改善前）: 承認待ちで2日'},
+    {nm:'本番へのデプロイ',sub:'配置',lt:4,pt:1}
+  ];
+  var ai=false, ok=false;
+  var map=document.getElementById('map'), totalEl=document.getElementById('total'), deltaEl=document.getElementById('delta'), status=document.getElementById('status');
+  var bAi=document.getElementById('t-ai'), bOk=document.getElementById('t-ok');
+  var MAX=48;
+  function cur(i){
+    var s=steps[i], lt=s.lt, pt=s.pt;
+    if(i===0&&ai){ pt=s.pt/2; lt=s.lt-s.pt/2; }   // 書く時間（正味）を半分に。待ちは変えない
+    if(i===4&&ok){ lt=4; }                        // 承認待ちを48時間から4時間に
+    return {lt:lt,pt:pt};
+  }
+  function fmtH(h){ var d=h/24; return Math.round(h)+'時間（約'+(Math.round(d*10)/10)+'日）'; }
+  // 行を作る（固定の文だけを使う）
+  var rows=steps.map(function(s,i){
+    var row=document.createElement('div'); row.className='row';
+    var nm=document.createElement('div'); nm.className='nm'; nm.textContent=s.nm;
+    var sm=document.createElement('small'); sm.textContent=s.sub; nm.appendChild(sm);
+    var hr=document.createElement('small'); hr.className='hrs'; nm.appendChild(hr);
+    var bar=document.createElement('div'); bar.className='bar'; bar.setAttribute('role','img');
+    var pt=document.createElement('span'); pt.className='pt';
+    var wt=document.createElement('span'); wt.className='wt';
+    bar.appendChild(pt); bar.appendChild(wt);
+    row.appendChild(nm); row.appendChild(bar);
+    if(s.note){ var n=document.createElement('div'); n.className='sticky'; n.textContent=s.note; row.appendChild(n); }
+    map.appendChild(row);
+    return {row:row,bar:bar,pt:pt,wt:wt,hr:hr};
+  });
+  var base=steps.reduce(function(a,s){return a+s.lt;},0);
+  function render(){
+    bAi.setAttribute('aria-pressed',String(ai)); bOk.setAttribute('aria-pressed',String(ok));
+    var total=0, topI=0, topW=-1;
+    steps.forEach(function(s,i){
+      var c=cur(i), w=c.lt-c.pt; total+=c.lt;
+      if(w>topW){ topW=w; topI=i; }
+      rows[i].pt.style.width=(c.pt/MAX*100)+'%';
+      rows[i].wt.style.width=(w/MAX*100)+'%';
+      rows[i].hr.textContent='正味 '+c.pt+' ／ 待ち '+w+' 時間';
+      rows[i].bar.setAttribute('aria-label', s.nm+': 正味の作業 '+c.pt+'時間、待ち '+w+'時間');
+    });
+    rows.forEach(function(r,i){ r.row.classList.toggle('top',i===topI); });
+    totalEl.textContent=fmtH(total);
+    var cut=base-total;
+    deltaEl.textContent=cut>0?('最初の例より '+Math.round(cut*10)/10+'時間 短い'):'最初の例のまま';
+    var msg;
+    if(!ai&&!ok) msg='全体の大半は<b>待ち時間</b>です。正味の作業は合わせて11時間ですが、届くまでに100時間を超えています。どちらの改善が効くか、ボタンで試してください。';
+    else if(ai&&!ok) msg='コードを書く正味の時間を半分にしても、全体は3時間しか縮みません。<b>いちばん大きな待ちは、承認のまま</b>です。Thoughtworks は、AI でコードを書く速さが上がると、ほかの場所の詰まりが目立ったり、ひどくなったりすると見ています（この例では、書く速さが上がって変更が増えたときに詰まりがひどくなる様子までは表していません）。';
+    else if(!ai&&ok) msg='承認待ちを減らすと、全体が大きく縮みます。いちばん大きな待ちは、次の場所（検証用の環境）に移りました。詰まりを1つ直すと次の詰まりが見えるので、図を更新しながら改善を続けます。';
+    else msg='両方を試した状態です。全体の時間の縮みの大部分は、承認待ちを減らしたことによるものです。';
+    status.innerHTML=msg;
+  }
+  document.getElementById('toggles').hidden=false;
+  bAi.addEventListener('click',function(){ai=!ai;render();});
+  bOk.addEventListener('click',function(){ok=!ok;render();});
+  render();
+
+  // 動きを減らす設定のときは、たとえの絵の小包の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg'); for(var i=0;i<svgs.length;i++){ svgs[i].setCurrentTime(2.5); svgs[i].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
