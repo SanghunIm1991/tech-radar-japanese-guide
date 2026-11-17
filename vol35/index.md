@@ -56,7 +56,7 @@
 | Toxic flow analysis for AI | — | [Markdown](techniques/toxic-flow-analysis-for-ai.md) | Techniques | Trial | 下書き |
 | Unattended overnight agentic builds | — | [Markdown](techniques/unattended-overnight-agentic-builds.md) | Techniques | Trial | 下書き |
 | mise | [図と動きで見る](tools/mise-intro.html) | [Markdown](tools/mise.md) | Tools | Adopt | 下書き |
-| OpenAI Codex | — | [Markdown](tools/openai-codex.md) | Tools | Adopt | 下書き |
+| OpenAI Codex | [図と動きで見る](tools/openai-codex-intro.html) | [Markdown](tools/openai-codex.md) | Tools | Adopt | 下書き |
 | OpenCode | — | [Markdown](tools/opencode.md) | Tools | Adopt | 下書き |
 | Act | — | [Markdown](tools/act.md) | Tools | Trial | 下書き |
 | Agent Package Manager | — | [Markdown](tools/agent-package-manager.md) | Tools | Trial | 下書き |

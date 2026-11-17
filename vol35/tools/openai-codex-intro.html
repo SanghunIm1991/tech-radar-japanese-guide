@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenAI Codex 図解ページ（非公式）</title>
+<meta name="description" content="OpenAI Codex（OpenAI のコーディングエージェント）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、緑＝そのまま進む、琥珀＝人に聞く、赤＝止まる。
+   マゼンタは評価のタグ・評価の年表の今回の印・フォーカスの枠だけに使う（シリーズの約束）。見出し・帯・ボタンなどの飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --ask:#C98A0B; --ask-text:#8A5C00; --ask-soft:#FCEFD2;
+  --stop:#C8423A; --stop-text:#A8322B; --stop-soft:#FBE1DE;
+  --fence:#4A5672;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --ask:#F2B65A; --ask-text:#F5C67A; --ask-soft:#3D3019;
+  --stop:#FF8A80; --stop-text:#FF9C93; --stop-soft:#3D2226;
+  --fence:#A9B3C9;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #E0568A;outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、点線の囲いの中で動くカーソルが、囲いの端で止まる様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#F08DB3;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(40px,9vw,88px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.pen{display:block;width:100%;height:64px}
+.pen .fn{fill:none;stroke:#AEB8CF;stroke-width:2;stroke-dasharray:6 6}
+.pen text{fill:var(--band-sub);font-family:var(--mono);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 使う場所 */
+.places{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.place{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.place b{font-family:var(--display);font-size:17px}
+.place span{font-size:14px;color:var(--sub);line-height:1.7}
+
+/* 試せる図 */
+.ctrls{display:flex;flex-direction:column;gap:10px}
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn code{font-size:.9em}
+.acts{display:flex;flex-direction:column;gap:8px}
+.act{display:grid;grid-template-columns:minmax(0,1fr) 8.5em;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.act .what{font-size:15px;font-weight:700;line-height:1.5}
+.act .what small{display:block;font-weight:500;font-size:13px;color:var(--sub)}
+.res{font-size:14px;font-weight:700;border-radius:999px;padding:4px 10px;text-align:center}
+.res.go{background:var(--go-soft);color:var(--go-text);border:2px solid var(--go)}
+.res.ask{background:var(--ask-soft);color:var(--ask-text);border:2px dashed var(--ask)}
+.res.stop{background:var(--stop-soft);color:var(--stop-text);border:2px solid var(--stop)}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px;background:var(--go)}
+.legend i.a{background:var(--ask)} .legend i.s{background:var(--stop)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#F08DB3;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+  .act{grid-template-columns:minmax(0,1fr)}
+  .res{justify-self:start}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="openai-codex.html">OpenAI Codex の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TOOLS</span><span class="ring">ADOPT</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>OpenAI Codex</h1>
+    <p class="name-hint">名前の手がかり: <span>OpenAI</span> 会社名（Open 開かれた ＋ AI 人工知能）＋ <span>Codex</span> ラテン語で、紙を綴じた冊子の形の本・写本</p>
+    <p class="lead">OpenAI が提供するコーディングエージェント。コードを読み、書き換え、コマンドを実行して作業を進める。どこまで動いてよいかを、サンドボックスと承認の方針で囲う</p>
+    <svg class="pen" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="点線の囲いの中で動く印が、囲いの端に来ると止まる絵">
+      <rect class="fn" x="200" y="6" width="560" height="44" rx="8"/>
+      <text x="480" y="62" text-anchor="middle">サンドボックス（囲い）</text>
+      <path id="walk" d="M230 28 H748" fill="none"/>
+      <rect x="-7" y="-9" width="14" height="18" rx="2" fill="#DCE3F1">
+        <animateMotion dur="6s" repeatCount="indefinite" keyPoints="0;1;1;0" keyTimes="0;0.45;0.7;1" calcMode="linear"><mpath href="#walk"/></animateMotion>
+      </rect>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 280" role="img" aria-label="柵で囲った作業場の中で同僚がファイルを直し、柵の門に来ると呼び鈴を鳴らして許可を求める絵">
+        <rect x="30" y="30" width="330" height="200" rx="10" fill="var(--go-soft)" stroke="var(--fence)" stroke-width="3" stroke-dasharray="10 7"/>
+        <text x="195" y="56" text-anchor="middle" class="t-small">作業場（作業中のフォルダ）</text>
+        <rect x="70" y="80" width="60" height="76" rx="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="100" y="124" text-anchor="middle" class="t-small">コード</text>
+        <rect x="160" y="80" width="60" height="76" rx="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="190" y="124" text-anchor="middle" class="t-small">テスト</text>
+        <rect x="400" y="96" width="70" height="80" rx="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="435" y="134" text-anchor="middle" class="t-small">作業場の</text>
+        <text x="435" y="152" text-anchor="middle" class="t-small">外のもの</text>
+        <circle cx="360" cy="190" r="13" fill="var(--ask)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="360" y="252" text-anchor="middle" class="t-plain">門の呼び鈴（承認）</text>
+        <path id="mate" d="M100 190 H190 H330" fill="none"/>
+        <g>
+          <circle r="15" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+          <circle cx="-5" cy="-3" r="2" fill="var(--ink)"/><circle cx="5" cy="-3" r="2" fill="var(--ink)"/>
+          <animateMotion dur="7s" repeatCount="indefinite" keyPoints="0;0.37;0.37;1;1;0" keyTimes="0;0.2;0.35;0.55;0.8;1" calcMode="linear"><mpath href="#mate"/></animateMotion>
+        </g>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら</div>
+        <p class="big" id="s-meta">「この不具合を直して」と頼むと、自分でファイルを開き、直し、テストを走らせて報告してくれる同僚</p>
+        <p>ただし、どこまで勝手に動いてよいかは、こちらが決めて囲っておく必要があります。Codex では、囲いが<b>サンドボックス</b>、門の呼び鈴が<b>承認の方針</b>にあたります。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">2つの課題と、Codex の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>コードを貼り付け、試し、エラーを貼り戻す往復を、人が担う</h3><span class="qterm">チャット型の AI の使い方</span><p>質問してコード片をもらう使い方では、試した結果を AI に伝え直すのは人の仕事になる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">Codex の答え</span><h3>リポジトリを自分で読み書きし、コマンドで確かめながら進める</h3><p>ファイルを読んで書き換え、テストなどのコマンドを実行して結果を確かめる。クラウドでは作業ごとに分けた環境で複数の作業を並べて進め、変更をプルリクエストにできる。<code>codex exec</code> なら、人が端末の前にいなくても、スクリプトや CI から任せられる。<a href="#s-places">使う場所を見る</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>AI にコマンドを実行させると、事故の危険が生まれる</h3><span class="qterm">コマンドを実行させる使い方</span><p>ファイルを消す、秘密の情報を外へ送る、といった事故が起きうる。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">Codex の答え</span><h3>囲い（サンドボックス）と呼び鈴（承認の方針）を組み合わせる</h3><p>モードで書き込める範囲を決め、承認の方針で囲いの外に出る操作の前に人に聞くかを決める。既定ではネットワークに出られない状態で動く（ただし、承認したコマンドや、許可したネットワーク・MCP のサーバーは囲いの外に出られる）。囲いを外す指定もあるので、どの設定で使うかは利用者が決める。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-places">
+    <h2 id="s-places">使う場所</h2>
+    <div class="places">
+      <div class="place"><b>CLI</b><span>端末で <code>codex</code> と打って対話する。本体は Rust で書かれた Apache-2.0 のオープンソース</span></div>
+      <div class="place"><b>エディタの拡張・デスクトップアプリ</b><span>画面の上で同じエージェントを使う</span></div>
+      <div class="place"><b>クラウド</b><span>作業ごとに分けた環境で動かし、変更を確かめてプルリクエストにできる。ChatGPT の Web やモバイルアプリからも使える</span></div>
+      <div class="place"><b><code>codex exec</code>・GitHub Actions</b><span>スクリプトや CI から呼ぶ。公式のアクション <code>openai/codex-action</code> もある</span></div>
+    </div>
+    <p class="hint">作業の前に、AI 向けの指示書 <code>AGENTS.md</code> を読みます（<code>~/.codex</code> のものと、リポジトリの根元から今のフォルダまでのものを順につなげ、今のフォルダに近いものが後ろに来る）。外部の道具やデータは MCP でつなげます。</p>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: 囲いと呼び鈴の設定で、何が起きるか</h2>
+    <p class="hint">課題2（AI にコマンドを実行させる事故の危険）への答えを、設定を変えて確かめる図です。エージェントが作業中にしようとする5つの操作が、設定によって「そのまま進む」「人に聞く」「止まる」のどれになるかを示します。詳しい解説に書いた範囲を、筆者が整理して簡略化したものです（実際の動きは OS や設定の細部で変わりうるので、公式の文書で確かめてください）。</p>
+    <div class="ctrls" id="ctrls" hidden>
+      <span class="ctrl-lbl">サンドボックスのモード（囲いの広さ）</span>
+      <div class="toggles" role="group" aria-label="サンドボックスのモード">
+        <button type="button" class="btn" data-k="mode" data-v="ro" aria-pressed="false"><code>read-only</code></button>
+        <button type="button" class="btn" data-k="mode" data-v="ww" aria-pressed="true"><code>workspace-write</code></button>
+        <button type="button" class="btn" data-k="mode" data-v="full" aria-pressed="false"><code>danger-full-access</code></button>
+      </div>
+      <span class="ctrl-lbl">承認の方針（囲いの外に出る前に聞くか）</span>
+      <div class="toggles" role="group" aria-label="承認の方針">
+        <button type="button" class="btn" data-k="ap" data-v="req" aria-pressed="true"><code>on-request</code>（必要なときに聞く）</button>
+        <button type="button" class="btn" data-k="ap" data-v="never" aria-pressed="false"><code>never</code>（聞かずに進める）</button>
+      </div>
+      <span class="ctrl-lbl">ネットワーク（<code>workspace-write</code> のときだけ選べる）</span>
+      <div class="toggles" role="group" aria-label="ネットワーク">
+        <button type="button" class="btn" id="b-net" aria-pressed="false"><code>sandbox_workspace_write.network_access = true</code> にする</button>
+      </div>
+    </div>
+    <div class="acts" id="acts"></div>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: <code>workspace-write</code> では、作業中のフォルダを読み書きしテストを走らせることはそのまま進み、フォルダの外を書き換える・ネットワークに出る操作は、<code>on-request</code> なら人に聞き、<code>never</code> なら止まる（囲いは効いたまま）。<code>read-only</code> では、書き込みや囲いの外に出る操作に承認が要る。<code>danger-full-access</code> は制限が無い。</p></noscript>
+    <div class="legend" aria-hidden="true"><span><i></i>そのまま進む</span><span><i class="a"></i>人に聞く（承認）</span><span><i class="s"></i>止まる（その操作は囲いに阻まれる）</span></div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>作業の自動化</b>: 調査・修正・テストの往復を任せられる。クラウドでは複数の作業を並べて進められる</li>
+        <li><b>企業での管理のしやすさ</b>: OS の仕組みによる囲いと、段階的な承認の方針がある。設定は個人・プロジェクトのほか、組織のワークスペースから配られる既定値やマシン全体の設定からも読み込まれ、管理された PC では組織が <code>requirements.toml</code> で縛れる</li>
+        <li><b>組み込みやすさ</b>: <code>codex exec</code>、GitHub のアクション、TypeScript と Python の SDK で、ほかの仕組みから呼べる</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>出力の質は保証されない</b>: 動くが古い書き方のコードを出すことがあり、自動テストと人のレビューが欠かせない（Thoughtworks の前の版〈2026年4月〉の注意）</li>
+        <li><b>権限の設計が要る</b>: 承認とサンドボックスを両方外す指定は、公式が「推奨しない」としている。<code>danger-full-access</code> も、公式は慎重に使うよう求めている</li>
+        <li><b>コードが外へ出る</b>: モデルに渡す指示には手元のコードが含まれ、提供元のサービスへ送られる（筆者の見立て）。公式も、監視のログに指示を残さないよう、<code>log_user_prompt = false</code> のままにすることを勧めている</li>
+        <li><b>提供元への依存</b>: 本体はオープンソースだが、開発は OpenAI が主導し、コミュニティで運営されているわけではない（Thoughtworks の指摘）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに決める5つのこと</h2>
+    <p class="lead-note">始める前に決めておくことを、詳しい解説の第5節から5つにまとめました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>どの契約で使うか？</b><p>ChatGPT のプランでサインインすると、プランの利用枠の中で使える。API キーなら API の通常の料金。クラウドの機能には ChatGPT でのサインインが要る。</p></div>
+      <div class="dq"><b>社外に出してよいコードか？</b><p>先に決める。学習への利用や保存期間は、契約の種類ごとの規約で確かめる（筆者の見立て）。</p></div>
+      <div class="dq"><b>権限の既定値をどうするか？</b><p>チームで使うなら、モードと承認の方針、ネットワークの可否を設定で決めておく。CI では、<code>codex exec</code> は既定で <code>read-only</code> で動く。</p></div>
+      <div class="dq"><b>どの OS で使うか？</b><p>macOS・Linux に加え、Windows でも PowerShell のまま専用のサンドボックスで動かせる。Windows 11 が推奨で、Windows 10 は最善努力の扱い。</p></div>
+      <div class="dq"><b>AI の変更を誰が確かめるか？</b><p>レビューの体制を決める。テストが薄いリポジトリでは、効果より危険が勝ちやすい（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>Claude Code・OpenCode</b><p>同じく端末を中心に使うコーディングエージェント。Radar のこの項目のページで、Codex と並べて挙げられている。</p></div>
+      <div class="alt"><b><a href="../techniques/agent-sandboxing-intro.html">Agent sandboxing</a></b><p>AI エージェントの動ける範囲を囲う手法。Codex のサンドボックスはその実装の一例（筆者の見立て）。</p></div>
+      <div class="alt"><b><a href="../techniques/progressive-context-disclosure-intro.html">Progressive context disclosure</a></b><p>AI に渡す情報を必要に応じて段階的に見せる手法。AGENTS.md やスキルはその道具になる（筆者の見立て）。</p></div>
+      <div class="alt"><b>Coding harness for general-purpose agents・Open-weight models</b><p>Thoughtworks は、中核の仕組みが Apache-2.0 で公開されていることを前者に使える点として、OpenAI 以外のモデルも使えることを後者を動かす選択肢になる点として挙げている。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span>2026年4月 Trial</span>
+        <span><span class="now">2026年11月 Adopt</span></span>
+        <small>Radar のページの推移。Trial から移動</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、チームで日常的に使えるコーディングエージェントの1つとして Codex を勧めています。主な理由は、企業で使うための管理の機能と、ほかのエージェントや OpenAI 以外のモデルとの組み合わせやすさです。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目（同じ版）: <a href="../techniques/coding-harness-for-general-purpose-agents.html">Coding harness for general-purpose agents</a>（Techniques・Trial）、<a href="../techniques/open-weight-models.html">Open-weight models</a>（Techniques・Trial）など</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>コーディングエージェント</summary><p class="etym"><span class="w">coding</span> ＝ プログラムを書くこと ／ <span class="w">agent</span> ＝ 代わりに行動する者・代理人</p><p>指示を受けて、コードを読み、書き換え、コマンドを実行するといった複数の手順を自分で選んで進める AI の道具。</p></details>
+      <details><summary>サンドボックス</summary><p class="etym"><span class="w">sandbox</span> ＝ 子どもが遊ぶ砂場</p><p>プログラムが触れられるファイルやネットワークを、OS の仕組みで限られた範囲に閉じ込める仕組み。</p></details>
+      <details><summary>承認の方針</summary><p class="etym"><span class="w">approval</span> ＝ 承認 ／ <span class="w">policy</span> ＝ 方針（設定の名前は <code>approval_policy</code>）</p><p>AI が危ないかもしれない操作をする前に、人に確認を求めるかどうかの決まり。</p></details>
+      <details><summary>AGENTS.md</summary><p class="etym"><span class="w">agents</span> ＝ エージェントたち ＋ .md（Markdown のファイルの拡張子）</p><p>リポジトリに置く（全体用は <code>~/.codex</code> に置く）、AI のエージェント向けの指示書。作業の決まりや、テストの走らせ方などを書く。</p></details>
+      <details><summary>MCP</summary><p class="etym"><span class="w">MCP</span> ＝ Model Context Protocol（モデルにコンテキストを渡すための約束事）</p><p>AI のアプリに外部の道具やデータをつなぐための共通の取り決め。</p></details>
+      <details><summary>CLI</summary><p class="etym"><span class="w">CLI</span> ＝ Command Line Interface（コマンドの行で操作する接点）</p><p>文字のコマンドを打って操作する道具。</p></details>
+      <details><summary>CI</summary><p class="etym"><span class="w">CI</span> ＝ Continuous Integration（継続的な統合）</p><p>変更のたびに、自動でビルドやテストを行う仕組み。</p></details>
+      <details><summary>SDK</summary><p class="etym"><span class="w">SDK</span> ＝ Software Development Kit（ソフトウェアの開発の道具一式）</p><p>ほかのプログラムからその機能を呼び出すための部品一式。</p></details>
+      <details><summary>プルリクエスト</summary><p class="etym"><span class="w">pull</span> ＝ 引く ／ <span class="w">request</span> ＝ 依頼（自分の変更を引き込んでもらう依頼）</p><p>変更を本流に取り込む前に、レビューを依頼する GitHub などの仕組み。</p></details>
+      <details><summary>API キー</summary><p class="etym"><span class="w">API</span> ＝ Application Programming Interface（アプリをプログラムから使うための接点） ／ <span class="w">key</span> ＝ 鍵</p><p>プログラムからサービスを使うときに、利用者を識別するための秘密の文字列。使った分だけ課金されることが多い。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="openai-codex.html">OpenAI Codex の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-17。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/tools/openai-codex">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 筆者の整理（簡略化）。in: 囲いの中の操作か。kind: read/write/cmd/out/net
+  var acts=[
+    {k:'read', nm:'作業中のフォルダのコードを読む', sub:'不具合の原因を調べる'},
+    {k:'write',nm:'作業中のフォルダのファイルを書き換える', sub:'不具合を直す'},
+    {k:'cmd',  nm:'作業中のフォルダでテストを実行する', sub:'直ったかを確かめる（この例では、テストがフォルダに書き込むとする）'},
+    {k:'out',  nm:'作業中のフォルダの外のファイルを書き換える', sub:'例: ホームの設定ファイル'},
+    {k:'net',  nm:'ネットワークに出る', sub:'例: パッケージを取ってくる'}
+  ];
+  var st={mode:'ww',ap:'req',net:false};
+  var box=document.getElementById('acts'), status=document.getElementById('status'), bNet=document.getElementById('b-net');
+  var btns=document.querySelectorAll('#ctrls .btn[data-k]');
+  var rows=acts.map(function(a){
+    var d=document.createElement('div'); d.className='act';
+    var w=document.createElement('div'); w.className='what'; w.textContent=a.nm;
+    var s=document.createElement('small'); s.textContent=a.sub; w.appendChild(s);
+    var r=document.createElement('span'); r.className='res';
+    d.appendChild(w); d.appendChild(r); box.appendChild(d);
+    return r;
+  });
+  function judge(k){
+    if(st.mode==='full') return 'go';
+    var inside;
+    if(st.mode==='ro') inside=(k==='read');
+    else inside=(k==='read'||k==='write'||k==='cmd'||(k==='net'&&st.net));
+    if(inside) return 'go';
+    return st.ap==='req'?'ask':'stop';
+  }
+  var LBL={go:'そのまま進む',ask:'人に聞く',stop:'止まる'};
+  function render(){
+    for(var i=0;i<btns.length;i++){ var b=btns[i]; b.setAttribute('aria-pressed',String(st[b.getAttribute('data-k')]===b.getAttribute('data-v'))); }
+    bNet.disabled=(st.mode!=='ww');
+    bNet.setAttribute('aria-pressed',String(st.mode==='ww'&&st.net));
+    acts.forEach(function(a,i){ var j=judge(a.k); rows[i].className='res '+j; rows[i].textContent=LBL[j]; });
+    var msg;
+    if(st.mode==='full') msg='danger-full-access は制限が無く、名前のとおり危険です。公式は慎重に使うよう求めており、承認とサンドボックスを両方外す指定は「推奨しない」としています。この図では、囲いが無いので「囲いの外に出る操作」が無いとみなし、承認の方針で結果を変えていません（筆者の簡略化。このモードで承認の方針がどう効くかは、公式の文書で確かめてください）。';
+    else if(st.mode==='ro') msg=(st.ap==='req'?'read-only では、書き込みや、囲いの外に出る操作に承認が要ります。この例のテストはフォルダに書き込むので、人に聞きます。':'read-only と never の組み合わせは、公式が CI 向けの例に挙げています。聞かずに進めますが、囲いは効いたままなので、書き込みの要らないコマンドは囲いの中で動き、書き込みや囲いの外に出る操作は止まります。CI では、codex exec は既定で read-only で動きます。');
+    else msg=(st.ap==='req'?'workspace-write は作業中のフォルダの中だけ書けます。囲いの外に出る操作の前には人に聞きます。':'never は聞かずに進めますが、サンドボックスの囲いは効いたままです。囲いの外に出る操作は止まります（その操作は囲いに阻まれます）。')+(st.net?' sandbox_workspace_write.network_access = true にしたので、ネットワークにも出られます。':' 既定ではネットワークに出られない状態で動きます。')+' Linux では、書き込みを許したフォルダの中でも .git と .codex は読み取り専用に戻されます。';
+    status.textContent=msg;
+  }
+  for(var i=0;i<btns.length;i++){ btns[i].addEventListener('click',function(e){ var b=e.currentTarget; st[b.getAttribute('data-k')]=b.getAttribute('data-v'); render(); }); }
+  bNet.addEventListener('click',function(){ if(st.mode==='ww'){ st.net=!st.net; render(); } });
+  document.getElementById('ctrls').hidden=false;
+  render();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .pen'); for(var j=0;j<svgs.length;j++){ svgs[j].setCurrentTime(0); svgs[j].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
