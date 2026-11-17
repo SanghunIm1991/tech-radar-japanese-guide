@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ODCS 図解ページ（非公式）</title>
+<meta name="description" content="Open Data Contract Standard（ODCS、データ契約の標準の書式）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、赤橙＝使う側で黙って壊れる、緑＝検査で見つかる。
+   黄は評価のタグ・評価の年表の今回の印だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --bad:#D9622B; --bad-text:#A8461A; --bad-soft:#FCE4D6;
+  --ok:#1F8A5B; --ok-text:#17704A; --ok-soft:#DAF1E5;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --bad:#FF9A5C; --bad-text:#FFAD7A; --bad-soft:#3D2A1E;
+  --ok:#5ED39A; --ok-text:#6FDCA6; --ok-soft:#18372A;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、データの行が契約の枠を通って、使う側へ流れる様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:clamp(18px,3vw,26px);font-weight:700;color:var(--band-sub);letter-spacing:0;margin-top:6px}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.flowline{display:block;width:100%;height:64px}
+.flowline .path{fill:none;stroke:#5B6A8C;stroke-width:2}
+.flowline .gate{fill:none;stroke:#AEB8CF;stroke-width:2}
+.flowline text{fill:var(--band-sub);font-family:var(--mono);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図: 出す側の変更 */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ctrls{display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.lane{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1.2fr) 28px minmax(0,1fr);gap:6px;align-items:stretch}
+.stage{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0;transition:background .3s,border-color .3s}
+.stage b{font-size:15px}
+.stage .ss{font-size:12px;color:var(--sub);font-weight:700;font-family:var(--mono);letter-spacing:.06em}
+.stage p{font-size:14px;line-height:1.7}
+.stage.gate{border-style:dashed}
+.stage.gate.has{border-style:solid;border-color:var(--ink)}
+.stage.hit,.stage.gate.has.hit{border-color:var(--ok);background:var(--ok-soft)}
+.stage.hit .res{color:var(--ok-text)}
+.stage.broken{border-color:var(--bad);background:var(--bad-soft)}
+.stage.broken .res{color:var(--bad-text)}
+.res{font-weight:700;font-size:14px}
+.arrow{display:flex;align-items:center;justify-content:center}
+.arrow svg{width:28px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.contract{font-family:var(--mono);font-size:13px;line-height:1.7;background:var(--bg);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-all}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px}
+.legend i.k{background:var(--ok)} .legend i.b{background:var(--bad)}
+
+/* 契約に書くこと */
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.part{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.part b{font-size:16px}
+.part b code{font-weight:700;color:var(--sub);font-size:13px;margin-left:6px}
+.part span{font-size:14px;color:var(--sub);line-height:1.7}
+.yaml{font-family:var(--mono);font-size:13px;line-height:1.6;background:var(--bg);border-radius:10px;padding:14px 16px;margin:0;overflow-x:auto}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}
+.rule{border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.rule b{font-family:var(--mono);font-size:15px}
+.rule span{font-size:14px;color:var(--sub);line-height:1.7}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms{grid-template-columns:minmax(0,1fr)}
+  .pair,.lane{grid-template-columns:minmax(0,1fr)}
+  .to svg,.arrow svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .stage{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="open-data-contract-standard-odcs.html">ODCS の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>LANGUAGES &amp; FRAMEWORKS</span><span class="ring">ADOPT</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>ODCS<small>Open Data Contract Standard</small></h1>
+    <p class="name-hint">名前の手がかり: <span>Open</span> 開かれた・公開された ＋ <span>Data</span> データ ＋ <span>Contract</span> 契約 ＋ <span>Standard</span> 標準</p>
+    <p class="lead">データを渡す側と使う側が「どんな形・品質・頻度のデータを渡すか」を取り決めた<b>データ契約</b>を、YAML で書くためのオープンな標準</p>
+    <svg class="flowline" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="データの行が、契約の枠を通って、渡す側から使う側へ流れる絵">
+      <path id="hpath" class="path" d="M120 30 H840"/>
+      <text x="120" y="58" text-anchor="middle">渡す側</text>
+      <rect class="gate" x="440" y="8" width="80" height="44" rx="6"/>
+      <text x="480" y="62" text-anchor="middle">契約</text>
+      <text x="840" y="58" text-anchor="middle">使う側</text>
+      <rect x="-14" y="-8" width="28" height="16" rx="3" fill="#AEB8CF">
+        <animateMotion dur="5s" repeatCount="indefinite" begin="-0.5s"><mpath href="#hpath"/></animateMotion>
+      </rect>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 270" role="img" aria-label="アプリとアプリの間に API の仕様書（OpenAPI）を置く絵と、データを渡す側と使う側の間にデータ契約（ODCS）を置く絵">
+        <rect x="20" y="30" width="110" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="75" y="65" text-anchor="middle" class="t-plain">アプリ</text>
+        <rect x="370" y="30" width="110" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="425" y="65" text-anchor="middle" class="t-plain">アプリ</text>
+        <path d="M130 60 H370" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <rect x="200" y="22" width="100" height="76" rx="4" fill="var(--bg)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="250" y="56" text-anchor="middle" class="t-plain">OpenAPI</text>
+        <text x="250" y="76" text-anchor="middle" class="t-small">API の仕様書</text>
+
+        <rect x="20" y="160" width="110" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="75" y="186" text-anchor="middle" class="t-plain">渡す側</text>
+        <text x="75" y="206" text-anchor="middle" class="t-small">データを出す</text>
+        <rect x="370" y="160" width="110" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="425" y="186" text-anchor="middle" class="t-plain">使う側</text>
+        <text x="425" y="206" text-anchor="middle" class="t-small">分析・帳票</text>
+        <path id="mpath" d="M130 190 H370" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <rect x="200" y="152" width="100" height="76" rx="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="250" y="186" text-anchor="middle" class="t-plain">ODCS</text>
+        <text x="250" y="206" text-anchor="middle" class="t-small">データ契約</text>
+        <circle r="6" fill="var(--sub)">
+          <animateMotion dur="4s" repeatCount="indefinite" begin="-0.2s"><mpath href="#mpath"/></animateMotion>
+        </circle>
+        <text x="250" y="258" text-anchor="middle" class="t-small">同じ考え方を、データの受け渡しに当てはめる</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">Web の API の仕様を書く OpenAPI の「データ版」</p>
+        <p>表の列の名前や型だけでなく、「空の値は何件まで」「毎日何時までに更新」といった約束まで、1つのファイルに書きます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">2つの課題と、ODCS の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。課題の多くは筆者の見立てです。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>出す側が列の名前や意味を変え、使う側の集計が黙って壊れる</h3><span class="qterm">機械で確かめられない取り決め</span><p>取り決めが口頭や表計算のファイルにしかないと、どこが壊れるのか事前に分からず、機械で確かめることもできない（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">ODCS の答え</span><h3>スキーマ・品質のルール・SLA を1つの YAML に書き、道具で検査できるようにする</h3><p>書き方の誤りは JSON Schema で見つけられる。Data Contract CLI を使えば、契約を実データに当てて検査し（<code>test</code>）、契約の変更が使う側を壊すかを判定できる（<code>breaking</code>）。標準そのものは書式を決めるもので、検査は道具が行う。事故を防げるのは、検査を変更の流れに組み込んだとき（筆者の見立て）。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>取り決めの書き方がばらばらだった</h3><span class="qterm">データメッシュ（data mesh）で重要になる取り決め</span><p>データを「製品」として各部門が提供するデータメッシュが広がると、取り決めがいっそう重要になる（筆者の見立て）。Thoughtworks も、競合する書式や各組織が独自に作った書式が並んでいたと述べている。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">ODCS の答え</span><h3>特定の会社でなく、Linux Foundation AI &amp; Data の下のプロジェクトが管理する共通の標準</h3><p>Linux Foundation AI &amp; Data の下の Bitol が管理するオープンな標準。別の書式だった DCS は、ODCS の v3.1.0 の公開に合わせて非推奨になり、ODCS への移行が勧められている。対応を表明している製品の一覧もある。Thoughtworks も、ODCS が主要な標準として定着してきたと見ている。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: 出す側が変えたことは、どこで分かるか</h2>
+    <p class="hint">課題1への答えを確かめる図です。出す側に起きた変更と、契約の有無を選ぶと、それがどこで分かるかが変わります。注文のデータの例と、変更の種類は説明のための例です。「契約あり」は、契約を実データに当てる検査（Data Contract CLI の <code>test</code>）を、変更の流れ（CI など）に組み込んだ場合です（組み込み方は筆者の見立て）。</p>
+    <div class="ctrls" id="lctrl" hidden>
+      <div>
+        <span class="ctrl-lbl">出す側に起きた変更（例）</span>
+        <div class="toggles" role="group" aria-label="出す側に起きた変更">
+          <button type="button" class="btn" data-s="rename" aria-pressed="true">列の名前を変えた（amount → total）</button>
+          <button type="button" class="btn" data-s="nulls" aria-pressed="false">注文の番号に空の値が混じった</button>
+          <button type="button" class="btn" data-s="dups" aria-pressed="false">同じ注文が2回入った</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">取り決めの形</span>
+        <div class="toggles" role="group" aria-label="取り決めの形">
+          <button type="button" class="btn" data-c="none" aria-pressed="true">契約なし（口頭や表計算のファイル）</button>
+          <button type="button" class="btn" data-c="odcs" aria-pressed="false">契約あり（ODCS で書き、検査を組み込む）</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane" hidden>
+      <div class="stage" id="st-prod"><span class="ss">出す側</span><b>注文のデータ</b><p id="p-prod"></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="stage gate" id="st-gate"><span class="ss">境界の取り決め</span><b id="g-title"></b><span class="ss" id="g-clbl">契約の例（関わる行だけの抜き出し・説明のための例）</span><div class="contract" id="g-contract"></div><p id="p-gate"></p><span class="res" id="r-gate"></span></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="stage" id="st-cons"><span class="ss">使う側</span><b>集計・機械学習・帳票</b><p id="p-cons"></p><span class="res" id="r-cons"></span></div>
+    </div>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 契約が口頭や表計算のファイルにしかないと、列の名前の変更・空の値・重複は、機械では確かめられず、使う側の集計が黙って壊れるまで分からない（筆者の見立て）。ODCS で契約を書き、実データに当てる検査（Data Contract CLI の test）を変更の流れに組み込めば、スキーマ（項目の名前・必須か）や品質のルール（重複の数など）との食い違いとして、検査で見つけられる（組み込み方は筆者の見立て）。</p></noscript>
+    <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="k"></i>検査で見つかる</span><span><i class="b"></i>使う側で黙って壊れる</span></div>
+    <p class="status" id="lstatus" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-parts">
+    <h2 id="s-parts">1つの契約のファイルに書くこと</h2>
+    <p class="hint">主な節です。標準は Linux Foundation AI &amp; Data の下の Bitol が管理し、確認日の時点の最新版は v3.2.0（標準そのものは Apache-2.0 ライセンス）。書いた YAML を確かめるための JSON Schema もあり、エディタに読み込ませて間違いを見つけられます。</p>
+    <div class="parts">
+      <div class="part"><b>基本<code>Fundamentals</code></b><span>契約の ID・版・状態・担当する領域・目的や使い方の説明</span></div>
+      <div class="part"><b>スキーマ<code>Schema</code></b><span>表やオブジェクトと、その項目の名前・型・必須か・主キーか・例など</span></div>
+      <div class="part"><b>データ品質<code>Data Quality</code></b><span>品質のルール。4種類で書ける</span></div>
+      <div class="part"><b>SLA</b><span>更新の頻度・遅れの許容・保存期間などの約束。「何を」「いくつ」「どの単位で」の組で書く。推奨の項目名は <code>latency</code>・<code>retention</code>・<code>frequency</code>・<code>availability</code> など</span></div>
+      <div class="part"><b>サーバー<code>Servers</code></b><span>データの置き場所。PostgreSQL・S3・Kafka・Snowflake といった多くの種類を指定できる</span></div>
+      <div class="part"><b>そのほか</b><span>担当チーム・役割（権限）・問い合わせ先・料金・独自の項目など</span></div>
+    </div>
+    <h3 style="font-size:19px">品質のルールの4種類</h3>
+    <div class="rules">
+      <div class="rule"><b>text</b><span>人が読むための説明だけ</span></div>
+      <div class="rule"><b>library</b><span>標準で決められた指標（空の値の数 <code>nullValues</code>・重複 <code>duplicateValues</code>・行数 <code>rowCount</code> など）を、<code>mustBe</code>（〜でなければならない）・<code>mustBeLessThan</code>（〜より小さい）といった比べ方で書く</span></div>
+      <div class="rule"><b>sql</b><span>数（または真偽値）を返す SQL を書き、その結果を同じ比べ方で判定する</span></div>
+      <div class="rule"><b>custom</b><span>Soda や Great Expectations など、特定の品質検査の道具の書き方をそのまま埋め込む</span></div>
+    </div>
+    <h3 style="font-size:19px">ごく小さな例（主な項目だけを抜き出した、説明用の簡略版）</h3>
+<pre class="yaml"><code>apiVersion: v3.2.0
+kind: DataContract
+id: orders-contract
+version: 1.0.0
+status: active
+schema:
+  - name: orders
+    logicalType: object
+    properties:
+      - name: order_id
+        logicalType: string
+        required: true
+        primaryKey: true
+      - name: amount
+        logicalType: number</code></pre>
+    <p class="hint">v3.0.0（2024年10月）では、<code>columns</code> が <code>properties</code> に、<code>isNullable</code> が <code>required</code> に変わるなど、多くの項目が改名・削除されました。v2 の書き方はそのままでは通らず、後方互換性がありません。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>機械で確かめられる</b>: 契約に書いたスキーマや品質のルールを、道具で実データに当てて検査できる</li>
+        <li><b>道具をまたいで使える</b>: 標準の書式なので、特定の製品に縛られにくい。対応を表明している製品の一覧もある（網羅的ではない一覧）</li>
+        <li><b>人にも AI にも読める</b>: 宣言的な書き方なので、人と AI エージェントの両方が読み、確かめやすいと Thoughtworks は評価している</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>書いて守る手間</b>: 契約を書くこと自体は品質を上げない。検査を流れに組み込み、破ったときに誰が直すかを決めて初めて効く（筆者の見立て）</li>
+        <li><b>版の変化</b>: v2 から v3 で多くの名前が変わり、v3.1.0 でも JSON Schema の一部に互換性の無い変更があった。契約のファイルの版をそろえ、道具の対応状況を確かめる必要がある</li>
+        <li><b>組織の合意が要る</b>: 出す側が契約に責任を持つ体制が無いと、書いた契約が古いまま放置される（筆者の見立て）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに考える5つのこと</h2>
+    <p class="lead-note">使うかどうか、どう入れるかを考えるための観点を、詳しい解説の第5節から並べました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>出す側と使う側は分かれているか？</b><p>データを出すチームと使うチームが分かれていて、変更による事故が起きているなら効果が大きい。1つのチームが作って自分で使うだけなら、手間に見合わないこともある（筆者の見立て）。</p></div>
+      <div class="dq"><b>今の書式から移るか？</b><p>以前の Data Contract Specification（DCS）は、ODCS の v3.1.0 の公開に合わせて非推奨になり、ODCS への移行が勧められている。Data Contract CLI には DCS から ODCS へ変換する書き出しの機能がある。</p></div>
+      <div class="dq"><b>どの道具で検査するか？</b><p>オープンソース（MIT）の Data Contract CLI は ODCS に対応し、書式の検査（<code>lint</code>）、実データとの照合（<code>test</code>）、変更が互換性を壊すかの判定（<code>breaking</code>）、ほかの書式への書き出し（<code>export</code>）などができる。</p></div>
+      <div class="dq"><b>今の品質検査の道具とどう分けるか？</b><p>すでに Soda や Great Expectations を使っているなら、<code>custom</code> のルールでその書き方を契約に取り込める。</p></div>
+      <div class="dq"><b>費用と依存先は？</b><p>標準も主な道具もオープンソースで、費用は主に書いて運用する人の手間。商用の製品を使う場合は、その製品の対応する ODCS の版を確かめる（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>ODPS</b><p>Open Data Product Standard。同じ Bitol が管理する、「データ製品」そのものを記述する標準。ODCS とそろえて作られ、データ製品とデータ契約を結び付けることを狙う。Thoughtworks は、データメッシュやデータ製品を作る顧客の中で、ODPS とあわせて ODCS へ移る例が多いとしている。</p></div>
+      <div class="alt"><b>Data Contract CLI</b><p>ODCS を扱うオープンソースの道具。契約の検査・実データとの照合・互換性の判定・書き出しができる。</p></div>
+      <div class="alt"><b>OpenAPI・AsyncAPI</b><p>API や非同期のメッセージの仕様を書く標準。ODCS はデータの受け渡しの側で同じ役割を果たす（筆者の見立て）。</p></div>
+      <div class="alt"><b>Soda・Great Expectations</b><p>データの品質を検査する道具。ODCS の品質のルール（<code>custom</code>）に、その道具の書き方を埋め込める。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span><span class="now">2026年11月 Adopt</span></span>
+        <small>Radar のページの推移には、今回の版だけが載っています（新規か移動かは明記なし）</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、いくつかの書式が並ぶ中で ODCS が主要な標準として定着してきたとし、データ製品を作るチームの既定の選択として勧めています。主な理由は、別の書式（DCS）を管理していたチームが ODCS への移行を勧めていることと、宣言的な書式で人と AI の両方が扱いやすいことです。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目: Data Contract CLI（2025年11月の版の Tools・Trial）</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>データ契約</summary><p class="etym"><span class="w">data contract</span> ＝ データの契約</p><p>データを渡す側と使う側の間で、データの形・意味・品質・更新の頻度などを取り決めたもの。機械で確かめられる形で書くことが多い。</p></details>
+      <details><summary>YAML</summary><p class="etym"><span class="w">YAML</span> ＝ YAML Ain't Markup Language（YAML はマークアップ言語ではない）</p><p>字下げで階層を表す、人が読み書きしやすい設定ファイルの書式。</p></details>
+      <details><summary>スキーマ</summary><p class="etym"><span class="w">schema</span> ＝ 図式・枠組み</p><p>データの構造の定義。どんな項目があり、それぞれがどんな型か、必須かなどを決めたもの。</p></details>
+      <details><summary>データメッシュ</summary><p class="etym"><span class="w">data mesh</span> ＝ データの網の目</p><p>データを1か所に集めて中央のチームが管理するのではなく、各部門が自分のデータを「製品」として責任を持って提供する考え方。</p></details>
+      <details><summary>SLA</summary><p class="etym"><span class="w">SLA</span> ＝ Service Level Agreement（サービスの水準の合意）</p><p>提供する側が守ると約束するサービスの水準（更新の頻度・遅れ・可用性など）。</p></details>
+      <details><summary>JSON Schema</summary><p class="etym"><span class="w">JSON</span> ＝ JavaScript Object Notation（JavaScript のオブジェクトの表記） ／ <span class="w">schema</span> ＝ 枠組み</p><p>JSON（や YAML）のデータが決められた形になっているかを、機械で検査するための定義の書き方。</p></details>
+      <details><summary>後方互換性</summary><p class="etym"><span class="w">backward</span> ＝ 後ろ向きの・前の版への ／ <span class="w">compatibility</span> ＝ 互換性</p><p>新しい版が、古い版の書き方のファイルをそのまま受け付けられること。無い場合は書き直しが要る。</p></details>
+      <details><summary>宣言的</summary><p class="etym"><span class="w">declarative</span> ＝ 宣言の・宣言的な</p><p>手順ではなく、「どうあるべきか」という結果の状態だけを書く書き方。</p></details>
+      <details><summary>主キー</summary><p class="etym"><span class="w">primary key</span> ＝ 主な鍵</p><p>表の中で、1行を一意に見分けるための項目。</p></details>
+      <details><summary>CI</summary><p class="etym"><span class="w">CI</span> ＝ Continuous Integration（継続的な統合）</p><p>変更のたびに自動でビルドや検査を行う仕組み。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="open-data-contract-standard-odcs.html">ODCS の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-17。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 出す側の変更の例（説明のための例）。contract: 契約の例のうち、その変更に関わる行
+  var S={
+    rename:{prod:'列の名前を amount から total に変えて出した。',
+      contract:'properties:\n  - name: order_id\n  - name: amount   # 契約にある名前',
+      gate:'実データに当てる検査（test）で、契約のスキーマにある amount が実データに無いことが見つかる。',
+      none:'amount を読む集計が、黙って壊れる。',
+      extra:'出す側が契約のほうも書き換えるなら、その変更が使う側を壊すかを breaking で判定できる。'},
+    nulls:{prod:'注文の番号（order_id）が空の行を出した。',
+      contract:'- name: order_id\n  required: true   # 必須',
+      gate:'契約で order_id は必須（required: true）。実データに当てる検査（test）で、空の値が見つかる。',
+      none:'空の番号の行が混じったまま、集計に使われる。',
+      extra:''},
+    dups:{prod:'同じ注文の行を2回出した。',
+      contract:'品質のルールの例（書き方は略）:\norder_id の重複の数 duplicateValues を\nmustBe 0（0 でなければならない）',
+      gate:'品質のルール（例: order_id の重複の数 duplicateValues が 0 でなければならない）を書いておけば、実データに当てる検査（test）で、重複が見つかる。',
+      none:'同じ注文が2回数えられ、集計が狂う。',
+      extra:''}
+  };
+  var sc='rename', md='none';
+  var sbtn=document.querySelectorAll('#lctrl [data-s]'), cbtn=document.querySelectorAll('#lctrl [data-c]');
+  var gate=document.getElementById('st-gate'), cons=document.getElementById('st-cons');
+  function render(){
+    for(var i=0;i<sbtn.length;i++){ sbtn[i].setAttribute('aria-pressed',String(sbtn[i].getAttribute('data-s')===sc)); }
+    for(var j=0;j<cbtn.length;j++){ cbtn[j].setAttribute('aria-pressed',String(cbtn[j].getAttribute('data-c')===md)); }
+    var s=S[sc], on=(md==='odcs');
+    document.getElementById('p-prod').textContent=s.prod;
+    document.getElementById('g-title').textContent=on?'ODCS のデータ契約（YAML）':'口頭や表計算のファイル';
+    var c=document.getElementById('g-contract'); c.hidden=!on; c.textContent=on?s.contract:'';
+    document.getElementById('g-clbl').hidden=!on;
+    document.getElementById('p-gate').textContent=on?s.gate:'取り決めはあっても、機械では確かめない。';
+    document.getElementById('r-gate').textContent=on?'● 検査で見つかる':'';
+    document.getElementById('p-cons').textContent=on?'検査を変更の流れに組み込んでいれば、使う側に届く前に気づける（筆者の見立て）。':s.none;
+    document.getElementById('r-cons').textContent=on?'':'● 黙って壊れる';
+    gate.classList.toggle('has',on); gate.classList.toggle('hit',on);
+    cons.classList.toggle('broken',!on);
+    document.getElementById('lstatus').textContent=on
+      ?'契約は、出す側と使う側の境界に置く取り決めです。'+(s.extra?s.extra+' ':'')+'ただし、契約を書くこと自体は品質を上げません。破ったときに誰が直すかを決めて初めて効きます（筆者の見立て）。'
+      :'取り決めが口頭や表計算のファイルにしかないと、どこが壊れるのか事前に分からず、機械で確かめることもできません。使う側の集計が壊れるまで気づきにくくなります（筆者の見立て）。';
+  }
+  for(var i=0;i<sbtn.length;i++){ sbtn[i].addEventListener('click',function(e){ sc=e.currentTarget.getAttribute('data-s'); render(); }); }
+  for(var j=0;j<cbtn.length;j++){ cbtn[j].addEventListener('click',function(e){ md=e.currentTarget.getAttribute('data-c'); render(); }); }
+  ['lctrl','lane','llegend','lstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .flowline'); for(var k=0;k<svgs.length;k++){ svgs[k].setCurrentTime(0); svgs[k].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

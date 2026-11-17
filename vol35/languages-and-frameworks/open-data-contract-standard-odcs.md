@@ -8,8 +8,11 @@
 | 象限 | Languages & Frameworks（プログラミング言語・フレームワーク・標準の書式など） |
 | リング | Adopt（新規か移動かは Radar のページに明記なし） |
 | 状態 | 下書き |
+| 図解ページ | [図と動きで見る図解ページ](open-data-contract-standard-odcs-intro.html)（この解説の内容を図と動きで見せるページ。サイトで表示。GitHub のリポジトリではソースが表示されます） |
 
 ## 1. 一言でいうと
+
+**名前の手がかり**: Open〈開かれた・公開された〉＋ Data〈データ〉＋ Contract〈契約〉＋ Standard〈標準〉
 
 Open Data Contract Standard（ODCS）は、**データ契約**（データを渡す側と使う側が「どんな形・品質・頻度のデータを渡すか」を取り決めたもの）を YAML（人が読み書きしやすい設定ファイルの書式）で書くための、オープンな標準です（[bitol.io](https://bitol.io/)、[GitHub: open-data-contract-standard](https://github.com/bitol-io/open-data-contract-standard)）。確認日の時点の最新版は v3.2.0 で、標準そのものは Apache-2.0 ライセンスで公開されています（[CHANGELOG](https://github.com/bitol-io/open-data-contract-standard/blob/dev/CHANGELOG.md)、[GitHub](https://github.com/bitol-io/open-data-contract-standard)）。
 
@@ -19,7 +22,7 @@ Open Data Contract Standard（ODCS）は、**データ契約**（データを渡
 
 会社の中では、あるシステムが出したデータを、別のチームが分析や機械学習、帳票に使います。ここでよく起きるのが、出す側が列の名前や意味を何気なく変え、使う側の集計が黙って壊れる事故です。取り決めが口頭や表計算のファイルにしかないと、どこが壊れるのか事前に分からず、機械で確かめることもできません（筆者の見立て）。
 
-さらに、データを「製品」として各部門が責任を持って提供する**データメッシュ**という考え方が広がると、提供する側と使う側の取り決めがいっそう重要になります。ところが、取り決めの書き方はばらばらでした。Thoughtworks も、競合する書式や自社独自の書式が並んでいたと述べています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）。
+さらに、データを「製品」として各部門が責任を持って提供する**データメッシュ**という考え方が広がると、提供する側と使う側の取り決めがいっそう重要になります（筆者の見立て）。ところが、取り決めの書き方はばらばらでした。Thoughtworks も、競合する書式や各組織が独自に作った書式が並んでいたと述べています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）。
 
 ODCS は、この取り決めを共通の書式で書けるようにします。もとは PayPal の社内で、データメッシュの実装に使っていたひな形で、それを公開して標準に育てたものです（[ODCS の経緯](https://github.com/bitol-io/open-data-contract-standard/blob/dev/history.md)）。
 
@@ -28,7 +31,7 @@ ODCS は、この取り決めを共通の書式で書けるようにします。
 ### 3.1 運営と版
 
 - 標準は、Linux Foundation AI & Data（オープンソースの AI・データの事業を支える団体）の下の **Bitol** というプロジェクトが管理しています（[bitol.io](https://bitol.io/)）。Bitol は2023年11月に作られました（[ODCS の経緯](https://github.com/bitol-io/open-data-contract-standard/blob/dev/history.md)）
-- v3.0.0（2024年10月）は v2 からの**後方互換性の無い変更**を含み、`columns` が `properties` に、`isNullable` が `required` に変わるなど、多くの名前が改められました。v3.2.0 での追加の多くは、互換性を保つ変更と明記されています（[CHANGELOG](https://github.com/bitol-io/open-data-contract-standard/blob/dev/CHANGELOG.md)）
+- v3.0.0（2024年10月）では、`columns` が `properties` に、`isNullable` が `required` に変わるなど、多くの項目が改名・削除されました（CHANGELOG の表現は「大きな変更」）。v2 の書き方はそのままでは通らず、**後方互換性**がありません。v3.2.0 での追加の多くは、互換性を保つ変更と明記されています（[CHANGELOG](https://github.com/bitol-io/open-data-contract-standard/blob/dev/CHANGELOG.md)）
 - 書いた YAML を確かめるための JSON Schema（JSON や YAML の形を機械で検査するための定義）も用意されており、エディタに読み込ませて間違いを見つけられます（[GitHub](https://github.com/bitol-io/open-data-contract-standard)）
 
 ### 3.2 契約に書くこと
@@ -77,6 +80,11 @@ schema:
 
 **SLA**（サービスレベルの約束）は、「何を」「いくつ」「どの単位で」の組で書きます。標準は、推奨する項目名として、遅れ（`latency`）・保存期間（`retention`）・更新頻度（`frequency`）・可用性（`availability`）などを挙げています（[SLA](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/service-level-agreement.md)）。
 
+### 3.5 第2節の課題への答え
+
+- **出す側が列の名前や意味を変え、使う側の集計が黙って壊れる。取り決めが機械で確かめられない**: ODCS は、スキーマ（項目の名前・型・必須か）と品質のルールと SLA を、1つの YAML のファイルに書きます（[ODCS のドキュメント](https://bitol-io.github.io/open-data-contract-standard/latest/)）。ファイルの書き方の誤りは JSON Schema で見つけられ（[GitHub](https://github.com/bitol-io/open-data-contract-standard)）、Data Contract CLI を使えば、契約を実データに当てて検査し（`test`）、契約の変更が使う側を壊すかを判定できます（`breaking`。[Data Contract CLI](https://github.com/datacontract/datacontract-cli)）。標準そのものは書式を決めるもので、検査は道具が行います。事故を防げるのは、こうした検査を変更の流れに組み込んだときです（筆者の見立て）
+- **取り決めの書き方がばらばらで、競合する書式や独自の書式が並んでいた**: ODCS は、特定の会社ではなく Linux Foundation AI & Data の下の Bitol が管理するオープンな標準です（[bitol.io](https://bitol.io/)）。別の書式だった DCS は、ODCS の v3.1.0 の公開に合わせて非推奨になり、ODCS への移行が勧められています（[DCS のリポジトリ](https://github.com/datacontract/datacontract-specification)）。対応を表明している製品の一覧もあります（[対応する製品の一覧](https://github.com/bitol-io/open-data-contract-standard/blob/dev/vendors.md)）。Thoughtworks も、ODCS が主要な標準として定着してきたと見ています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）
+
 ## 4. アーキテクチャ上の位置づけとトレードオフ
 
 **位置づけ**: データを渡すシステムと使うシステムの**境界に置く取り決め**です。アプリの間の API に仕様書を置くのと同じ考え方を、データの受け渡しに当てはめます。契約のファイルを Git で管理し、変更をレビューし、CI（変更のたびに自動で検査する仕組み）で検査する、という使い方が想定されます（筆者の見立て）。
@@ -103,10 +111,10 @@ schema:
 
 ## 6. 関連技術・代替技術
 
-- **Open Data Product Standard（ODPS）**: 同じ Bitol が管理する、「データ製品」そのものを記述する標準。ODCS とそろえて作られており、データ製品とデータ契約を結び付けることを狙っています（[ODPS v1.0.0 の告知](https://bitol.io/announcing-odps-v1-0-0-building-the-language-of-data-products/)）。Thoughtworks も、両者を組み合わせて移行する事例を挙げています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）
-- **Data Contract CLI**: 上で触れた、ODCS を扱う道具（[Data Contract CLI](https://github.com/datacontract/datacontract-cli)）
+- **Open Data Product Standard（ODPS）**: 同じ Bitol が管理する、「データ製品」そのものを記述する標準。ODCS とそろえて作られており、データ製品とデータ契約を結び付けることを狙っています（[ODPS v1.0.0 の告知](https://bitol.io/announcing-odps-v1-0-0-building-the-language-of-data-products/)）。Thoughtworks は、データメッシュやデータ製品を作る顧客の中で、ODPS とあわせて ODCS へ移る例が多いとしています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）
+- **Data Contract CLI**: 上で触れた、ODCS を扱う道具（[Data Contract CLI](https://github.com/datacontract/datacontract-cli)）。Radar のこの項目のページで関連の項目として挙がっており、Radar の2025年11月の版で Tools の Trial に置かれていました（[Radar のページ](https://www.thoughtworks.com/en-us/radar/languages-and-frameworks/open-data-contract-standard-odcs)）
 - **OpenAPI・AsyncAPI**: API や非同期のメッセージの仕様を書く標準。ODCS はデータの受け渡しの側で同じ役割を果たします（筆者の見立て）
-- **Soda・Great Expectations**: データの品質を検査する道具。ODCS の品質のルールから呼び出せます（[Data Quality](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/data-quality.md)）
+- **Soda・Great Expectations**: データの品質を検査する道具。ODCS の品質のルール（`custom`）に、その道具の書き方を埋め込めます（[Data Quality](https://github.com/bitol-io/open-data-contract-standard/blob/dev/docs/data-quality.md)）
 
 ## 7. Radar での扱い
 
@@ -125,20 +133,22 @@ schema:
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-11
-- Radar の評価の確認日: 2026-11-11
+- 内容の確認日: 2026-11-17（2026-11-11 に書き、2026-11-17 に名前の手がかり・課題ごとの答え・関連の項目・元の語を足して、全体を点検し直した）
+- Radar の評価の確認日: 2026-11-17
 
 ## 用語集
 
+用語の説明の冒頭の「元の語」は、覚えるための手がかりとして、元の語（英単語の意味・略語の元の綴り・名前の元になった語）を短く示したものです。
+
 | 用語 | 説明 |
 |---|---|
-| データ契約 | データを渡す側と使う側の間で、データの形・意味・品質・更新の頻度などを取り決めたもの。機械で確かめられる形で書くことが多い |
-| YAML | 字下げで階層を表す、人が読み書きしやすい設定ファイルの書式 |
-| スキーマ | データの構造の定義。どんな項目があり、それぞれがどんな型か、必須かなどを決めたもの |
-| データメッシュ | データを1か所に集めて中央のチームが管理するのではなく、各部門が自分のデータを「製品」として責任を持って提供する考え方 |
-| SLA | Service Level Agreement。提供する側が守ると約束するサービスの水準（更新の頻度・遅れ・可用性など） |
-| JSON Schema | JSON（や YAML）のデータが決められた形になっているかを、機械で検査するための定義の書き方 |
-| 後方互換性 | 新しい版が、古い版の書き方のファイルをそのまま受け付けられること。無い場合は書き直しが要る |
-| 宣言的 | 手順ではなく、「どうあるべきか」という結果の状態だけを書く書き方 |
-| 主キー | 表の中で、1行を一意に見分けるための項目 |
-| CI | 継続的インテグレーション。変更のたびに自動でビルドや検査を行う仕組み |
+| データ契約 | 元の語: data contract〈データの契約〉。データを渡す側と使う側の間で、データの形・意味・品質・更新の頻度などを取り決めたもの。機械で確かめられる形で書くことが多い |
+| YAML | 元の語: YAML Ain't Markup Language の略（YAML はマークアップ言語ではない）。字下げで階層を表す、人が読み書きしやすい設定ファイルの書式 |
+| スキーマ | 元の語: schema〈図式・枠組み〉。データの構造の定義。どんな項目があり、それぞれがどんな型か、必須かなどを決めたもの |
+| データメッシュ | 元の語: data mesh〈データの網の目〉。データを1か所に集めて中央のチームが管理するのではなく、各部門が自分のデータを「製品」として責任を持って提供する考え方 |
+| SLA | 元の語: Service Level Agreement の略（サービスの水準の合意）。提供する側が守ると約束するサービスの水準（更新の頻度・遅れ・可用性など） |
+| JSON Schema | 元の語: JSON は JavaScript Object Notation の略（JavaScript のオブジェクトの表記）＋ schema〈枠組み〉。JSON（や YAML）のデータが決められた形になっているかを、機械で検査するための定義の書き方 |
+| 後方互換性 | 元の語: backward〈後ろ向きの・前の版への〉＋ compatibility〈互換性〉。新しい版が、古い版の書き方のファイルをそのまま受け付けられること。無い場合は書き直しが要る |
+| 宣言的 | 元の語: declarative〈宣言の・宣言的な〉。手順ではなく、「どうあるべきか」という結果の状態だけを書く書き方 |
+| 主キー | 元の語: primary key〈主な鍵〉。表の中で、1行を一意に見分けるための項目 |
+| CI | 元の語: Continuous Integration の略（継続的な統合）。変更のたびに自動でビルドや検査を行う仕組み |

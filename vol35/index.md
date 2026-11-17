@@ -85,4 +85,4 @@
 | Temporal | — | [Markdown](platforms/temporal.md) | Platforms | Trial | 下書き |
 | vCluster | — | [Markdown](platforms/vcluster.md) | Platforms | Trial | 下書き |
 | VictoriaLogs | — | [Markdown](platforms/victorialogs.md) | Platforms | Trial | 下書き |
-| Open Data Contract Standard (ODCS) | — | [Markdown](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
+| Open Data Contract Standard (ODCS) | [図と動きで見る](languages-and-frameworks/open-data-contract-standard-odcs-intro.html) | [Markdown](languages-and-frameworks/open-data-contract-standard-odcs.md) | Languages & Frameworks | Adopt | 下書き |
