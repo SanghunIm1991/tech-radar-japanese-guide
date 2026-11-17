@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCode 図解ページ（非公式）</title>
+<meta name="description" content="OpenCode（オープンソースのコーディングエージェント）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、赤橙＝社外、青緑＝社内、紫＝この PC の中（コードの送り先）。
+   権限の図は、緑＝許可、琥珀＝確認。黄は評価のタグ・評価の年表の今回の印・フォーカスの枠だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --out:#D9622B; --out-text:#A8461A; --out-soft:#FCE4D6;
+  --corp:#0E8C7E; --corp-text:#0B6E63; --corp-soft:#D5F1EC;
+  --local:#7B4FD6; --local-text:#5B2FB8; --local-soft:#ECE3FD;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --ask:#C98A0B; --ask-text:#8A5C00; --ask-soft:#FCEFD2;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --out:#FF9A5C; --out-text:#FFAD7A; --out-soft:#3D2A1E;
+  --corp:#3CC9B6; --corp-text:#5ED8C7; --corp-soft:#173A3A;
+  --local:#B794F6; --local-text:#C9AEF8; --local-soft:#2C2445;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --ask:#F2B65A; --ask-text:#F5C67A; --ask-soft:#3D3019;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #E8C547;outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、同じ車体に、積むエンジン（モデル）が入れ替わる様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.carline{display:block;width:100%;height:64px}
+.carline .body{fill:none;stroke:#AEB8CF;stroke-width:2}
+.carline text{fill:var(--band-sub);font-family:var(--mono);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,34px);line-height:1.4}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図: つなぐモデル */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.zone{border:2px dashed var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:8.5em;transition:background .3s,border-color .3s}
+.zone b{font-size:15px}
+.zone .zs{font-size:13px;color:var(--sub);line-height:1.6}
+.zone .dest{font-weight:700;font-size:14px}
+.zone.on.out{border:2px solid var(--out);background:var(--out-soft)} .zone.on.out .dest{color:var(--out-text)}
+.zone.on.corp{border:2px solid var(--corp);background:var(--corp-soft)} .zone.on.corp .dest{color:var(--corp-text)}
+.zone.on.local{border:2px solid var(--local);background:var(--local-soft)} .zone.on.local .dest{color:var(--local-text)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fact{background:var(--bg);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fact .k{font-size:12px;color:var(--sub);font-weight:700}
+.fact .v{font-size:15px}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+
+/* 試せる図: 権限 */
+.perms{display:flex;flex-direction:column;gap:8px}
+.perm{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.perm .what{font-size:15px;font-weight:700;line-height:1.5}
+.perm .what small{display:block;font-weight:500;font-size:13px;color:var(--sub)}
+.pr{font-size:14px;font-weight:700;border-radius:999px;padding:4px 10px;text-align:center}
+.pr.allow{background:var(--go-soft);color:var(--go-text);border:2px solid var(--go)}
+.pr.ask{background:var(--ask-soft);color:var(--ask-text);border:2px dashed var(--ask)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px}
+.legend i.o{background:var(--out)} .legend i.c{background:var(--corp)} .legend i.l{background:var(--local)}
+.legend i.g{background:var(--go)} .legend i.a{background:var(--ask)}
+
+/* エージェントの種類 */
+.agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.ag{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ag b{font-family:var(--mono);font-size:16px}
+.ag span{font-size:14px;color:var(--sub);line-height:1.7}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.zones,.facts{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+  .perm{grid-template-columns:minmax(0,1fr)}
+  .pr{justify-self:start}
+  .zone{min-height:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .zone{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="opencode.html">OpenCode の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>TOOLS</span><span class="ring">ADOPT</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>OpenCode</h1>
+    <p class="name-hint">名前の手がかり: <span>Open</span> 開かれた・公開された ＋ <span>Code</span> プログラムのコード</p>
+    <p class="lead">オープンソースのコーディングエージェント。いちばんの特徴は、特定の AI モデルの提供元に縛られず、クラウドのモデルにも、社内や手元の PC で動かすモデルにもつなげること</p>
+    <svg class="carline" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="同じ車体に積むエンジンの印が、順に入れ替わる絵">
+      <rect class="body" x="380" y="10" width="200" height="36" rx="10"/>
+      <text x="480" y="62" text-anchor="middle">同じ車体（エージェント）</text>
+      <rect x="400" y="18" width="40" height="20" rx="3" fill="#FFAD7A">
+        <animate attributeName="fill" dur="6s" repeatCount="indefinite" values="#FFAD7A;#5ED8C7;#C9AEF8" keyTimes="0;0.33;0.66" calcMode="discrete"/>
+      </rect>
+      <text x="420" y="32" text-anchor="middle" style="fill:#14203A;font-size:10px">model</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 500 270" role="img" aria-label="車体（エージェント）はそのままで、クラウド・社内・手元の3つのモデルのうち1つを積み替える絵">
+        <rect x="150" y="40" width="200" height="90" rx="18" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="195" cy="134" r="18" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="305" cy="134" r="18" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="250" y="66" text-anchor="middle" class="t-small">車体（エージェント）</text>
+        <rect x="215" y="78" width="70" height="36" rx="5" fill="none" stroke="var(--sub)" stroke-width="2" stroke-dasharray="5 4"/>
+        <rect x="40" y="190" width="110" height="44" rx="6" fill="var(--out-soft)" stroke="var(--out)" stroke-width="2"/>
+        <text x="95" y="217" text-anchor="middle" class="t-small">クラウドのモデル</text>
+        <rect x="195" y="190" width="110" height="44" rx="6" fill="var(--corp-soft)" stroke="var(--corp)" stroke-width="2"/>
+        <text x="250" y="217" text-anchor="middle" class="t-small">社内のモデル</text>
+        <rect x="350" y="190" width="110" height="44" rx="6" fill="var(--local-soft)" stroke="var(--local)" stroke-width="2"/>
+        <text x="405" y="217" text-anchor="middle" class="t-small">手元のモデル</text>
+        <rect x="222" y="82" width="56" height="28" rx="4" stroke="var(--ink)" stroke-width="2" fill="var(--out)">
+          <animate attributeName="opacity" dur="9s" repeatCount="indefinite" values="1;0;0" keyTimes="0;0.33;0.66" calcMode="discrete"/>
+        </rect>
+        <rect x="222" y="82" width="56" height="28" rx="4" stroke="var(--ink)" stroke-width="2" fill="var(--corp)" opacity="0">
+          <animate attributeName="opacity" dur="9s" repeatCount="indefinite" values="0;1;0" keyTimes="0;0.33;0.66" calcMode="discrete"/>
+        </rect>
+        <rect x="222" y="82" width="56" height="28" rx="4" stroke="var(--ink)" stroke-width="2" fill="var(--local)" opacity="0">
+          <animate attributeName="opacity" dur="9s" repeatCount="indefinite" values="0;0;1" keyTimes="0;0.33;0.66" calcMode="discrete"/>
+        </rect>
+        <text x="250" y="262" text-anchor="middle" class="t-small">車体はそのまま、エンジンだけを積み替える</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">エンジン（モデル）を積み替えられる車</p>
+        <p>車体にあたるのが、コードを読み、書き換え、コマンドを実行して作業を進める<b>コーディングエージェント</b>です。エンジンにあたる AI のモデルを、クラウドの提供元のものにも、社内や手元の PC で動かすものにも替えられます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">3つの課題と、OpenCode の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。課題の多くは筆者の見立てです。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>モデル・費用・データの送り先が、エージェントを出す会社に縛られる</h3><span class="qterm">提供元への縛り</span><p>コーディングエージェントは、モデルを作る会社が自社のモデル向けに出しているものが多い（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">OpenCode の答え</span><h3>モデルの提供元を選べる。エージェント自体も公開されている</h3><p>models.dev のカタログにある多くの提供元から選び、<code>/connect</code> と <code>/models</code> で切り替えられる。OpenAI 互換の API を持つ独自の提供元も足せる。エージェントは MIT ライセンスで公開されていて、中身を読んで変えられる。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>費用を抑えたい、コードを社外に出したくない、切り離した環境で使いたい</h3><span class="qterm">企業の要望</span><p>インターネットから切り離された環境（エアギャップ）で使いたい、といった要望もある（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">OpenCode の答え</span><h3>社内や手元の PC で動かすモデルにもつなげる</h3><p>Ollama・LM Studio・vLLM にもつなげる。費用や性能に合わせてモデルを選び、手元のモデルを使えば、コードを社外に出さない構成を組める（構成の判断は筆者の見立て）。ただし、切り離した環境で動くことを、確認した範囲の公式のドキュメントは明記していないので、その用途では自分たちで確かめる（筆者の見立て）。Thoughtworks は2026年4月の版で、制限のある環境やエアギャップの環境に向くと評価していた。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>オープンウェイトモデルを、自前で動かす選択肢が現実的になった</h3><span class="qterm">オープンウェイトモデル（open-weight model）</span><p>学習済みの重みが公開されたモデルの性能が上がってきた（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">OpenCode の答え</span><h3>自前で動かすオープンウェイトモデルも、見つけて選べる・設定で足せる</h3><p>自前で動かすオープンウェイトモデルも、Ollama などで決まったアドレスで動かしていれば自動で見つけて選べ、OpenAI 互換の API で公開したモデルも設定で足せる。Thoughtworks は今回の版で、OpenCode がオープンウェイトのモデルや自前で動かすモデル、手元で動かすコーディング向けのモデルと組み合わせる用途で広く使われるようになったと見ている。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: どのモデルにつなぐと、コードはどこへ行くか</h2>
+    <p class="hint">課題1〜3への答えを確かめる図です。つなぐモデルを選ぶと、エージェントがモデルに渡す指示（手元のコードを含む。筆者の整理）の送り先と、選ぶときの注意が変わります。送り先の分け方は、詳しい解説の範囲を筆者が整理したものです。</p>
+    <div id="mctrl" hidden>
+      <span class="ctrl-lbl">つなぐモデル</span>
+      <div class="toggles" role="group" aria-label="つなぐモデル">
+        <button type="button" class="btn" data-m="cloud" aria-pressed="true">クラウドの提供元のモデル</button>
+        <button type="button" class="btn" data-m="compat" aria-pressed="false">OpenAI 互換の API を持つ社外の提供元</button>
+        <button type="button" class="btn" data-m="corp" aria-pressed="false">社内のサーバーで OpenAI 互換の API として公開したモデル</button>
+        <button type="button" class="btn" data-m="local" aria-pressed="false">手元の PC で動かすモデル（Ollama・LM Studio・vLLM）</button>
+      </div>
+    </div>
+    <div class="zones" aria-hidden="true">
+      <div class="zone out" id="z-out"><b>社外（インターネットの先）</b><span class="zs">提供元のサービス</span><span class="dest" id="d-out"></span></div>
+      <div class="zone corp" id="z-corp"><b>社内のネットワーク</b><span class="zs">自分たちのサーバー</span><span class="dest" id="d-corp"></span></div>
+      <div class="zone local" id="z-local"><b>この PC の中</b><span class="zs">エージェントと同じ PC</span><span class="dest" id="d-local"></span></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><span class="k">コードの送り先</span><span class="v" id="f-dest"></span></div>
+      <div class="fact"><span class="k">選び方・つなぎ方</span><span class="v" id="f-how"></span></div>
+    </div>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: クラウドの提供元や OpenAI 互換の独自の提供元を選ぶと、コードを含む指示はその提供元へ送られる。社内のサーバーで OpenAI 互換の API として公開したモデル（設定で足す）や、手元の PC で動かすモデル（Ollama・LM Studio・vLLM を自動で見つける）を選べば、社外に出さない構成を組める（筆者の見立て）。品質はモデル次第で（筆者の見立て）、vLLM で見つけたモデルは道具を使う機能が無効の状態で始まる。</p></noscript>
+    <div class="legend" aria-hidden="true"><span><i class="o"></i>社外</span><span><i class="c"></i>社内</span><span><i class="l"></i>この PC の中</span></div>
+    <p class="status" id="mstatus" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-perm">
+    <h2 id="s-perm">試してみる: 権限の既定値は「ゆるい」</h2>
+    <p class="hint">3つの課題への答えではなく、使うときの注意点（安全の設計）を確かめる図です。AI が行う操作ごとに、<code>allow</code>（許可）・<code>ask</code>（毎回確認）・<code>deny</code>（拒否）を決めます。既定は基本「すべて許可」で、確認を求めるのは <code>.env</code> の読み取りなどに限られます。主な操作で、既定とチームで締めた例を比べてください（締めた例は、詳しい解説の第5節の例による）。</p>
+    <div class="toggles" role="group" aria-label="権限の設定" id="pctrl" hidden>
+      <button type="button" class="btn" data-p="def" aria-pressed="true">既定のまま</button>
+      <button type="button" class="btn" data-p="team" aria-pressed="false">チームで締めた例（<code>shell</code>・<code>edit</code> を <code>ask</code> に）</button>
+    </div>
+    <div class="perms" id="perms"></div>
+    <div class="legend" aria-hidden="true"><span><i class="g"></i>allow（許可）</span><span><i class="a"></i>ask（毎回確認）</span></div>
+    <p class="status" id="pstatus" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-agents">
+    <h2 id="s-agents">組み込みのエージェント</h2>
+    <div class="agents">
+      <div class="ag"><b>build</b><span>既定。ファイルの編集もコマンドの実行も行う</span></div>
+      <div class="ag"><b>plan</b><span>調べて計画を立てる。通常のプロジェクトのファイルは編集しない</span></div>
+      <div class="ag"><b>general</b><span>複数の手順にわたる調査などを任せるサブエージェント</span></div>
+      <div class="ag"><b>explore</b><span>コードや Web を探して読むだけのサブエージェント</span></div>
+    </div>
+    <p class="hint">自分のエージェントも Markdown のファイルで定義できます。指示書の <code>AGENTS.md</code> を読み、MCP・カスタムコマンド・プラグインで広げられます。<code>opencode run</code>・<code>opencode serve</code>・SDK で、画面なしでほかの仕組みから呼べます。公式のドキュメントは確認日の時点で「V2」が中心で、V1 から設定の名前がいくつか変わっています。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>モデルを選べる</b>: 費用・性能・データの置き場所に合わせてモデルを替えられる</li>
+        <li><b>中身を読めて、変えられる</b>: MIT ライセンスで、エージェント・コマンド・プラグインを自分たちで足せる</li>
+        <li><b>組み込みやすさ</b>: <code>opencode run</code>・サーバー・SDK で、ほかの仕組みから呼べる。社内向けの AI の開発基盤の「土台」にもなる（筆者の見立て）</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>安全の設計は自分たちの仕事</b>: 既定は「ほぼ許可」で、OS による囲いの記述も見当たらない。権限の規則を締めるか、コンテナなどの外側の囲いと組み合わせる（筆者の見立て）</li>
+        <li><b>品質はモデル次第</b>: 小さな手元のモデルでは、期待した質に届かないことがある（筆者の見立て）</li>
+        <li><b>共有や共同作業の機能</b>: Thoughtworks は、作業の記録の共有や共同作業の機能が、ほかのエージェントより遅れていると指摘している</li>
+        <li><b>変化が速い</b>: V1 から V2 で設定の名前が変わった。チームでは版を固定し、誰が移行を確かめるかを決めておく（筆者の見立て）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">導入するときに決める4つのこと</h2>
+    <p class="lead-note">始める前に決めておくことを、詳しい解説の第5節から4つにまとめました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>費用をどこに払うか？</b><p>OpenCode 自体はオープンソースだが、モデルの利用料は提供元ごとにかかる。開発元は、オープンウェイトのモデルを中心に打ち出した、利用量の上限つきの月額の固定料金のプラン「OpenCode Go」も提供している。Thoughtworks は2026年4月の版で、提供元のサブスクリプションや API を使うときに、ライセンスと利用規約を確かめるよう注意していた。</p></div>
+      <div class="dq"><b>コードをどこに置くか？</b><p>社外に出せないコードなら、社内や手元のモデルを選ぶ（筆者の見立て）。</p></div>
+      <div class="dq"><b>権限の規則をどう配るか？</b><p><code>shell</code> や <code>edit</code>、作業フォルダの外への操作（<code>external_directory</code>）を <code>ask</code> にするといった規則を決めて配る。強制したい規則は、管理者が <code>policies</code> に書く。</p></div>
+      <div class="dq"><b>どの OS にどう入れるか？</b><p>スクリプトや npm・Homebrew・mise などで入れられる。Windows では、Windows のパッケージ管理の道具（Scoop・WinGet など）には対応しておらず、端末で使う版は配布の zip を使う。デスクトップアプリには Windows 版のインストーラーがある。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b><a href="openai-codex-intro.html">OpenAI Codex</a>・Claude Code</b><p>同じく端末を中心に使うコーディングエージェント。どちらも開発元が自社のモデルを中心に提供している（筆者の見立て）。</p></div>
+      <div class="alt"><b><a href="pi.html">Pi</a></b><p>Thoughtworks が今回の版で、OpenCode の代わりとして引き続き評価するよう勧めているコーディングエージェント（同じ版の Tools の Trial）。</p></div>
+      <div class="alt"><b><a href="mise-intro.html">mise</a></b><p>開発の道具の版を管理する道具。OpenCode も mise で入れられる。V2 を入れるには mise 2026.10.9 以降が必要。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span>2026年4月 Assess</span>
+        <span><span class="now">2026年11月 Adopt</span></span>
+        <small>Radar のページの推移。Assess から移動</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、オープンウェイトモデルや手元のモデルと組み合わせる用途で広く使われるようになったとして、OpenCode を Adopt で勧めています。主な理由は、カスタマイズのしやすさと、画面なしで動かせるため企業向けの土台にしやすいことです。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目（同じ版）: <a href="pi.html">Pi</a>（Tools・Trial）、<a href="../techniques/open-weight-models.html">Open-weight models</a>（Techniques・Trial）、Enterprise harness と Local coding models（Techniques・Assess）</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>コーディングエージェント</summary><p class="etym"><span class="w">coding</span> ＝ プログラムを書くこと ／ <span class="w">agent</span> ＝ 代わりに行動する者・代理人</p><p>指示を受けて、コードを読み、書き換え、コマンドを実行するといった複数の手順を自分で選んで進める AI の道具。</p></details>
+      <details><summary>TUI</summary><p class="etym"><span class="w">TUI</span> ＝ Text-based User Interface（Terminal User Interface とも。文字で組んだ、利用者との接点）</p><p>端末の中に、文字で組んだ画面を出して操作する形。</p></details>
+      <details><summary>オープンウェイトモデル</summary><p class="etym"><span class="w">open</span> ＝ 公開された ／ <span class="w">weight</span> ＝ 重み ／ <span class="w">model</span> ＝ 模型・モデル</p><p>学習済みの重み（モデルの中身の数値）が公開されていて、自分のサーバーや PC で動かせる AI モデル。</p></details>
+      <details><summary>エアギャップ</summary><p class="etym"><span class="w">air</span> ＝ 空気 ／ <span class="w">gap</span> ＝ すき間（間に空気しか無い、つまりつながっていない）</p><p>機密を守るため、インターネットなどの外のネットワークから物理的に切り離した環境。</p></details>
+      <details><summary>サブエージェント</summary><p class="etym"><span class="w">sub</span> ＝ 下の・副の ／ <span class="w">agent</span> ＝ 代理人</p><p>親のエージェントから仕事を任される子のエージェント。調査などを分けて行い、結果だけを親に返す。</p></details>
+      <details><summary>サンドボックス</summary><p class="etym"><span class="w">sandbox</span> ＝ 子どもが遊ぶ砂場</p><p>プログラムが触れられるファイルやネットワークを、OS の仕組みで限られた範囲に閉じ込める仕組み。</p></details>
+      <details><summary>AGENTS.md</summary><p class="etym"><span class="w">agents</span> ＝ エージェントたち ＋ .md（Markdown のファイルの拡張子）</p><p>リポジトリなどに置く、AI のエージェント向けの指示書。作業の決まりや、テストの走らせ方などを書く。</p></details>
+      <details><summary>MCP</summary><p class="etym"><span class="w">MCP</span> ＝ Model Context Protocol（モデルにコンテキストを渡すための約束事）</p><p>AI のアプリに外部の道具やデータをつなぐための共通の取り決め。</p></details>
+      <details><summary>SDK</summary><p class="etym"><span class="w">SDK</span> ＝ Software Development Kit（ソフトウェアの開発の道具一式）</p><p>ほかのプログラムからその機能を呼び出すための部品一式。</p></details>
+      <details><summary>API</summary><p class="etym"><span class="w">API</span> ＝ Application Programming Interface（アプリをプログラムから使うための接点）</p><p>ほかのプログラムからサービスの機能を呼び出すための決まった呼び方。「OpenAI 互換の API」は、OpenAI の API と同じ形で呼べるもの。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="opencode.html">OpenCode の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-17。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/tools/opencode">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // つなぐモデルの例。zone: 送り先（筆者の整理）
+  var M={
+    cloud:{zone:'out',dest:'クラウドの提供元のサービスへ送られる',how:'models.dev のカタログにある多くの提供元から、/connect でつなぎ、/models で選ぶ',msg:'費用・性能に合わせて提供元を選べます。モデルの利用料は提供元ごとにかかります。手元のコードを含む指示が、その提供元へ送られます。'},
+    compat:{zone:'out',dest:'その提供元のサービスへ送られる',how:'OpenAI 互換の API を持つ独自の提供元を、設定で足す',msg:'カタログに無い提供元でも、OpenAI の API と同じ形で呼べるなら設定で足せます。社外の提供元なら、送り先はその提供元です。'},
+    corp:{zone:'corp',dest:'社内のサーバーへ送られる（社外に出さない構成を組める。筆者の見立て）',how:'社内で動かし、OpenAI 互換の API で公開したモデルを、設定で提供元として足す',msg:'コードを社外に出さない構成を組めます（筆者の見立て）。自動で見つけるのは手元の PC で動かしているモデルだけなので、社内のサーバーのモデルは設定で足します。品質は積むモデル次第です（筆者の見立て）。'},
+    local:{zone:'local',dest:'この PC の中にとどまる（社外に出さない構成を組める。筆者の見立て）',how:'Ollama・LM Studio・vLLM で動かしたモデルは、決まったアドレスで動いていれば自動で見つける',msg:'コードを社外に出さない構成を組めます（筆者の見立て）。ただし、vLLM で見つけたモデルは道具を使う機能が無効の状態で始まり、小さな手元のモデルでは期待した質に届かないことがあります（後者は筆者の見立て）。'}
+  };
+  var cur='cloud', mbtn=document.querySelectorAll('#mctrl .btn');
+  var Z={out:document.getElementById('z-out'),corp:document.getElementById('z-corp'),local:document.getElementById('z-local')};
+  var D={out:document.getElementById('d-out'),corp:document.getElementById('d-corp'),local:document.getElementById('d-local')};
+  function mrender(){
+    for(var i=0;i<mbtn.length;i++){ mbtn[i].setAttribute('aria-pressed',String(mbtn[i].getAttribute('data-m')===cur)); }
+    var m=M[cur];
+    ['out','corp','local'].forEach(function(z){ Z[z].classList.toggle('on',z===m.zone); D[z].textContent=(z===m.zone)?'● ここへ送られる':''; });
+    document.getElementById('f-dest').textContent=m.dest;
+    document.getElementById('f-how').textContent=m.how;
+    document.getElementById('mstatus').textContent=m.msg;
+  }
+  for(var i=0;i<mbtn.length;i++){ mbtn[i].addEventListener('click',function(e){ cur=e.currentTarget.getAttribute('data-m'); mrender(); }); }
+  document.getElementById('mctrl').hidden=false;
+  mrender();
+
+  // 権限の例。def: 既定、team: 詳しい解説の第5節の例
+  var P=[
+    {nm:'プロジェクトのファイルを読む',sub:'read',def:'allow',team:'allow'},
+    {nm:'ファイルを編集する',sub:'edit',def:'allow',team:'ask'},
+    {nm:'シェルのコマンドを実行する',sub:'shell。利用者と同じ権限でファイル・プロセス・ネットワークに触れる',def:'allow',team:'ask'},
+    {nm:'.env を読む',sub:'秘密の値を書くことが多いファイル',def:'ask',team:'ask'}
+  ];
+  var pmode='def', pbtn=document.querySelectorAll('#pctrl .btn'), box=document.getElementById('perms');
+  var rows=P.map(function(p){
+    var d=document.createElement('div'); d.className='perm';
+    var w=document.createElement('div'); w.className='what'; w.textContent=p.nm;
+    var s=document.createElement('small'); s.textContent=p.sub; w.appendChild(s);
+    var r=document.createElement('span'); r.className='pr';
+    d.appendChild(w); d.appendChild(r); box.appendChild(d); return r;
+  });
+  function prender(){
+    for(var i=0;i<pbtn.length;i++){ pbtn[i].setAttribute('aria-pressed',String(pbtn[i].getAttribute('data-p')===pmode)); }
+    P.forEach(function(p,i){ var v=p[pmode]; rows[i].className='pr '+v; rows[i].textContent=v==='allow'?'allow（許可）':'ask（毎回確認）'; });
+    document.getElementById('pstatus').textContent=pmode==='def'?'既定では、編集もシェルのコマンドも許可です。OS の仕組みで囲うサンドボックスの記述は、確認した範囲のドキュメントには見当たりませんでした。安全の設計は自分たちの仕事です（筆者の見立て）。':'チームでは、shell や edit、作業フォルダの外への操作（external_directory）を ask にするといった規則を決めて配ります。強制したい規則は、管理者が policies に書きます。コンテナなどの外側の囲いと組み合わせる手もあります（筆者の見立て）。';
+  }
+  for(var j=0;j<pbtn.length;j++){ pbtn[j].addEventListener('click',function(e){ pmode=e.currentTarget.getAttribute('data-p'); prender(); }); }
+  document.getElementById('pctrl').hidden=false;
+  prender();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .carline'); for(var k=0;k<svgs.length;k++){ svgs[k].setCurrentTime(0); svgs[k].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
