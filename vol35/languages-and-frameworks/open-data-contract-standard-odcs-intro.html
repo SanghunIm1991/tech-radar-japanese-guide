@@ -279,7 +279,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
       <div class="stage" id="st-cons"><span class="ss">使う側</span><b>集計・機械学習・帳票</b><p id="p-cons"></p><span class="res" id="r-cons"></span></div>
     </div>
-    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 契約が口頭や表計算のファイルにしかないと、列の名前の変更・空の値・重複は、機械では確かめられず、使う側の集計が黙って壊れるまで分からない（筆者の見立て）。ODCS で契約を書き、実データに当てる検査（Data Contract CLI の test）を変更の流れに組み込めば、スキーマ（項目の名前・必須か）や品質のルール（重複の数など）との食い違いとして、検査で見つけられる（組み込み方は筆者の見立て）。</p></noscript>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 契約が口頭や表計算のファイルにしかないと、列の名前の変更・空の値・重複は、機械では確かめられず、使う側の集計が黙って壊れるまで分からない（筆者の見立て）。ODCS で契約を書き、実データに当てる検査（Data Contract CLI の test）を変更の流れに組み込めば、スキーマ（項目があるか・必須か・主キーの重複）や品質のルール（重複の数など）との食い違いとして、検査で見つけられる（組み込み方は筆者の見立て）。</p></noscript>
     <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="k"></i>検査で見つかる</span><span><i class="b"></i>使う側で黙って壊れる</span></div>
     <p class="status" id="lstatus" aria-live="polite" hidden></p>
   </section>
@@ -419,8 +419,8 @@ schema:
       none:'空の番号の行が混じったまま、集計に使われる。',
       extra:''},
     dups:{prod:'同じ注文の行を2回出した。',
-      contract:'品質のルールの例（書き方は略）:\norder_id の重複の数 duplicateValues を\nmustBe 0（0 でなければならない）',
-      gate:'品質のルール（例: order_id の重複の数 duplicateValues が 0 でなければならない）を書いておけば、実データに当てる検査（test）で、重複が見つかる。',
+      contract:'- name: order_id\n  primaryKey: true   # 主キー',
+      gate:'契約で order_id は主キー（primaryKey: true）。実データに当てる検査（test）で、重複が見つかる。品質のルール（例: order_id の重複の数 duplicateValues が 0 でなければならない）として書いても、test で検査される。',
       none:'同じ注文が2回数えられ、集計が狂う。',
       extra:''}
   };
