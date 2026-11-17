@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kafka share groups 図解ページ（非公式）</title>
+<meta name="description" content="Kafka share groups（Kafka をキューのように使う仕組み）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、青＝パーティション0の件、青緑＝パーティション1の件、灰の斜線＝仕事が無く待つ。
+   レコードの状態の図は、緑＝ACCEPT、琥珀＝もう一度配る、赤橙＝配らない。黄は評価のタグ・評価の年表の今回の印だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --p0:#3A6FE0; --p0-soft:#DCE6FB;
+  --p1:#0E8C7E; --p1-soft:#D5F1EC;
+  --idle:#9AA3B5;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --again:#C98A0B; --again-text:#8A5C00; --again-soft:#FCEFD2;
+  --stop:#D9622B; --stop-text:#A8461A; --stop-soft:#FCE4D6;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --p0:#7C9BFF; --p0-soft:#22305A;
+  --p1:#3CC9B6; --p1-soft:#173A3A;
+  --idle:#6B7690;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --again:#F2B65A; --again-text:#F5C67A; --again-soft:#3D3019;
+  --stop:#FF9A5C; --stop-text:#FFAD7A; --stop-soft:#3D2A1E;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、1本の列（パーティション）から、複数の読み手へ件が分かれていく様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.splitline{display:block;width:100%;height:64px}
+.splitline .path{fill:none;stroke:#5B6A8C;stroke-width:2}
+.splitline text{fill:var(--band-sub);font-family:var(--mono);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(22px,3.6vw,30px);line-height:1.45}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図: 読み手の働き方 */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ctrls{display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ptn{border-radius:10px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.ptn b{font-family:var(--mono);font-size:13px;margin-right:4px}
+.ptn.p0{background:var(--p0-soft)} .ptn.p1{background:var(--p1-soft)}
+.rec{font-family:var(--mono);font-size:12px;font-weight:700;border-radius:4px;padding:1px 6px;color:#fff}
+.rec.p0{background:var(--p0)} .rec.p1{background:var(--p1)}
+.rec.slow{background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(255,255,255,.4) 3px 5px)}
+.gantt-scroll{overflow-x:auto}
+.gantt{display:flex;flex-direction:column;gap:6px;min-width:520px}
+.row{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:8px;align-items:center}
+.row .who{font-size:13px;font-weight:700}
+.row .who small{display:block;font-weight:500;color:var(--sub);font-size:11px;line-height:1.4}
+.track{position:relative;height:30px;background:var(--bg);border-radius:6px}
+.bar{position:absolute;top:3px;height:24px;border-radius:4px;color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--surface)}
+.bar.p0{background:var(--p0)} .bar.p1{background:var(--p1)}
+.bar.slow{background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(255,255,255,.28) 6px 10px)}
+.track.idle{background:repeating-linear-gradient(45deg,var(--bg) 0 6px,var(--line) 6px 8px)}
+.track.idle span{position:absolute;inset:0;display:flex;align-items:center;padding-left:10px;font-size:12px;color:var(--sub);font-weight:700}
+.axis{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:8px;font-size:11px;color:var(--sub);font-family:var(--mono)}
+.axis .ticks{position:relative;height:16px}
+.axis .ticks span{position:absolute;transform:translateX(-50%)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fact{background:var(--bg);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fact .k{font-size:12px;color:var(--sub);font-weight:700}
+.fact .v{font-size:15px}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.legend i.p0{background:var(--p0)} .legend i.p1{background:var(--p1)}
+.legend i.sl{background:var(--p0);background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(255,255,255,.4) 3px 5px)}
+.legend i.id{background:repeating-linear-gradient(45deg,var(--bg) 0 3px,var(--line) 3px 4px);border:1px solid var(--line)}
+.legend i.g{background:var(--go)} .legend i.a{background:var(--again)} .legend i.s{background:var(--stop)}
+
+/* 試せる図: 1件の行方 */
+.life{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.st{border:2px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:4px;min-width:0;transition:background .3s,border-color .3s}
+.st b{font-size:15px}
+.st span{font-size:13px;color:var(--sub);line-height:1.6}
+.st.on{border-color:var(--ink);background:var(--bg)}
+.st.on.go{border-color:var(--go);background:var(--go-soft)} .st.on.go b{color:var(--go-text)}
+.st.on.again{border-color:var(--again);background:var(--again-soft)} .st.on.again b{color:var(--again-text)}
+.st.on.stop{border-color:var(--stop);background:var(--stop-soft)} .st.on.stop b{color:var(--stop-text)}
+.st .count{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink)}
+
+/* 版ごとの段階 */
+.vers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ver{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ver b{font-family:var(--mono);font-size:16px}
+.ver span{font-size:14px;color:var(--sub);line-height:1.7}
+.ver.ready{border:2px solid var(--ink)}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.parts,.facts,.life,.vers{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .to svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .st{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="kafka-share-groups.html">Kafka share groups の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>PLATFORMS</span><span class="ring">TRIAL</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>Kafka share groups</h1>
+    <p class="name-hint">名前の手がかり: <span>Kafka</span>（製品名） ＋ <span>Share</span> 分け合う ＋ <span>Groups</span> 集まり</p>
+    <p class="lead">Apache Kafka に加わった、メッセージを「キュー」のように取り分ける読み手のまとまり。1つのパーティションを複数の読み手で読め、1件ずつ確認応答する</p>
+    <svg class="splitline" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="1本の列から、3人の読み手へ件が分かれて流れる絵">
+      <path id="h0" class="path" d="M140 32 H480 L820 10"/>
+      <path id="h1" class="path" d="M140 32 H820"/>
+      <path id="h2" class="path" d="M140 32 H480 L820 54"/>
+      <text x="140" y="58" text-anchor="middle">1つのパーティション</text>
+      <text x="860" y="14">読み手</text>
+      <text x="860" y="36">読み手</text>
+      <text x="860" y="58">読み手</text>
+      <rect x="-9" y="-6" width="18" height="12" rx="2" fill="#AEB8CF"><animateMotion dur="4.5s" repeatCount="indefinite" begin="-0.1s"><mpath href="#h0"/></animateMotion></rect>
+      <rect x="-9" y="-6" width="18" height="12" rx="2" fill="#AEB8CF"><animateMotion dur="4.5s" repeatCount="indefinite" begin="-1.6s"><mpath href="#h1"/></animateMotion></rect>
+      <rect x="-9" y="-6" width="18" height="12" rx="2" fill="#AEB8CF"><animateMotion dur="4.5s" repeatCount="indefinite" begin="-3.1s"><mpath href="#h2"/></animateMotion></rect>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 520 260" role="img" aria-label="これまでの方式は、棚ごとに担当を1人決める絵。share groups は、1つの受付の山から、手が空いた人が1件ずつ取っていく絵">
+        <text x="125" y="22" text-anchor="middle" class="t-plain">これまで: 棚ごとに担当1人</text>
+        <rect x="30" y="40" width="80" height="34" rx="4" fill="var(--bg)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="70" y="62" text-anchor="middle" class="t-small">棚 A</text>
+        <rect x="30" y="90" width="80" height="34" rx="4" fill="var(--bg)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="70" y="112" text-anchor="middle" class="t-small">棚 B</text>
+        <circle cx="170" cy="57" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="170" cy="107" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <path d="M110 57 H155 M110 107 H155" stroke="var(--line)" stroke-width="3"/>
+        <circle cx="215" cy="160" r="13" fill="var(--surface)" stroke="var(--sub)" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="215" y="194" text-anchor="middle" class="t-small">3人めは担当が無い</text>
+
+        <text x="395" y="22" text-anchor="middle" class="t-plain">share groups: 1つの山から</text>
+        <rect x="290" y="70" width="70" height="80" rx="4" fill="var(--bg)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="325" y="170" text-anchor="middle" class="t-small">受付の山</text>
+        <rect x="300" y="84" width="50" height="10" rx="2" fill="var(--sub)"/>
+        <rect x="300" y="100" width="50" height="10" rx="2" fill="var(--sub)"/>
+        <rect x="300" y="116" width="50" height="10" rx="2" fill="var(--sub)"/>
+        <rect x="300" y="132" width="50" height="10" rx="2" fill="var(--sub)"/>
+        <circle cx="460" cy="57" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="460" cy="110" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="460" cy="163" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <path id="mp" d="M360 110 L440 57" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>
+        <path d="M360 110 H440 M360 110 L440 163" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>
+        <rect x="-12" y="-5" width="24" height="10" rx="2" fill="var(--ink)">
+          <animateMotion dur="3s" repeatCount="indefinite" begin="-0.2s"><mpath href="#mp"/></animateMotion>
+        </rect>
+        <text x="395" y="230" text-anchor="middle" class="t-small">手が空いた人が、1件ずつ取っていく</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">「棚ごとに担当を決める」に、「1つの受付の山から、手が空いた人が1件ずつ取る」を加える</p>
+        <p>これまでの Kafka は、棚（パーティション）ごとに担当を1人決めて仕事を配る方式でした（1人が複数の棚を持つこともあります）。share groups は、全員で1つの山から取っていく方式を加えます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">3つの課題と、share groups の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。2つめと3つめの課題は筆者の見立てです。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>読み手を増やしても、パーティションの数より多くは同時に働けない</h3><span class="qterm">consumer group の限界</span><p>従来の consumer group では、1つのパーティションを読めるのはグループの中の1人だけ。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">share groups の答え</span><h3>1つのパーティションを複数の読み手で読める</h3><p>読み手の数がパーティションの数を超えてもかまわない。処理の量に合わせて読み手を増やせる。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>処理の重さが件ごとに違うと、遅い1件が後ろの件を待たせる</h3><span class="qterm">1件ずつ独立した仕事</span><p>「注文ごとにメール送信」のように、1件ずつ独立した仕事をたくさんの作業者でさばきたい場面では窮屈（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">share groups の答え</span><h3>1件ずつロックし、1件ずつ確認応答する</h3><p>ある読み手が1件を取っている間も、同じパーティションの後ろの件は、ほかの読み手が取って処理できる。ただし取れるのは、まだ終わっていない先頭の件から一定の範囲（処理中の件の窓）までで、遅い件がいつまでも終わらないと、いずれ後ろも待たされる。失敗した件は RELEASE で戻し、もう一度配り直せる。また、取得をまたいだ順序は保証されなくなる。<a href="#s-lab">「試してみる」の図</a>と<a href="#s-life">「1件の行方」の図</a>で試せます。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>キューのために、Kafka とは別のメッセージキューを並べて運用していた</h3><span class="qterm">キュー（queue）</span><p>RabbitMQ などのメッセージキューを、Kafka と並べて運用することがあった（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">share groups の答え</span><h3>Kafka のトピックをそのまま読み、キューのような取り分けを Kafka の中で行う</h3><p>Thoughtworks も、外部のキューと併用していたチームが Kafka にまとめられる点を挙げている。ただし、デッドレターキューなど専用のキューの製品の機能がまだ無いため、置き換えられるかは機能ごとに確かめる。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: 読み手を増やすと、誰が働くか</h2>
+    <p class="hint">課題1と課題2への答えを確かめる図です。パーティションが2つのトピックに、8件のレコードがあるとします。読み手の数と、遅い1件があるかを選び、consumer group と share group の働き方を比べてください。件の数・処理の時間・取る順番は説明のための例で、share group の取り方は筆者の簡略化です（手が空いた読み手が、各パーティションの先頭から、パーティションを交互に1件ずつ取るとした。取れる範囲の窓の制限は、この小さな例では省いた）。</p>
+    <div class="ctrls" id="lctrl" hidden>
+      <div>
+        <span class="ctrl-lbl">読み手のまとまり</span>
+        <div class="toggles" role="group" aria-label="読み手のまとまり">
+          <button type="button" class="btn" data-g="cg" aria-pressed="true">consumer group（従来）</button>
+          <button type="button" class="btn" data-g="sg" aria-pressed="false">share group（新しい）</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">読み手の数</span>
+        <div class="toggles" role="group" aria-label="読み手の数">
+          <button type="button" class="btn" data-n="2" aria-pressed="true">2人</button>
+          <button type="button" class="btn" data-n="3" aria-pressed="false">3人</button>
+          <button type="button" class="btn" data-n="4" aria-pressed="false">4人</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">処理の重さ</span>
+        <div class="toggles" role="group" aria-label="処理の重さ">
+          <button type="button" class="btn" data-s="0" aria-pressed="true">どの件も同じ重さ</button>
+          <button type="button" class="btn" data-s="1" aria-pressed="false">A2 だけ4倍遅い</button>
+        </div>
+      </div>
+    </div>
+    <div class="parts" id="parts" hidden>
+      <div class="ptn p0"><b>パーティション0</b><span class="rec p0">A1</span><span class="rec p0" id="recA2">A2</span><span class="rec p0">A3</span><span class="rec p0">A4</span></div>
+      <div class="ptn p1"><b>パーティション1</b><span class="rec p1">B1</span><span class="rec p1">B2</span><span class="rec p1">B3</span><span class="rec p1">B4</span></div>
+    </div>
+    <div class="gantt-scroll" id="gwrap" hidden>
+      <div class="gantt" id="gantt" role="img" aria-label="読み手ごとに、どの件をいつ処理したかを横棒で示した図"></div>
+    </div>
+    <div class="facts" id="facts" hidden>
+      <div class="fact"><span class="k">働いた読み手</span><span class="v" id="f-busy"></span></div>
+      <div class="fact"><span class="k">全部が終わるまで（例の目盛り）</span><span class="v" id="f-end"></span></div>
+      <div class="fact"><span class="k">パーティション0の件が終わった順</span><span class="v" id="f-order"></span></div>
+    </div>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: パーティションが2つなら、consumer group では読み手を3人・4人に増やしても、働けるのは2人だけで、ほかは仕事が無い。A2 が遅いと、同じパーティションの A3・A4 は A2 が終わるまで待つ。share group では全員が働け、A2 が遅くても A3・A4 はほかの読み手が先に処理できる（取れる範囲には窓の制限があり、遅い件がいつまでも終わらないと、いずれ後ろも待たされる）。その代わり、パーティション0の件が終わる順は A1・A3・A4・A2 のように前後しうる（説明のための例。取り方は筆者の簡略化）。</p></noscript>
+    <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="p0"></i>パーティション0の件</span><span><i class="p1"></i>パーティション1の件</span><span><i class="sl"></i>遅い件</span><span><i class="id"></i>仕事が無い</span></div>
+    <p class="status" id="lstatus" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-life">
+    <h2 id="s-life">試してみる: 取った1件の行方</h2>
+    <p class="hint">課題2への答え（1件ずつの確認応答）を確かめる図です。読み手がレコードを取ると、取得のロックがかかり、ほかの読み手には渡りません（既定は30秒）。読み手が返す結果を選んでください。</p>
+    <div class="toggles" role="group" aria-label="読み手が返す結果" id="actrl" hidden>
+      <button type="button" class="btn" data-a="accept" aria-pressed="true">ACCEPT（処理できた）</button>
+      <button type="button" class="btn" data-a="release" aria-pressed="false">RELEASE（もう一度回して）</button>
+      <button type="button" class="btn" data-a="reject" aria-pressed="false">REJECT（二度と配らなくてよい）</button>
+      <button type="button" class="btn" data-a="timeout" aria-pressed="false">何も返さずロックの期限が切れる</button>
+    </div>
+    <div class="life" id="life" aria-hidden="true" hidden>
+      <div class="st" id="st-acq"><b>取得済み（ロック中）</b><span>ほかの読み手には渡らない。既定は30秒。4.2 では RENEW でロックを延ばせる</span></div>
+      <div class="st" id="st-res"><b id="res-t"></b><span id="res-d"></span></div>
+      <div class="st" id="st-next"><b id="nx-t"></b><span id="nx-d"></span><span class="count" id="nx-c"></span></div>
+    </div>
+    <div class="toggles" id="rctrl" hidden>
+      <button type="button" class="btn" id="redo">もう一度配られて、また失敗する</button>
+    </div>
+    <noscript><p class="hint">この図はスクリプトで動かします。要約: ACCEPT なら処理済み。RELEASE（もう一度配る対象に戻す。同じ読み手に戻ることもある）か、何も返さずロックの期限が切れると、レコードは解放されて、また配られる。配った回数は数えられ、上限（既定は5回）に達すると諦めて「アーカイブ済み」になる。REJECT なら二度と配らない。諦めたレコードを別の置き場へ移すデッドレターキューは、まだ無い（KIP-1191 という提案があり、Thoughtworks は、まだ使えない機能として触れている）。</p></noscript>
+    <div class="legend" id="alegend" aria-hidden="true" hidden><span><i class="g"></i>処理済み</span><span><i class="a"></i>もう一度配られる</span><span><i class="s"></i>もう配られない</span></div>
+    <p class="status" id="astatus" aria-live="polite" tabindex="-1" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-parts">
+    <h2 id="s-parts">状態を管理する部品と、版ごとの段階</h2>
+    <p class="hint">各パーティションのリーダー（そのパーティションを主に受け持つサーバー）が、取得と確認応答の状態を管理し、share coordinator という部品が、その状態を内部のトピック <code>__share_group_state</code> に保存します。Java のクライアントには専用の読み手 <code>KafkaShareConsumer</code> があり、既定では次の取得などのときに前回の分がまとめて自動で確認応答されます（明示のモードでは、1件ずつ <code>acknowledge</code> で返す）。</p>
+    <div class="vers">
+      <div class="ver"><b>4.0（2025年3月）</b><span>早期の試用版。本番のクラスタでは有効にしてはいけない。有効にして使ったクラスタは、その後の版へ上げられないなどの制約があった</span></div>
+      <div class="ver"><b>4.1（2025年9月）</b><span>プレビュー。まだ本番向けではない</span></div>
+      <div class="ver ready"><b>4.2（2026年2月）</b><span>本番で使える段階。ロックを延ばす RENEW が加わった</span></div>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>読み手を自由に増やせる</b>: パーティションの数に縛られずに、処理の量に合わせて読み手を増やせる</li>
+        <li><b>失敗した件だけやり直せる</b>: 1件ごとに確認応答するので、失敗した件だけをもう一度配り直せる</li>
+        <li><b>運用する製品が減る</b>: キューの製品を別に運用しなくて済む場合がある（筆者の見立て）</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>順序の保証が弱い</b>: 1回の取得の中では位置の順に並ぶが、取得をまたいだ順序は保証されない。やり直しが入ると順番は前後する。順序が大事な処理には consumer group が向く（筆者の見立て）</li>
+        <li><b>同じ件が2回届くことがある</b>: 配信の保証は「少なくとも1回」（at-least-once）。処理を冪等にしておく必要がある（筆者の見立て）</li>
+        <li><b>デッドレターキューがまだ無い</b>: KIP-932 では将来の拡張とされている。Thoughtworks も、この機能（KIP-1191）がまだ使えない点を注意している</li>
+        <li><b>トランザクションとの組み合わせ</b>: 確認応答をトランザクションに含めて「ちょうど1回」の処理にすることは、KIP-932 の範囲外</li>
+        <li><b>データの保持期間はトピック全体の設定</b>: そのトピックを読むすべての share group に効く。まだ配られていないレコードが、保持期間を過ぎて消えることもありうる（筆者の見立て）</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">試すときに考える5つのこと</h2>
+    <p class="lead-note">使うかどうか、どう入れるかを考えるための観点を、詳しい解説の第5節から並べました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>Kafka の版は？</b><p>本番で使うなら 4.2 以降が前提。クラスタ全体の版上げの計画と合わせて考える（筆者の見立て）。</p></div>
+      <div class="dq"><b>仕事の性質は？</b><p>1件ずつ独立していて、順序を問わず、重複を許せる（または冪等にできる）仕事に向く（筆者の見立て）。</p></div>
+      <div class="dq"><b>クライアントの言語は？</b><p>KIP-932 は、Java の API と、サーバーとの通信の取り決めを定めている。Java 以外の言語のクライアントの対応状況は、それぞれのライブラリで確かめる（筆者の見立て）。</p></div>
+      <div class="dq"><b>今の consumer group とどう併用するか？</b><p>並べて使うときは、グループの名前に注意する。グループの名前は両者で共通の名前空間なので、同じ名前は使えない。</p></div>
+      <div class="dq"><b>今のキューの機能を置き換えられるか？</b><p>優先度の付いたキュー・遅延配信・デッドレターキューなど、専用のキューの製品の機能に頼っているなら、1つずつ確かめる（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>consumer group</b><p>Kafka の従来の読み手のまとまり。順序が大事な流れの処理には、引き続きこちらを使う（使い分けは筆者の見立て）。</p></div>
+      <div class="alt"><b>RabbitMQ・Amazon SQS など</b><p>仕事を配ることに特化したメッセージキューの製品。デッドレターキューなどの機能がそろっている（筆者の見立て）。</p></div>
+      <div class="alt"><b>KIP-1191</b><p>share groups にデッドレターキューを足す提案。Thoughtworks は、まだ使えない機能として触れている。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span><span class="now">2026年11月 Trial</span></span>
+        <small>Radar のページの推移には、今回の版だけが載っています（新規か移動かは明記なし）</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、読み手の数がパーティションの数に縛られるという consumer group の限界を外し、キューの使い方を Kafka の中で実現できるとして、試す価値があるとしています。一方で、重複の配信・順序の保証の無さ・デッドレターキューの欠如には注意が要るとしています。</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>Apache Kafka</summary><p class="etym">製品名</p><p>大量のデータの流れ（イベント）を、順番どおりに記録し、多くの読み手に配るためのオープンソースの基盤。</p></details>
+      <details><summary>トピック</summary><p class="etym"><span class="w">topic</span> ＝ 話題・主題</p><p>Kafka で、データを種類ごとに分けて置く場所。</p></details>
+      <details><summary>パーティション</summary><p class="etym"><span class="w">partition</span> ＝ 仕切り・区画</p><p>トピックを分割した単位。分割した数だけ並列に書き込み・読み出しができ、中の順序は保たれる。</p></details>
+      <details><summary>consumer group</summary><p class="etym"><span class="w">consumer</span> ＝ 消費する者・読み手 ／ <span class="w">group</span> ＝ 集まり</p><p>Kafka の従来の読み手のまとまり。各パーティションをメンバーの1人だけに割り当て、どこまで読んだかを位置で記録する。</p></details>
+      <details><summary>キュー</summary><p class="etym"><span class="w">queue</span> ＝ 順番待ちの列</p><p>仕事を1件ずつ並べ、手の空いた作業者が取り出して処理する仕組み。</p></details>
+      <details><summary>確認応答</summary><p class="etym"><span class="w">acknowledgement</span> ＝ 受け取ったことを知らせること</p><p>読み手が「この件は処理できた／できなかった」と基盤に伝えること。</p></details>
+      <details><summary>at-least-once</summary><p class="etym"><span class="w">at least once</span> ＝ 少なくとも1回</p><p>「少なくとも1回は届ける」という配信の保証。失敗に備えて送り直すため、同じ件が2回以上届くことがある。</p></details>
+      <details><summary>冪等</summary><p class="etym"><span class="w">idempotent</span> ＝ idem（ラテン語で「同じ」）＋ potent（力を持つ）</p><p>同じ処理を何回しても、1回したときと結果が変わらない性質。</p></details>
+      <details><summary>デッドレターキュー</summary><p class="etym"><span class="w">dead letter</span> ＝ 宛先不明で配達できない郵便物 ／ <span class="w">queue</span> ＝ 列</p><p>何度やっても処理できなかったメッセージを、あとで調べるために移しておく別の置き場。</p></details>
+      <details><summary>KIP</summary><p class="etym"><span class="w">KIP</span> ＝ Kafka Improvement Proposal（Kafka の改善の提案）</p><p>Kafka に新しい機能を足すときに書く設計の提案書。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="kafka-share-groups.html">Kafka share groups の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-17。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/kafka-share-groups">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 試せる図1: 読み手の働き方。件・時間・取り方は説明のための例（share group の取り方は筆者の簡略化）
+  var g='cg', n=2, slow=0;
+  var gb=document.querySelectorAll('#lctrl [data-g]'), nb=document.querySelectorAll('#lctrl [data-n]'), sb=document.querySelectorAll('#lctrl [data-s]');
+  function recs(){
+    var A=['A1','A2','A3','A4'].map(function(id){ return {id:id,p:0,d:(slow&&id==='A2')?4:1}; });
+    var B=['B1','B2','B3','B4'].map(function(id){ return {id:id,p:1,d:1}; });
+    return {A:A,B:B};
+  }
+  function schedule(){
+    var r=recs(), rows=[], i;
+    for(i=0;i<n;i++) rows.push([]);
+    if(g==='cg'){
+      // 1つのパーティションは1人だけ。パーティションは2つなので、3人めからは担当が無い
+      [r.A,r.B].forEach(function(list,k){ var t=0; list.forEach(function(x){ rows[k].push({id:x.id,p:x.p,s:t,d:x.d}); t+=x.d; }); });
+    }else{
+      // 手が空いた読み手が、各パーティションの先頭から、パーティションを交互に（A1,B1,A2,B2,…）1件ずつ取る
+      var q=[]; for(i=0;i<4;i++){ q.push(r.A[i]); q.push(r.B[i]); }
+      var free=[]; for(i=0;i<n;i++) free.push(0);
+      q.forEach(function(x){
+        var m=0; for(var j=1;j<n;j++){ if(free[j]<free[m]) m=j; }
+        rows[m].push({id:x.id,p:x.p,s:free[m],d:x.d}); free[m]+=x.d;
+      });
+    }
+    return rows;
+  }
+  function press(list,attr,val){ for(var i=0;i<list.length;i++){ list[i].setAttribute('aria-pressed',String(list[i].getAttribute(attr)===val)); } }
+  function render(){
+    press(gb,'data-g',g); press(nb,'data-n',String(n)); press(sb,'data-s',String(slow));
+    document.getElementById('recA2').classList.toggle('slow',!!slow);
+    var rows=schedule(), end=0, done=[], busy=0;
+    rows.forEach(function(row){ if(row.length) busy++; row.forEach(function(b){ end=Math.max(end,b.s+b.d); if(b.p===0) done.push(b); }); });
+    var scale=Math.max(end,7), box=document.getElementById('gantt'); box.textContent='';
+    rows.forEach(function(row,k){
+      var rw=document.createElement('div'); rw.className='row';
+      var who=document.createElement('div'); who.className='who'; who.textContent='読み手 '+(k+1);
+      var tr=document.createElement('div'); tr.className='track';
+      if(!row.length){ tr.className='track idle'; var sp=document.createElement('span'); sp.textContent='仕事が無い（担当するパーティションが無い）'; tr.appendChild(sp); }
+      row.forEach(function(b){
+        var e=document.createElement('div'); e.className='bar p'+b.p+((b.d>1)?' slow':'');
+        e.style.left=(b.s/scale*100)+'%'; e.style.width=(b.d/scale*100)+'%'; e.textContent=b.id; tr.appendChild(e);
+      });
+      rw.appendChild(who); rw.appendChild(tr); box.appendChild(rw);
+    });
+    var ax=document.createElement('div'); ax.className='axis'; ax.appendChild(document.createElement('span'));
+    var tk=document.createElement('div'); tk.className='ticks';
+    for(var t=0;t<=scale;t++){ var s=document.createElement('span'); s.style.left=(t/scale*100)+'%'; s.textContent=t; tk.appendChild(s); }
+    ax.appendChild(tk); box.appendChild(ax);
+    done.sort(function(a,b){ return (a.s+a.d)-(b.s+b.d); });
+    // 同じ目盛りで終わった件は「・」でまとめ、終わった目盛りを添える
+    var groups=[]; done.forEach(function(b){ var t=b.s+b.d, last=groups[groups.length-1]; if(last&&last.t===t){ last.ids.push(b.id); } else { groups.push({t:t,ids:[b.id]}); } });
+    document.getElementById('f-busy').textContent=n+'人のうち '+busy+'人';
+    document.getElementById('f-end').textContent=end+' 目盛り';
+    document.getElementById('f-order').textContent=groups.map(function(x){ return x.ids.join('・')+'（'+x.t+'）'; }).join(' → ')+'　括弧は終わった目盛り';
+    var msg;
+    if(g==='cg'){
+      msg='consumer group では、1つのパーティションを読めるのはグループの中の1人だけです。'+(n>2?'読み手を'+n+'人に増やしても、パーティションが2つなので働けるのは2人だけです。':'パーティションの数（2）までしか同時に働けません。')+(slow?'A2 が遅いと、同じパーティションの A3・A4 は A2 が終わるまで待ちます。':'')+'この例では、パーティションの中の件は順番どおりに終わります（1人が1件ずつ処理するとした場合）。';
+    }else{
+      msg='share group では、1つのパーティションを複数の読み手で読め、読み手の数がパーティションの数を超えてもかまいません。'+((n===2&&!slow)?'読み手の数がパーティションの数と同じで、どの件も同じ重さなら、この例では consumer group と同じ図になります（取り方は筆者の簡略化）。読み手を増やすか、遅い件を入れると違いが見えます。':'')+(slow?'A2 が遅くても、A3・A4 はほかの読み手が取って先に処理できます（取れるのは、まだ終わっていない先頭の件から一定の範囲までなので、遅い件がいつまでも終わらないと、いずれ後ろも待たされます）。':'')+'その代わり、取得をまたいだ順序は保証されず、パーティション0の件が終わる順が前後することがあります（この例の順は筆者の簡略化による）。';
+    }
+    document.getElementById('lstatus').textContent=msg;
+  }
+  function bind(list,fn){ for(var i=0;i<list.length;i++){ list[i].addEventListener('click',fn); } }
+  bind(gb,function(e){ g=e.currentTarget.getAttribute('data-g'); render(); });
+  bind(nb,function(e){ n=parseInt(e.currentTarget.getAttribute('data-n'),10); render(); });
+  bind(sb,function(e){ slow=parseInt(e.currentTarget.getAttribute('data-s'),10); render(); });
+  ['lctrl','parts','gwrap','facts','llegend','lstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 試せる図2: 取った1件の行方
+  var A={
+    accept:{t:'ACCEPT',d:'正しく処理できた',k:'go',nt:'処理済み',nd:'この件はもう配られない',retry:false},
+    release:{t:'RELEASE',d:'処理できなかったので、もう一度配る対象に戻してほしい',k:'again',nt:'解放されて、また配られる',nd:'配った回数が数えられる',retry:true},
+    reject:{t:'REJECT',d:'処理できず、二度と配らなくてよい',k:'stop',nt:'もう配られない',nd:'ほかの読み手にも渡らない',retry:false},
+    timeout:{t:'何も返さない',d:'ロックの期限が切れる',k:'again',nt:'解放されて、また配られる',nd:'配った回数が数えられる',retry:true}
+  };
+  var act='accept', tries=1, ab=document.querySelectorAll('#actrl .btn'), redo=document.getElementById('redo');
+  function arender(){
+    press(ab,'data-a',act);
+    var a=A[act], res=document.getElementById('st-res'), nx=document.getElementById('st-next');
+    document.getElementById('st-acq').className='st on';
+    res.className='st on '+a.k; document.getElementById('res-t').textContent=a.t; document.getElementById('res-d').textContent=a.d;
+    var archived=a.retry&&tries>=5;
+    nx.className='st on '+(archived?'stop':a.k);
+    document.getElementById('nx-t').textContent=archived?'アーカイブ済み（諦める）':a.nt;
+    document.getElementById('nx-d').textContent=archived?'配った回数が上限（既定は5回）に達した':a.nd;
+    document.getElementById('nx-c').textContent=a.retry?('配った回数: '+tries+'回（上限は5回）'):'';
+    document.getElementById('rctrl').hidden=!a.retry||archived;
+    var msg;
+    if(archived) msg='配った回数が上限（既定は5回）に達したので、この件は諦めて「アーカイブ済み」になりました。諦めた件を別の置き場へ移すデッドレターキューは、まだありません（KIP-1191 という提案があり、Thoughtworks は、まだ使えない機能として触れています）。最初からやり直すには、結果のボタンを選び直してください。';
+    else if(a.retry) msg='この件は解放され、また配られます'+(act==='release'?'（グループのどの読み手に配られるかは決まっておらず、同じ読み手に戻ることもあります）':'')+'。配信の保証は「少なくとも1回」なので、同じ件が2回以上届くことがあります。処理を冪等にしておく必要があります（筆者の見立て）。';
+    else if(act==='accept') msg='処理済みになり、この件はもう配られません。確認応答は1件ずつなので、失敗した件だけをもう一度配り直せます。';
+    else msg='二度と配られません。ほかの読み手にも渡りません。';
+    document.getElementById('astatus').textContent=msg;
+  }
+  bind(ab,function(e){ act=e.currentTarget.getAttribute('data-a'); tries=1; arender(); });
+  redo.addEventListener('click',function(){ if(tries<5){ tries++; } arender(); if(tries>=5){ document.getElementById('astatus').focus(); } });
+  ['actrl','life','alegend','astatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  arender();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .splitline'); for(var k=0;k<svgs.length;k++){ svgs[k].setCurrentTime(0); svgs[k].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
