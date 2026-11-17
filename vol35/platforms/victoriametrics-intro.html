@@ -398,7 +398,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
 <footer>
   <div class="wrap">
     非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
-    このページの内容は、<a href="victoriametrics.html">VictoriaMetrics の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-08（元の解説。課題ごとの答えは 2026-11-15）。<br>
+    このページの内容は、<a href="victoriametrics.html">VictoriaMetrics の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-17。<br>
     Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
   </div>
 </footer>
@@ -419,7 +419,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     stop.textContent=down?'保管係を戻す':'保管係を1台止めてみる';
     svgC.classList.toggle('down',down);
     if(mode==='single'){
-      status.innerHTML='<b>単一ノード版:</b> 1つのプログラムだけで動き、データは1つのフォルダに置きます。1台の CPU やメモリを増やして伸ばします。止まらない作りにするには、同じ設定の複数台へ同時に書き込み、読み出しは振り分けるか、まとめて検索します。';
+      status.innerHTML='<b>単一ノード版:</b> 1つのプログラムだけで動き、データは1つのフォルダに置きます。1台の CPU やメモリを増やして伸ばします。止まらない作りにするには、同じ設定の複数台へ同時に書き込み、読み出しは振り分けるか、まとめて検索します（まとめて検索するのは、単一ノード版をそのための設定で動かしている場合）。';
     }else if(down){
       status.innerHTML='<b>保管係 B が止まりました。</b>新しいデータは保管係 A に回され、止まらずに動き続けます（そのぶん A の負荷は増えます）。その代わり、B にあった分が欠けた検索結果が返ることがあります（欠けたらエラーにする設定や、データの複製で対処できます）。';
     }else{
