@@ -68,7 +68,7 @@ flowchart LR
 
 ### 読み書きと周辺の部品
 
-**読み書きの方法**: 書き込みは、Prometheus の remote write のほか、ほかの監視ツール（InfluxDB・Graphite など）の形式や、**OpenTelemetry** の形式でも受け付けます。検索には **MetricsQL** という言語を使います。Prometheus の検索言語 **PromQL** をもとにしており、ほぼ同じ書き方で使えますが、一部の計算は意図的に違う結果を返します（[MetricsQL](https://docs.victoriametrics.com/victoriametrics/metricsql/)）。グラフ表示の定番ツール **Grafana** からは、Prometheus と同じように接続できます。
+**読み書きの方法**: 書き込みは、Prometheus の remote write のほか、ほかの監視ツール（InfluxDB・Graphite など）の形式や、**OpenTelemetry** の形式でも受け付けます。検索には **MetricsQL** という言語を使います。Prometheus の検索言語 **PromQL** にならって作られ、PromQL の書き方をそのまま受け付けたうえで機能を足していますが（後方互換）、一部の計算は意図的に違う結果を返します（[MetricsQL](https://docs.victoriametrics.com/victoriametrics/metricsql/)）。グラフ表示の定番ツール **Grafana** からは、Prometheus と同じように接続できます（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)、[MetricsQL](https://docs.victoriametrics.com/victoriametrics/metricsql/)）。
 
 **周辺の部品**として、数値を集めて送る `vmagent`、決めておいた条件（ルール）を定期的に調べてアラートを出す `vmalert`（通知を届けるのは Alertmanager などの別の部品）、入口で認証と振り分けをする `vmauth`、バックアップを取る `vmbackup` があります（[vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/)、[vmalert](https://docs.victoriametrics.com/victoriametrics/vmalert/)、[vmauth](https://docs.victoriametrics.com/victoriametrics/vmauth/)、[vmbackup](https://docs.victoriametrics.com/victoriametrics/vmbackup/)）。
 
@@ -79,34 +79,40 @@ flowchart LR
 - 集める役は Prometheus のまま残し、remote write で VictoriaMetrics に送って長く保存する
 - 集める役を `vmagent`、アラートの判定を `vmalert` に任せ、Prometheus ごと置き換える
 
+**得られるもの**
+
+- **少ないメモリとディスク**: 系列が多くても、少ないメモリと強い圧縮で扱えると開発元は主張しています（第3節。開発元自身による比較）
+- **規模に合わせた形態**: 単一ノード版から始め、足りなくなったらクラスター版で部品ごとに台数を増やせます（第3節）
+- **今の道具を生かせる**: Prometheus の remote write や OpenTelemetry の形式で書き込め、PromQL に近い MetricsQL で検索でき、Grafana から Prometheus と同じように接続できます（第3節）
+
 **代わりに失うもの**
 
 - **止まらないことを優先する**: クラスター版は、データの完全さより、止まらずに動き続けることを優先すると明言しています。保管係の一部が止まると、新しいデータはほかの保管係に回され（そのぶん残りの保管係の負荷は増えます）、検索結果は一部が欠けた状態で返ることがあります（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）。筆者の見立てでは、監視の用途ならたいてい困りませんが、完全な数値が要る用途（課金の集計など）では注意が要ります。欠けたときにエラーにする設定や、データの複製で対処できます（同じページ）
 - **単純さの裏返し**: 保管係どうしが連絡を取らない作りは、全体を単純にします。その代わり、保管係を増やしても、過去のデータは自動では移りません（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）
 - **PromQL との小さな違い**: Prometheus から移ると、グラフの値がわずかに変わることがあります。移行の際は見比べる必要があります
 - **一部の機能は有料版だけ**: 古いデータを間引いて容量を節約する機能（**ダウンサンプリング**）、データごとに保存期間を変える機能、バックアップの自動化などは、有料のエンタープライズ版だけの機能です（[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
-- **開発元への依存**（筆者の見立て）: 開発は主に開発元のコアチームが担っているとみられ、機能の方向性はその判断に左右されえます。なお、Apache 2.0 で配布されているのは単一ノード版とクラスター版（コミュニティ版）で、エンタープライズ版の機能を使うにはライセンスの契約が要ります（[GitHub](https://github.com/VictoriaMetrics/VictoriaMetrics)、[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
+- **開発元への依存**（筆者の見立て）: 開発は主に開発元のコアチームが担っているとみられ、機能の方向性はその判断に左右されえます。なお、Apache 2.0 で配布されているのは単一ノード版とクラスター版（コミュニティ版）で、エンタープライズ版の機能を本番で使うには、開発元との契約が要ります（本番以外での評価は可。[GitHub](https://github.com/VictoriaMetrics/VictoriaMetrics)、[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
 
 ## 5. 採用を判断するときの観点
 
 - **規模**: 開発元は、書き込みが毎秒100万件程度に満たないなら単一ノード版を勧めています（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）
-- **今の道具**: すでに Prometheus や Grafana を使っているなら、設定や画面をほぼそのまま生かせます
+- **今の道具**: すでに Prometheus や Grafana を使っているなら、設定や画面をほぼそのまま生かせます（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)、[MetricsQL](https://docs.victoriametrics.com/victoriametrics/metricsql/)）
 - **運用の担い手**: 自分たちでサーバーを用意して運用する（**セルフホスト**）体制があるか。クラウド事業者が運用を代行する**マネージドサービス**と比べて、費用と手間はどうか
-- **必要な機能**: ダウンサンプリングなどが要るなら、有料版の契約が前提になります
-- **止まらない作り（可用性）をどう確保するか**: 単一ノード版で**冗長化**（予備を用意して1台が止まっても続けられるようにすること）するには、同じ設定の複数台へ `vmagent` で同時に書き込み、読み出しを `vmauth` で振り分けるか、上位の `vmselect` で複数台をまとめて検索します（[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)の High availability の節）。クラスター版では、データの複製の数を指定できます（[クラスター版](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）
+- **必要な機能**: ダウンサンプリングなどを本番で使うなら、有料版の契約が前提になります（本番以外での評価は可。[Enterprise](https://docs.victoriametrics.com/victoriametrics/enterprise/)）
+- **止まらない作り（可用性）をどう確保するか**: 単一ノード版で**冗長化**（予備を用意して1台が止まっても続けられるようにすること）するには、同じ設定の複数台へ `vmagent` で同時に書き込み、読み出しを `vmauth` で振り分けるか、上位の `vmselect` で複数台をまとめて検索します（後者は、単一ノード版を `vmselect` から検索できる設定〈`-vmselectAddr`〉で動かしている場合。[公式ドキュメント](https://docs.victoriametrics.com/victoriametrics/single-server-victoriametrics/)の High availability の節）。クラスター版では、データの複製の数を指定できます（[クラスター版](https://docs.victoriametrics.com/victoriametrics/cluster-victoriametrics/)）
 - **自分たちのデータで試す**: 性能の数値は開発元の主張なので、実際のデータで負荷をかけて確かめます
 
 ## 6. 関連技術・代替技術
 
 - **Prometheus**: 規模が小さければ Prometheus だけで足りることも多い（[Prometheus](https://prometheus.io/)）
-- **Thanos、Cortex、Grafana Mimir**: Prometheus のデータを長く、大規模に保存する仕組み（[Thanos](https://thanos.io/)、[Cortex](https://cortexmetrics.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)）。これらは長期のデータを**オブジェクトストレージ**に保存し、VictoriaMetrics はサーバーのディスク（ブロックストレージ）に保存する点が違う（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)）
+- **Thanos、Cortex、Grafana Mimir**: Prometheus のデータを長く、大規模に保存する仕組み（[Thanos](https://thanos.io/)、[Cortex](https://cortexmetrics.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)）。これらは長期のデータを主に**オブジェクトストレージ**に置き（[Thanos](https://thanos.io/)、[Grafana Mimir](https://grafana.com/oss/mimir/)、Cortex は blocks storage を使う場合〈[Cortex: Blocks Storage](https://cortexmetrics.io/docs/blocks-storage/)〉）、VictoriaMetrics はサーバーのディスク（ブロックストレージ）に置く点が違う（[FAQ](https://docs.victoriametrics.com/victoriametrics/faq/)。FAQ が比べているのは Thanos）
 - **InfluxDB、TimescaleDB**: 監視に限らず使える時系列データベース（一般的な説明）
 - **VictoriaLogs**: 同じ開発元のログ用データベース。Vol.35 では Platforms の Trial（[VictoriaLogs](https://docs.victoriametrics.com/victorialogs/)、[VictoriaLogs の解説](victorialogs.md)）
 
 ## 7. Radar での扱い
 
 - Vol.35（2026年11月）: **Adopt**（Trial から移動）
-- 過去の版: 2022年10月の版で Trial
+- 過去の版: 2022年10月の版で Trial（Radar のページの推移による）
 - Thoughtworks の評価の要旨: 大規模な監視の仕組みを自分たちで運用する組織にとって、実運用に耐える段階に達したと見ています。理由として、大量で系列の多いメトリクスに強いこと、規模に応じて単一ノード版とクラスター版を選べること、Prometheus や OpenTelemetry と互換があり今の道具を生かせることを挙げています
 - Radar のページ: https://www.thoughtworks.com/en-us/radar/platforms/victoriametrics
 
@@ -120,8 +126,8 @@ flowchart LR
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-08（確認時点の最新のリリースは v1.155.0）。第3節の「課題ごとの答え」は 2026-11-15 に公式ドキュメントと FAQ で確認
-- Radar の評価の確認日: 2026-11-08（リングの推移は、Radar の項目のページで確認）
+- 内容の確認日: 2026-11-17（2026-11-08 に書き、2026-11-15 に名前の手がかり・課題ごとの答え・元の語を足し、2026-11-17 に全体を点検し直した）
+- Radar の評価の確認日: 2026-11-17（リングの推移は、Radar の項目のページで確認）
 
 ## 用語集
 
@@ -141,7 +147,7 @@ flowchart LR
 | 縦の拡張・横の拡張 | 元の語: vertical scaling〈縦の拡張〉、horizontal scaling〈横の拡張〉（scale は「規模を変える」）。縦の拡張は、1台の CPU やメモリを増やして性能を伸ばすこと。横の拡張は、台数を増やして性能を伸ばすこと |
 | 冗長化・可用性 | 元の語: redundancy〈余分・重複〉、availability〈使えること〉。冗長化は、予備の機器やデータを用意しておき、一部が壊れても止まらないようにすること。可用性は、システムが止まらずに使える度合い |
 | OpenTelemetry | 元の語: open〈開かれた〉＋ telemetry〈遠隔測定。tele「遠く」＋ metry「測ること」〉。メトリクス・ログ・トレース（処理の流れの記録）などの監視データを集めて送る方法を共通化した、業界の標準の取り組み |
-| PromQL / MetricsQL | 元の語: PromQL は Prometheus Query Language（query は「問い合わせ」）の略。PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの |
+| PromQL / MetricsQL | 元の語: PromQL は Prometheus Query Language（query は「問い合わせ」）の略。PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL にならって作られ、PromQL の書き方を受け付けたうえで機能を足したもの |
 | Grafana | 監視データをグラフや表にして画面に表示する、広く使われているツール |
 | ダウンサンプリング | 元の語: downsampling（down〈下げる〉＋ sampling〈一定の間隔で値を取ること〉）。古いデータの粒度を、たとえば「1分ごと」から「1時間ごと」のように粗くして（間引いたりまとめたりして）、容量を節約し検索を速くすること |
 | オブジェクトストレージ | 元の語: object〈もの。ここではファイルとその付帯情報のひとまとまり〉＋ storage〈保管〉。Amazon S3 などの、ファイルをネットワーク越しに大量・安価に保存する仕組み。主にクラウドのサービスとして使われる |

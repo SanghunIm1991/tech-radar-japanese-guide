@@ -361,7 +361,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     <div class="check" id="checks">
       <label><input type="checkbox"><span>すでに Prometheus や Grafana を使っている<span class="hint">設定や画面をほぼそのまま生かせる</span></span></label>
       <label><input type="checkbox"><span>自分たちでサーバーを運用する体制がある<span class="hint">マネージドサービスと費用・手間を比べる</span></span></label>
-      <label><input type="checkbox"><span>ダウンサンプリングなどの機能がなくてもよい<span class="hint">要るなら有料版の契約が前提</span></span></label>
+      <label><input type="checkbox"><span>ダウンサンプリングなどの機能がなくてもよい<span class="hint">本番で使うなら有料版の契約が前提（本番以外での評価は可）</span></span></label>
       <label><input type="checkbox"><span>止まらない作り（冗長化）の組み方を決めた<span class="hint">単一ノード版は複数台へ同時に書き込む、クラスター版は複製の数を指定する</span></span></label>
       <label><input type="checkbox"><span>自分たちのデータで負荷をかけて試す予定がある<span class="hint">性能の数値は開発元の主張</span></span></label>
     </div>
@@ -386,7 +386,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <details><summary>チャーン</summary><p class="etym"><span class="w">churn</span> ＝ かき混ぜる（転じて、入れ替わり）</p><p>系列が次々に生まれては消える入れ替わりのこと。高チャーンは、入れ替わりが激しい状態。</p></details>
       <details><summary>Kubernetes・Pod</summary><p class="etym"><span class="w">Kubernetes</span> ＝ ギリシャ語で「操舵手（船のかじを取る人）」。K8s は K と s の間の8文字を数字にした略 ／ <span class="w">pod</span> ＝ 豆のさや、クジラなどの群れ</p><p>Kubernetes は多数のコンテナをまとめて配置・管理する仕組み。Pod はその中でアプリケーションを動かす最小の単位で、作り直されると別の名前になる。</p></details>
       <details><summary>remote write</summary><p class="etym"><span class="w">remote</span> ＝ 離れた ／ <span class="w">write</span> ＝ 書き込む</p><p>Prometheus が集めたデータを、外部の保存先へ送る仕組み。VictoriaMetrics を長期の保存先にするときに使う。</p></details>
-      <details><summary>PromQL / MetricsQL</summary><p class="etym"><span class="w">PromQL</span> ＝ Prometheus Query Language（query は「問い合わせ」）の略</p><p>PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL をもとに機能を足したもの。</p></details>
+      <details><summary>PromQL / MetricsQL</summary><p class="etym"><span class="w">PromQL</span> ＝ Prometheus Query Language（query は「問い合わせ」）の略</p><p>PromQL は Prometheus の検索言語。MetricsQL は VictoriaMetrics の検索言語で、PromQL にならって作られ、PromQL の書き方を受け付けたうえで機能を足したもの。</p></details>
       <details><summary>ダウンサンプリング</summary><p class="etym"><span class="w">downsampling</span> ＝ down（下げる）＋ sampling（一定の間隔で値を取ること）</p><p>古いデータの粒度を「1分ごと」から「1時間ごと」のように粗くして、容量を節約し検索を速くすること。</p></details>
       <details><summary>冗長化・可用性</summary><p class="etym"><span class="w">redundancy</span> ＝ 余分・重複 ／ <span class="w">availability</span> ＝ 使えること</p><p>冗長化は、予備を用意して一部が壊れても止まらないようにすること。可用性は、止まらずに使える度合い。</p></details>
     </div>
