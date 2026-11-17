@@ -20,6 +20,7 @@
   --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
   --ask:#C98A0B; --ask-text:#8A5C00; --ask-soft:#FCEFD2;
   --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
   --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
   --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
@@ -34,13 +35,14 @@
   --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
   --ask:#F2B65A; --ask-text:#F5C67A; --ask-soft:#3D3019;
   --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
   color-scheme:dark }}
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
 .wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 a{color:var(--blue)}
-a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #E8C547;outline-offset:2px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
 h2{font-size:clamp(24px,4vw,32px)}
 p{margin:0}
@@ -270,18 +272,18 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
         <button type="button" class="btn" data-m="local" aria-pressed="false">手元の PC で動かすモデル（Ollama・LM Studio・vLLM）</button>
       </div>
     </div>
-    <div class="zones" aria-hidden="true">
+    <div class="zones" id="zones" aria-hidden="true" hidden>
       <div class="zone out" id="z-out"><b>社外（インターネットの先）</b><span class="zs">提供元のサービス</span><span class="dest" id="d-out"></span></div>
       <div class="zone corp" id="z-corp"><b>社内のネットワーク</b><span class="zs">自分たちのサーバー</span><span class="dest" id="d-corp"></span></div>
       <div class="zone local" id="z-local"><b>この PC の中</b><span class="zs">エージェントと同じ PC</span><span class="dest" id="d-local"></span></div>
     </div>
-    <div class="facts">
+    <div class="facts" id="facts" hidden>
       <div class="fact"><span class="k">コードの送り先</span><span class="v" id="f-dest"></span></div>
       <div class="fact"><span class="k">選び方・つなぎ方</span><span class="v" id="f-how"></span></div>
     </div>
     <noscript><p class="hint">この図はスクリプトで動かします。例の要約: クラウドの提供元や OpenAI 互換の独自の提供元を選ぶと、コードを含む指示はその提供元へ送られる。社内のサーバーで OpenAI 互換の API として公開したモデル（設定で足す）や、手元の PC で動かすモデル（Ollama・LM Studio・vLLM を自動で見つける）を選べば、社外に出さない構成を組める（筆者の見立て）。品質はモデル次第で（筆者の見立て）、vLLM で見つけたモデルは道具を使う機能が無効の状態で始まる。</p></noscript>
-    <div class="legend" aria-hidden="true"><span><i class="o"></i>社外</span><span><i class="c"></i>社内</span><span><i class="l"></i>この PC の中</span></div>
-    <p class="status" id="mstatus" aria-live="polite"></p>
+    <div class="legend" id="mlegend" aria-hidden="true" hidden><span><i class="o"></i>社外</span><span><i class="c"></i>社内</span><span><i class="l"></i>この PC の中</span></div>
+    <p class="status" id="mstatus" aria-live="polite" hidden></p>
   </section>
 
   <section class="card" aria-labelledby="s-perm">
@@ -292,8 +294,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <button type="button" class="btn" data-p="team" aria-pressed="false">チームで締めた例（<code>shell</code>・<code>edit</code> を <code>ask</code> に）</button>
     </div>
     <div class="perms" id="perms"></div>
-    <div class="legend" aria-hidden="true"><span><i class="g"></i>allow（許可）</span><span><i class="a"></i>ask（毎回確認）</span></div>
-    <p class="status" id="pstatus" aria-live="polite"></p>
+    <div class="legend" id="plegend" aria-hidden="true" hidden><span><i class="g"></i>allow（許可）</span><span><i class="a"></i>ask（毎回確認）</span></div>
+    <p class="status" id="pstatus" aria-live="polite" hidden></p>
   </section>
 
   <section class="card" aria-labelledby="s-agents">
@@ -396,7 +398,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   var M={
     cloud:{zone:'out',dest:'クラウドの提供元のサービスへ送られる',how:'models.dev のカタログにある多くの提供元から、/connect でつなぎ、/models で選ぶ',msg:'費用・性能に合わせて提供元を選べます。モデルの利用料は提供元ごとにかかります。手元のコードを含む指示が、その提供元へ送られます。'},
     compat:{zone:'out',dest:'その提供元のサービスへ送られる',how:'OpenAI 互換の API を持つ独自の提供元を、設定で足す',msg:'カタログに無い提供元でも、OpenAI の API と同じ形で呼べるなら設定で足せます。社外の提供元なら、送り先はその提供元です。'},
-    corp:{zone:'corp',dest:'社内のサーバーへ送られる（社外に出さない構成を組める。筆者の見立て）',how:'社内で動かし、OpenAI 互換の API で公開したモデルを、設定で提供元として足す',msg:'コードを社外に出さない構成を組めます（筆者の見立て）。自動で見つけるのは手元の PC で動かしているモデルだけなので、社内のサーバーのモデルは設定で足します。品質は積むモデル次第です（筆者の見立て）。'},
+    corp:{zone:'corp',dest:'社内のサーバーへ送られる（社外に出さない構成を組める。筆者の見立て）',how:'社内で動かし、OpenAI 互換の API で公開したモデルを、設定で提供元として足す',msg:'コードを社外に出さない構成を組めます（筆者の見立て）。社内のサーバーのモデルは、設定で提供元として足します。品質は積むモデル次第です（筆者の見立て）。'},
     local:{zone:'local',dest:'この PC の中にとどまる（社外に出さない構成を組める。筆者の見立て）',how:'Ollama・LM Studio・vLLM で動かしたモデルは、決まったアドレスで動いていれば自動で見つける',msg:'コードを社外に出さない構成を組めます（筆者の見立て）。ただし、vLLM で見つけたモデルは道具を使う機能が無効の状態で始まり、小さな手元のモデルでは期待した質に届かないことがあります（後者は筆者の見立て）。'}
   };
   var cur='cloud', mbtn=document.querySelectorAll('#mctrl .btn');
@@ -411,7 +413,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     document.getElementById('mstatus').textContent=m.msg;
   }
   for(var i=0;i<mbtn.length;i++){ mbtn[i].addEventListener('click',function(e){ cur=e.currentTarget.getAttribute('data-m'); mrender(); }); }
-  document.getElementById('mctrl').hidden=false;
+  ['mctrl','zones','facts','mlegend','mstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
   mrender();
 
   // 権限の例。def: 既定、team: 詳しい解説の第5節の例
@@ -435,7 +437,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     document.getElementById('pstatus').textContent=pmode==='def'?'既定では、編集もシェルのコマンドも許可です。OS の仕組みで囲うサンドボックスの記述は、確認した範囲のドキュメントには見当たりませんでした。安全の設計は自分たちの仕事です（筆者の見立て）。':'チームでは、shell や edit、作業フォルダの外への操作（external_directory）を ask にするといった規則を決めて配ります。強制したい規則は、管理者が policies に書きます。コンテナなどの外側の囲いと組み合わせる手もあります（筆者の見立て）。';
   }
   for(var j=0;j<pbtn.length;j++){ pbtn[j].addEventListener('click',function(e){ pmode=e.currentTarget.getAttribute('data-p'); prender(); }); }
-  document.getElementById('pctrl').hidden=false;
+  ['pctrl','plegend','pstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
   prender();
 
   // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める

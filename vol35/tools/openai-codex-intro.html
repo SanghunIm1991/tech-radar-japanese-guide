@@ -265,8 +265,8 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     </div>
     <div class="acts" id="acts"></div>
     <noscript><p class="hint">この図はスクリプトで動かします。例の要約: <code>workspace-write</code> では、作業中のフォルダを読み書きしテストを走らせることはそのまま進み、フォルダの外を書き換える・ネットワークに出る操作は、<code>on-request</code> なら人に聞き、<code>never</code> なら止まる（囲いは効いたまま）。<code>read-only</code> では、書き込みや囲いの外に出る操作に承認が要る。<code>danger-full-access</code> は制限が無い。</p></noscript>
-    <div class="legend" aria-hidden="true"><span><i></i>そのまま進む</span><span><i class="a"></i>人に聞く（承認）</span><span><i class="s"></i>止まる（その操作は囲いに阻まれる）</span></div>
-    <p class="status" id="status" aria-live="polite"></p>
+    <div class="legend" id="legend" aria-hidden="true" hidden><span><i></i>そのまま進む</span><span><i class="a"></i>人に聞く（承認）</span><span><i class="s"></i>止まる（その操作は囲いに阻まれる）</span></div>
+    <p class="status" id="status" aria-live="polite" hidden></p>
   </section>
 
   <div class="two">
@@ -304,7 +304,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   <section class="card" aria-labelledby="s-alts">
     <h2 id="s-alts">関連技術・代替技術</h2>
     <div class="alts">
-      <div class="alt"><b>Claude Code・OpenCode</b><p>同じく端末を中心に使うコーディングエージェント。Radar のこの項目のページで、Codex と並べて挙げられている。</p></div>
+      <div class="alt"><b>Claude Code・<a href="opencode-intro.html">OpenCode</a></b><p>同じく端末を中心に使うコーディングエージェント。Radar のこの項目のページで、Codex と並べて挙げられている。</p></div>
       <div class="alt"><b><a href="../techniques/agent-sandboxing-intro.html">Agent sandboxing</a></b><p>AI エージェントの動ける範囲を囲う手法。Codex のサンドボックスはその実装の一例（筆者の見立て）。</p></div>
       <div class="alt"><b><a href="../techniques/progressive-context-disclosure-intro.html">Progressive context disclosure</a></b><p>AI に渡す情報を必要に応じて段階的に見せる手法。AGENTS.md やスキルはその道具になる（筆者の見立て）。</p></div>
       <div class="alt"><b>Coding harness for general-purpose agents・Open-weight models</b><p>Thoughtworks は、中核の仕組みが Apache-2.0 で公開されていることを前者に使える点として、OpenAI 以外のモデルも使えることを後者を動かす選択肢になる点として挙げている。</p></div>
@@ -397,7 +397,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
   }
   for(var i=0;i<btns.length;i++){ btns[i].addEventListener('click',function(e){ var b=e.currentTarget; st[b.getAttribute('data-k')]=b.getAttribute('data-v'); render(); }); }
   bNet.addEventListener('click',function(){ if(st.mode==='ww'){ st.net=!st.net; render(); } });
-  document.getElementById('ctrls').hidden=false;
+  ['ctrls','legend','status'].forEach(function(id){ document.getElementById(id).hidden=false; });
   render();
 
   // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める

@@ -74,7 +74,7 @@ AI が実行するコマンドの「囲いの広さ」は3段階のモードで�
 
 **代わりに失うもの・注意点**
 
-- **出力の質は保証されない**: 動くが古い書き方のコードを出すことがあり、自動テストと人のレビューが欠かせません。Thoughtworks は前の版（2026年4月）でこの点を注意しています（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openai-codex)）
+- **出力の質は保証されない**: 動くが古い書き方のコードを出すことがあり、自動テストと人のレビューが欠かせません。Thoughtworks は前の版（2026年4月）でこの点を注意していました（[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openai-codex)）
 - **権限の設計が要る**: 承認とサンドボックスを両方外す指定（`--dangerously-bypass-approvals-and-sandbox`）は、公式が「推奨しない」としており、`danger-full-access` も慎重に使うよう求めています（[承認とセキュリティ](https://learn.chatgpt.com/docs/agent-approvals-security)、[Sandboxing](https://learn.chatgpt.com/docs/sandboxing)）
 - **コードが外へ出る**: モデルに渡す指示には手元のコードが含まれ、提供元のサービスへ送られます（筆者の見立て）。公式も、監視のログに指示を残すとコードや機微な情報が記録されうるため、`log_user_prompt = false` のままにするよう勧めています（[承認とセキュリティ](https://learn.chatgpt.com/docs/agent-approvals-security)）
 - **提供元への依存**: 本体はオープンソースですが、開発は OpenAI が主導しており、コミュニティで運営されているわけではありません（Thoughtworks の指摘。[Radar のページ](https://www.thoughtworks.com/en-us/radar/tools/openai-codex)）
@@ -113,7 +113,7 @@ AI が実行するコマンドの「囲いの広さ」は3段階のモードで�
 
 ## 9. 確認日
 
-- 内容の確認日: 2026-11-17（2026-11-11 に書き、2026-11-17 に名前の手がかり・課題ごとの答え・元の語を足して、全体を点検し直した）
+- 内容の確認日: 2026-11-17（2026-11-11 に書き、2026-11-17 に名前の手がかり・課題ごとの答え・関連の項目・元の語を足して、全体を点検し直した）
 - Radar の評価の確認日: 2026-11-17
 
 ## 用語集
