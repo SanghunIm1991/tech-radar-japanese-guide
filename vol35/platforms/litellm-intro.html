@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiteLLM 図解ページ（非公式）</title>
+<meta name="description" content="LiteLLM（多くの LLM を同じ形で呼ぶための SDK と AI ゲートウェイ）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、緑＝通る・返る、赤茶＝止まる・エラー、
+   琥珀＝予備への切り替え・条件つき・注意、灰の点線＝この図では扱わない。
+   黄は評価のタグ・評価の年表の今回の印だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --stop:#B4452A; --stop-text:#9A3A22; --stop-soft:#F8E1DA;
+  --off:#9AA3B5;
+  --warn:#C98A0B; --warn-text:#8A5C00; --warn-soft:#FCEFD2;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --stop:#F08A6C; --stop-text:#F5A288; --stop-soft:#3E231C;
+  --off:#6B7690;
+  --warn:#F2B65A; --warn-text:#F5C67A; --warn-soft:#3D3019;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、形の違う3つの差し込み口に、1つの変換プラグからつながる様子（文字は置かない） */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.plugline{display:block;width:100%;height:64px}
+.plugline .wire{fill:none;stroke:#5B6A8C;stroke-width:2}
+.plugline .shape{fill:none;stroke:#AEB8CF;stroke-width:2}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(22px,3.6vw,30px);line-height:1.45}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qno{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.08em}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.ans ul{font-size:15px;line-height:1.7}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図 */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ctrls{display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:disabled::before{content:none}
+.route{display:grid;grid-template-columns:minmax(0,.8fr) 28px minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);gap:6px;align-items:stretch}
+.hop{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.hop .ss{font-size:12px;color:var(--sub);font-weight:700;font-family:var(--mono);letter-spacing:.06em}
+.hop b{font-size:15px;line-height:1.5}
+.hop p{font-size:14px;line-height:1.7}
+.hop.go{border-color:var(--go);background:var(--go-soft)}
+.hop.stop{border-color:var(--stop);background:var(--stop-soft)}
+.hop.alt{border-color:var(--warn);background:var(--warn-soft)}
+.hop.na{border-style:dashed;border-color:var(--off)}
+.arrow{display:flex;align-items:center;justify-content:center}
+.arrow svg{width:28px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.rec{border:2px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;display:flex;flex-direction:column;gap:2px}
+.rec .k{font-size:12px;color:var(--sub);font-weight:700}
+.rec.na{border-style:dashed;border-color:var(--off)}
+.arrow.dim{opacity:.25}
+.caution{border:2px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:10px 14px;font-size:14px}
+.caution b{color:var(--warn-text)}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.legend i.g{background:var(--go)} .legend i.s{background:var(--stop)} .legend i.w{background:var(--warn)} .legend i.z{border:2px dashed var(--off)}
+
+/* 使い方・機能のカード */
+.ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.way{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.way b{font-family:var(--display);font-size:18px}
+.way p{font-size:14px;line-height:1.7}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.fc{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.fc b{font-size:15px}
+.fc span{font-size:14px;color:var(--sub);line-height:1.7}
+
+/* トレードオフ */
+.trade{display:flex;flex-direction:column;gap:16px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+.gain h3,.loss h3{font-size:22px}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .past{color:var(--sub);font-weight:500}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.ways{grid-template-columns:minmax(0,1fr)}
+  .pair,.route{grid-template-columns:minmax(0,1fr)}
+  .to svg,.arrow svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="litellm.html">LiteLLM の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>PLATFORMS</span><span class="ring">TRIAL</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>LiteLLM</h1>
+    <p class="name-hint">名前の手がかり: <span>Lite</span> 軽い ＋ <span>LLM</span> Large Language Model（大規模言語モデル）</p>
+    <p class="lead">OpenAI・Anthropic・Google・AWS Bedrock など100以上の LLM の提供元を、同じ形（OpenAI の API の形）で呼び出せるようにするオープンソースの道具。アプリに組み込む SDK と、組織の利用を1か所に集めるプロキシサーバー（AI ゲートウェイ）の2つの使い方がある</p>
+    <svg class="plugline" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="1つの変換プラグから、形の違う3つの差し込み口へつながる絵">
+      <rect class="shape" x="120" y="20" width="40" height="24" rx="4"/>
+      <path class="wire" d="M160 32 H420"/>
+      <rect class="shape" x="420" y="12" width="110" height="40" rx="8"/>
+      <path class="wire" d="M530 32 H630 V12 H760 M630 32 H760 M630 32 V52 H760"/>
+      <circle class="shape" cx="775" cy="12" r="8"/>
+      <rect class="shape" x="767" y="25" width="16" height="14" rx="2"/>
+      <path class="shape" d="M767 58 L775 46 L783 58 Z"/>
+      <circle r="5" fill="#F4F6FA" cy="32">
+        <animate attributeName="cx" dur="4s" repeatCount="indefinite" values="160;420;530;760" keyTimes="0;0.45;0.6;1"/>
+      </circle>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 520 260" role="img" aria-label="アプリの1つのプラグが、変換プラグ（LiteLLM）を通って、形の違う3つのコンセント（提供元）のどれにも差し込める絵。変換プラグの下には、部署ごとの使用量を計って上限をかける分電盤がある">
+        <rect x="20" y="70" width="90" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="65" y="105" text-anchor="middle" class="t-plain">アプリ</text>
+        <path d="M110 100 H180" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <rect x="180" y="70" width="130" height="60" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="245" y="96" text-anchor="middle" class="t-plain">変換プラグ</text>
+        <text x="245" y="116" text-anchor="middle" class="t-small">LiteLLM</text>
+        <path d="M310 100 H360 M360 45 V155 M360 45 H400 M360 100 H400 M360 155 H400" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <rect x="400" y="28" width="100" height="34" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <circle cx="425" cy="45" r="6" fill="none" stroke="var(--sub)" stroke-width="2"/>
+        <text x="465" y="50" text-anchor="middle" class="t-small">提供元 A</text>
+        <rect x="400" y="83" width="100" height="34" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <rect x="419" y="94" width="12" height="12" rx="1" fill="none" stroke="var(--sub)" stroke-width="2"/>
+        <text x="465" y="105" text-anchor="middle" class="t-small">提供元 B</text>
+        <rect x="400" y="138" width="100" height="34" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <path d="M419 162 L425 150 L431 162 Z" fill="none" stroke="var(--sub)" stroke-width="2"/>
+        <text x="465" y="160" text-anchor="middle" class="t-small">提供元 C</text>
+        <path d="M245 130 V170" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="150" y="170" width="190" height="70" rx="8" fill="var(--surface)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="245" y="190" text-anchor="middle" class="t-small">分電盤（プロキシの形）</text>
+        <text x="168" y="212" class="t-small">部署1</text>
+        <rect x="210" y="203" width="80" height="10" rx="2" fill="var(--bg)" stroke="var(--line)"/>
+        <rect x="210" y="203" width="52" height="10" rx="2" fill="var(--sub)"/>
+        <text x="168" y="230" class="t-small">部署2</text>
+        <rect x="210" y="221" width="80" height="10" rx="2" fill="var(--bg)" stroke="var(--line)"/>
+        <rect x="210" y="221" width="24" height="10" rx="2" fill="var(--sub)"/>
+        <path d="M300 200 V234" stroke="var(--ink)" stroke-width="2"/>
+        <text x="306" y="214" class="t-small">上限</text>
+        <circle r="6" fill="var(--sub)">
+          <animateMotion dur="4s" repeatCount="indefinite" begin="-0.3s" path="M110 100 H180 M310 100 H360 V45 H400"/>
+        </circle>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">国ごとに形の違うコンセントに、1つの変換プラグで差し込めるようにする道具</p>
+        <p>さらにプロキシの形では、電気の使用量を部署ごとに計って上限をかける「分電盤」の役も担います。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">2つの課題と、LiteLLM の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><span class="qno">課題1</span><h3>提供元ごとに API の呼び方・応答の形・エラーの形が違い、替えるたびにコードを書き直す手間がかかる</h3><p>提供元を替えたり、複数を使い分けたりするたびに書き直すのは手間（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">LiteLLM の答え</span><h3>応答もエラーも、OpenAI の形にそろえて返す</h3><p>応答は、どの提供元でも OpenAI の Chat Completions の形で返す。エラーも、提供元ごとの例外を、OpenAI の例外の型を受け継いだ型（認証の失敗・呼び出し回数の上限の超過など。入力が長すぎるときは、それを細かく分けた LiteLLM 独自の型）にそろえて返す。そのため、モデルの名前を替えるだけで提供元を替えられる場面が増える（筆者の見立て）。ただし、使える引数は提供元とモデルで違い、すべてがそろうわけではない。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><span class="qno">課題2</span><h3>組織の中で利用が広がると、管理の問題が出てくる</h3><p>「誰がどのモデルをどれだけ使ったか」「API キーを各チームに配ってよいか」「障害の時に別の提供元へ逃がせるか」。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">LiteLLM の答え（プロキシの形）</span><h3>本物の鍵を1か所に預かり、代わりの鍵を配って管理する</h3>
+          <ul>
+            <li><b>使った量</b>: 使った金額を、鍵・利用者・チームごとに記録し、集計して取り出せる</li>
+            <li><b>鍵の配り方</b>: 提供元の本物の鍵はプロキシが預かり、利用者やチームには、使えるモデル・期限・予算を決めた仮想キーを配る</li>
+            <li><b>障害</b>: 同じモデルを複数の配置先に置いて振り分け、失敗したら再試行し、別のモデルへ切り替える（フォールバック）設定ができる</li>
+          </ul>
+          <p><a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: 1つの呼び出しは、ゲートウェイをどう通るか</h2>
+    <p class="hint">課題1と課題2への答えを確かめる図です（プロキシの形）。呼ぶモデル・使う仮想キー・提供元の状態・予備への切り替えの設定を選ぶと、1つの呼び出しの通り道と、返るもの・記録が変わります。提供元 A・B と鍵の例は、説明のための例です（筆者の整理）。</p>
+    <div class="ctrls" id="lctrl" hidden>
+      <div>
+        <span class="ctrl-lbl">アプリが呼ぶモデル（呼び方は OpenAI の形のまま）</span>
+        <div class="toggles" role="group" aria-label="アプリが呼ぶモデル">
+          <button type="button" class="btn" data-m="a" aria-pressed="true">提供元 A のモデル</button>
+          <button type="button" class="btn" data-m="b" aria-pressed="false">提供元 B のモデル</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">使う仮想キー</span>
+        <div class="toggles" role="group" aria-label="使う仮想キー">
+          <button type="button" class="btn" data-k="ok" aria-pressed="true">このモデルを使える鍵</button>
+          <button type="button" class="btn" data-k="ng" aria-pressed="false">このモデルが許されていない鍵</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">呼んだ提供元の状態</span>
+        <div class="toggles" role="group" aria-label="呼んだ提供元の状態">
+          <button type="button" class="btn" data-s="up" aria-pressed="true">正常</button>
+          <button type="button" class="btn" data-s="down" aria-pressed="false">失敗する（障害など）</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">予備のモデルへの切り替え（フォールバック）の設定</span>
+        <div class="toggles" role="group" aria-label="予備のモデルへの切り替えの設定">
+          <button type="button" class="btn" data-f="on" aria-pressed="true">あり</button>
+          <button type="button" class="btn" data-f="off" aria-pressed="false">なし</button>
+        </div>
+      </div>
+      <p class="hint" id="fnote" hidden></p>
+    </div>
+    <div class="route" id="route" hidden>
+      <div class="hop" id="h-app"><span class="ss">アプリ</span><b></b><p></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="hop" id="h-gw"><span class="ss">ゲートウェイ（鍵の検査）</span><b></b><p></p></div>
+      <div class="arrow" id="a-dest" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="hop" id="h-dest"><span class="ss">呼び先</span><b></b><p></p></div>
+      <div class="arrow" id="a-back" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="hop" id="h-back"><span class="ss">アプリに返るもの</span><b></b><p></p></div>
+    </div>
+    <div class="rec" id="rec" hidden><span class="k">記録（使った量）</span><span class="v"></span></div>
+    <p class="caution" id="caution" hidden><b>注意</b>: <span id="caution-t"></span></p>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: アプリは OpenAI の形のまま、モデルの名前だけを替えて呼ぶ。ゲートウェイは仮想キーを調べ、その鍵に許されていないモデルは使えない。正常なら、応答は提供元が A でも B でも OpenAI の Chat Completions の形で返り、使った金額が鍵・利用者・チームごとに記録される。呼んだ提供元が失敗したら、設定に従って再試行し、予備のモデルへの切り替えの設定があれば、別のモデルへ切り替え、予備のモデルが正常なら、その答えを返す。切り替えの設定が無く失敗に終われば、OpenAI の例外の型を受け継いだ型のエラーが返る。</p></noscript>
+    <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="g"></i>通る・返る</span><span><i class="s"></i>止まる・エラー</span><span><i class="w"></i>予備への切り替え・注意</span><span><i class="z"></i>点線＝この図では扱わない</span></div>
+    <p class="status" id="lstatus" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-ways">
+    <h2 id="s-ways">2つの使い方と、プロキシの主な機能</h2>
+    <div class="ways">
+      <div class="way"><b>Python SDK</b><p><code>from litellm import completion</code> のように読み込み、関数の呼び出しで各社の LLM を使う。1つのアプリの中で提供元を切り替えたいときに向く。</p></div>
+      <div class="way"><b>プロキシサーバー（AI ゲートウェイ）</b><p>自分たちで動かす、OpenAI 互換の API を持つゲートウェイ。アプリは OpenAI の SDK の接続先をこのサーバーに向けるだけで使える。組織の LLM の利用をまとめて管理したいときに向く。</p></div>
+    </div>
+    <div class="feats">
+      <div class="fc"><b>仮想キー</b><span>使えるモデル・有効期限・予算・1分あたりの上限などを鍵ごとに決め、使った金額を鍵・利用者・チームごとに追える</span></div>
+      <div class="fc"><b>負荷分散と予備への切り替え</b><span>同じモデルを複数の配置先に置き、空いている所や応答の速い所へ振り分ける。失敗したら再試行し、別のモデルへ切り替える設定もできる</span></div>
+      <div class="fc"><b>ガードレール</b><span>呼び出しの前・後・同時に、入力や出力を検査する。外部の検査サービスとつなぐほか、組み込みの検査もある（鍵ごとの切り替えなど一部は有料版）</span></div>
+      <div class="fc"><b>ログの連携</b><span>Langfuse などの可観測性（動きを外から観察する）の道具に記録を送れる</span></div>
+      <div class="fc"><b>MCP とエージェントの中継</b><span>MCP（AI に外部の道具をつなぐ取り決め）のサーバーをまとめて1つの入口から提供し、鍵やチームごとに使える道具を決められる。A2A の中継にも対応する</span></div>
+    </div>
+    <p class="hint">配置: Kubernetes 向けの Helm のチャートなどで動かす。仮想キーを使うには PostgreSQL のデータベースが要り、プロキシを2台以上で動かすときは Redis を使うよう、公式が勧めている。有料版: 同じイメージに有料のライセンスキーを入れると、管理画面の SSO（5人までは無料）、監査ログ、組織やチームの管理者のロール、秘密の情報の管理サービスとの連携、鍵の自動の入れ替えなどが使える。価格は公開されていない。プロキシの処理を段階的に Rust へ移す作業が進んでいる（2026年11月の時点で途中。開発元の進み具合の表示〈39%。v1.110.0-rc.1 の時点〉は、主な API の移行の作業量を表すもので、Rust で処理している要求の割合ではない）。</p>
+  </section>
+
+  <section class="trade" aria-labelledby="s-trade">
+    <h2 id="s-trade">トレードオフ</h2>
+    <p class="lead-note">位置づけ: アプリと LLM の提供元の間に入る中継の層。Thoughtworks は、自社の複数のチームがモデルの呼び出しを LiteLLM に通していると書き、ライブラリというより基盤とみなすようになったため、今回の版で象限を Platforms に移したとしています。</p>
+    <div class="two">
+      <section class="gain" aria-labelledby="s-gain">
+        <h3 id="s-gain">メリット</h3>
+        <ul>
+          <li><b>提供元を替えやすい</b>: 呼び出し方がそろうので、モデルの差し替えや比較がしやすい</li>
+          <li><b>管理を1か所に集められる</b>: 鍵・予算・利用量・ログ・ガードレールをゲートウェイでまとめて扱える</li>
+          <li><b>障害に強くできる</b>: 再試行と予備への切り替えで、1つの提供元の障害の影響を減らせる</li>
+        </ul>
+      </section>
+      <section class="loss" aria-labelledby="s-loss">
+        <h3 id="s-loss">デメリット・注意点</h3>
+        <ul>
+          <li><b>セキュリティの更新が多い</b>: 公式の告知の一覧には、2026年だけでも、認証を迂回されるものや、有料版のプロキシで管理者の鍵が漏れるものなど、重大度が Critical の脆弱性が複数載っている。Thoughtworks も、2026年だけで25件を超える CVE が出たことを、Adopt にしない主な理由に挙げている。ゲートウェイは全社の鍵を預かるので、速やかに更新できる体制が欠かせない（筆者の見立て）</li>
+          <li><b>共通化の限界</b>: 使える引数は提供元とモデルの組み合わせごとに違い、公式は、使うモデルごとに対応する引数を関数で調べるよう書いている。OpenAI の形に無い、提供元に特有の引数は、そのまま提供元へ渡される。特有の引数に頼るほど、提供元を替えやすいという利点は薄れる（筆者の見立て）</li>
+          <li><b>捨てられる引数</b>: 既定では、モデルが対応しない OpenAI の形の引数を渡すとエラーになる。<code>drop_params</code> を有効にすると、エラーの代わりにその引数を捨てる（提供元に特有の引数は対象外。プロキシでは、Claude Code と Codex からの要求に限り、既定で捨てる）。エラーで止まらない分、意図した機能が効いていないことに気づきにくくなる（筆者の見立て）</li>
+          <li><b>中継の遅れ</b>: ゲートウェイを通る分だけ遅れが加わる。開発元は、模擬の接続先を使った計測で、4台（各4 vCPU）で1秒あたり約1,170件の要求を処理したとき、加わる遅れは95%の要求で8ミリ秒以内（2台・約1,036件では29ミリ秒）と示している（開発元の主張）</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">試すときに考える5つのこと</h2>
+    <p class="lead-note">使うかどうか、どう入れるかを考えるための観点を、詳しい解説の第5節から並べました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>SDK かプロキシか？</b><p>1つのアプリで提供元を切り替えるだけなら SDK で足りる。複数のチームの利用を管理したいならプロキシを選ぶ（筆者の見立て）。</p></div>
+      <div class="dq"><b>止まったらどうなるか？</b><p>プロキシを止めると全社の LLM の利用が止まるので、複数台で動かし、PostgreSQL と Redis も含めて冗長にする（冗長化の要否は筆者の見立て）。</p></div>
+      <div class="dq"><b>速やかに更新できるか？</b><p>版を固定しつつ、セキュリティの告知を購読して速やかに上げる。公式は、誰でも登録できる告知のメーリングリストを用意している。</p></div>
+      <div class="dq"><b>費用は？</b><p>無料の範囲で鍵・予算・管理画面まで使える。SSO を多くの人で使う、監査ログが要る、といった場合は有料版の見積もりが要る。</p></div>
+      <div class="dq"><b>秘密の情報をどう扱うか？</b><p>データベースに保存する提供元の鍵は、<code>LITELLM_SALT_KEY</code> で暗号化する。この値は、モデルを登録したあとは変えられない（変えると、保存した鍵を復号できなくなる）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>agentgateway</b><p>Thoughtworks が、MCP やエージェント間の通信まで管理したいときに LiteLLM と組み合わせる候補として挙げている、別のゲートウェイ。</p></div>
+      <div class="alt"><b>クラウドの AI ゲートウェイ</b><p>クラウドの事業者が運用する AI ゲートウェイのサービス。自分で運用しない代わりに、その事業者に依存する（筆者の見立て）。</p></div>
+      <div class="alt"><b>LibreChat</b><p>社員向けの AI チャットの画面。LiteLLM のプロキシを、その裏の接続先にする構成が考えられる（筆者の見立て。<a href="librechat-intro.html">LibreChat の図解ページ</a>）。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span class="past">2024年4月 Assess</span>
+        <span class="past">2024年10月 Trial</span>
+        <span class="past">2025年11月 Trial</span>
+        <span class="past">2026年4月 Trial</span>
+        <span><span class="now">2026年11月 Trial</span></span>
+        <small>今回の版で、象限を Languages &amp; Frameworks から Platforms に移した（Radar のページの推移と今回の版の説明文による）</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、多くの提供元を1つの入口で扱え、経路の制御・認証・予算・ガードレールをまとめられる AI ゲートウェイとして、試す価値があるとしています。Adopt にしない主な理由は、脆弱性の多さです。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目: agentgateway（同じ版の Platforms・Assess）</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>LLM</summary><p class="etym"><span class="w">LLM</span> ＝ Large Language Model（大規模言語モデル）</p><p>大量の文章で学習し、文章を生成する AI モデル。</p></details>
+      <details><summary>SDK</summary><p class="etym"><span class="w">SDK</span> ＝ Software Development Kit（ソフトウェア開発の道具一式）</p><p>ほかのプログラムからその機能を呼び出すための部品一式。</p></details>
+      <details><summary>プロキシサーバー</summary><p class="etym"><span class="w">proxy</span> ＝ 代理 ／ <span class="w">server</span> ＝ サービスを提供する機械</p><p>利用者と相手のサーバーの間に入り、要求を中継するサーバー。中継のついでに記録や制限をかけられる。</p></details>
+      <details><summary>AI ゲートウェイ</summary><p class="etym"><span class="w">gateway</span> ＝ 出入り口・門</p><p>アプリと LLM の提供元の間に置く中継の基盤。鍵の管理・利用量の記録・振り分け・検査をまとめて行う。</p></details>
+      <details><summary>仮想キー</summary><p class="etym"><span class="w">virtual</span> ＝ 仮の・実体のない ／ <span class="w">key</span> ＝ 鍵</p><p>本物の API キーの代わりに利用者へ配る鍵。ゲートウェイが本物の鍵に置き換えて提供元を呼ぶので、本物の鍵を配らずに済む。</p></details>
+      <details><summary>例外</summary><p class="etym"><span class="w">exception</span> ＝ 例外・除外</p><p>プログラムの中で、エラーなどの通常と違う事態を知らせるための仕組み。種類ごとに型があり、呼び出し側は型で見分けて扱う。</p></details>
+      <details><summary>フォールバック</summary><p class="etym"><span class="w">fall back</span> ＝ 後ろへ下がる・（別のものに）頼る</p><p>使おうとしたものが失敗したとき、あらかじめ決めた別のものに切り替えること。</p></details>
+      <details><summary>ガードレール</summary><p class="etym"><span class="w">guardrail</span> ＝ 道路の防護柵</p><p>AI への入力や AI の出力を検査し、まずい内容を止める仕組み。</p></details>
+      <details><summary>A2A</summary><p class="etym"><span class="w">A2A</span> ＝ Agent-to-Agent（エージェントからエージェントへ）</p><p>AI のエージェントどうしが通信するための取り決め。</p></details>
+      <details><summary>CVE</summary><p class="etym"><span class="w">CVE</span> ＝ Common Vulnerabilities and Exposures（共通の脆弱性と露出）</p><p>公開された脆弱性に付ける共通の識別番号。</p></details>
+      <details><summary>SSO</summary><p class="etym"><span class="w">SSO</span> ＝ Single Sign-On（一度のサインオン〈ログイン〉）</p><p>社内の認証基盤に1回ログインすれば、ほかのサービスにもログインできる仕組み。</p></details>
+      <details><summary>冗長化</summary><p class="etym"><span class="w">redundancy</span> ＝ 余分にあること</p><p>1台が止まっても全体が止まらないよう、同じ役割のものを複数用意すること。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="litellm.html">LiteLLM の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-19。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/litellm">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 例の中身は詳しい解説の第3節・第4節による。提供元 A・B と鍵は説明のための例
+  var NA='この図では扱わない';
+  var m='a', k='ok', s='up', f='on';
+  var mb=document.querySelectorAll('#lctrl [data-m]'), kb=document.querySelectorAll('#lctrl [data-k]'), sb=document.querySelectorAll('#lctrl [data-s]'), fb=document.querySelectorAll('#lctrl [data-f]');
+  function press(list,attr,val){ for(var i=0;i<list.length;i++){ list[i].setAttribute('aria-pressed',String(list[i].getAttribute(attr)===val)); } }
+  function hop(id,cls,title,text){ var e=document.getElementById(id); e.className='hop'+(cls?' '+cls:''); e.querySelector('b').textContent=title; e.querySelector('p').textContent=text; }
+  function label(list,attr,val){ for(var i=0;i<list.length;i++){ if(list[i].getAttribute(attr)===val) return list[i].textContent; } return ''; }
+  function render(){
+    press(mb,'data-m',m); press(kb,'data-k',k); press(sb,'data-s',s); press(fb,'data-f',f);
+    var name=(m==='a')?'提供元 A':'提供元 B', other=(m==='a')?'提供元 B':'提供元 A';
+    var fUsed=(k==='ok' && s==='down');
+    for(var i=0;i<fb.length;i++){ fb[i].disabled=!fUsed; if(!fUsed){ fb[i].removeAttribute('aria-pressed'); } }
+    var note=document.getElementById('fnote'); note.hidden=fUsed;
+    note.textContent=(k==='ng')
+      ?'鍵に許されていないモデルは使えないので、提供元の状態と予備への切り替えの設定は、この例では結果を変えません。'
+      :'呼んだ提供元が正常なので、予備への切り替えの設定は、この例では結果を変えません。';
+    var rec=document.getElementById('rec'), caution='', msg;
+    hop('h-app','go','OpenAI の形で呼ぶ','モデルの名前に「'+name+' のモデル」を指定する。呼び方は提供元を替えても OpenAI の形のまま。');
+    document.getElementById('a-dest').className='arrow'+(k==='ng'?' dim':'');
+    document.getElementById('a-back').className='arrow'+(k==='ng'?' dim':'');
+    if(k==='ng'){
+      hop('h-gw','stop','この鍵では使えない','仮想キーには、使えるモデルを鍵ごとに決められる。このモデルは、この鍵に許されていない。');
+      hop('h-dest','na',NA,NA);
+      hop('h-back','na','どう断られるか',NA);
+      rec.className='rec na'; rec.querySelector('.v').textContent=NA;
+      msg='課題2への答えです。提供元の本物の鍵はプロキシが預かり、利用者やチームには、使えるモデル・期限・予算を決めた仮想キーを配ります。';
+    }else{
+      hop('h-gw','go','鍵を調べて通す','この鍵に許されたモデルなので通す。提供元の本物の鍵はプロキシが預かっていて、アプリには渡していない。');
+      if(s==='up'){
+        hop('h-dest','go',name+' のモデル','ゲートウェイが本物の鍵に置き換えて、'+name+' を呼ぶ。');
+        hop('h-back','go','OpenAI の形の応答','応答は、提供元が A でも B でも、OpenAI の Chat Completions の形で返る。');
+        msg='課題1への答えです。呼ぶモデルを替えても、アプリが受け取る応答の形は同じです（モデルの名前を替えるだけで提供元を替えられる場面が増える。筆者の見立て）。';
+        caution='使える引数は提供元とモデルで違い、すべてがそろうわけではありません。';
+      }else if(f==='on'){
+        hop('h-dest','alt',name+' が失敗 → 予備へ','再試行の設定があれば再試行し、予備のモデルへの切り替えの設定に従って、別のモデル（この例では '+other+' のモデル）へ切り替える（回数などの細部は省略）。');
+        hop('h-back','go','OpenAI の形の応答','予備のモデルが正常なら、その応答も OpenAI の Chat Completions の形で返る。');
+        msg='課題2の「障害の時に別の提供元へ逃がせるか」への答えです。再試行と予備への切り替えで、1つの提供元の障害の影響を減らせます。';
+      }else{
+        hop('h-dest','stop',name+' が失敗','再試行の設定があれば再試行する。予備への切り替えの設定が無いので、別のモデルへは切り替えない（回数などの細部は省略）。');
+        hop('h-back','stop','OpenAI の形のエラー','失敗に終われば、提供元ごとの例外を、OpenAI の例外の型を受け継いだ型にそろえたエラーが返る。');
+        msg='課題1への答えの一部です。エラーも OpenAI の例外の型を受け継いだ型にそろうので、提供元を替えても、呼び出し側で同じ型で見分けられる場面が増えます（筆者の見立て）。予備への切り替えを設定すれば、課題2の障害への備えになります。';
+      }
+      if(s==='down' && f==='off'){
+        rec.className='rec na'; rec.querySelector('.v').textContent='失敗に終わった呼び出しの記録のされ方は、この図では扱わない。';
+      }else{
+        rec.className='rec'; rec.querySelector('.v').textContent='使った金額を、鍵・利用者・チームごとに記録し、集計して取り出せる（どの呼び出しがどう記録されるかの細部は、この図では扱わない）。';
+      }
+    }
+    var c=document.getElementById('caution'); c.hidden=!caution; document.getElementById('caution-t').textContent=caution;
+    function txt(id){ var e=document.getElementById(id), b=e.querySelector('b').textContent, p=e.querySelector('p').textContent; return e.querySelector('.ss').textContent+': '+b+(p===b?'。':'（'+p+'）'); }
+    var sel=label(mb,'data-m',m)+'・'+label(kb,'data-k',k)+'・提供元の状態 '+label(sb,'data-s',s)+(fUsed?'・予備への切り替え '+label(fb,'data-f',f):'')+'。';
+    document.getElementById('lstatus').textContent=sel+(note.hidden?'':' '+note.textContent)+' '+txt('h-app')+' '+txt('h-gw')+' '+txt('h-dest')+' '+txt('h-back')+' 記録: '+rec.querySelector('.v').textContent+(caution?' 注意: '+caution:'')+' '+msg;
+  }
+  function bind(list,fn){ for(var i=0;i<list.length;i++){ list[i].addEventListener('click',fn); } }
+  bind(mb,function(e){ m=e.currentTarget.getAttribute('data-m'); render(); });
+  bind(kb,function(e){ k=e.currentTarget.getAttribute('data-k'); render(); });
+  bind(sb,function(e){ s=e.currentTarget.getAttribute('data-s'); render(); });
+  bind(fb,function(e){ f=e.currentTarget.getAttribute('data-f'); render(); });
+  ['lctrl','route','rec','llegend','lstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .plugline'); for(var j=0;j<svgs.length;j++){ svgs[j].setCurrentTime(0); svgs[j].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

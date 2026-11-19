@@ -78,7 +78,7 @@
 | Kafka share groups | [図と動きで見る](platforms/kafka-share-groups-intro.html) | [Markdown](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
 | KServe | [図と動きで見る](platforms/kserve-intro.html) | [Markdown](platforms/kserve.md) | Platforms | Trial | 下書き |
 | LibreChat | [図と動きで見る](platforms/librechat-intro.html) | [Markdown](platforms/librechat.md) | Platforms | Trial | 下書き |
-| LiteLLM | — | [Markdown](platforms/litellm.md) | Platforms | Trial | 下書き |
+| LiteLLM | [図と動きで見る](platforms/litellm-intro.html) | [Markdown](platforms/litellm.md) | Platforms | Trial | 下書き |
 | Microsoft Copilot Retrieval API | — | [Markdown](platforms/microsoft-copilot-retrieval-api.md) | Platforms | Trial | 下書き |
 | Restate | — | [Markdown](platforms/restate.md) | Platforms | Trial | 下書き |
 | Talos Linux | — | [Markdown](platforms/talos-linux.md) | Platforms | Trial | 下書き |
