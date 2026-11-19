@@ -43,7 +43,7 @@ scikit-learn・XGBoost・LightGBM・TensorFlow などの形式に、それぞれ
 
 ### 3.3 生成 AI（LLM）
 
-- Hugging Face のモデル向けの実行環境は、vLLM（LLM を高速に動かすための推論エンジン）を使い、vLLM が対応しないモデルでは別の方式に切り替えます。OpenAI 互換の API（チャットの応答・文章の補完・埋め込み・並べ替え〈rerank〉）を出せます（[生成 AI の推論](https://kserve.github.io/website/docs/model-serving/generative-inference/overview)）
+- Hugging Face のモデル向けの実行環境は、vLLM（LLM の推論を行うための推論エンジン）を使い、vLLM が対応しないモデルでは別の方式に切り替えます。OpenAI 互換の API（チャットの応答・文章の補完・埋め込み・並べ替え〈rerank〉）を出せます（[生成 AI の推論](https://kserve.github.io/website/docs/model-serving/generative-inference/overview)）
 - LLMInferenceService は、llm-d（LLM の分散推論の仕組み）を土台にしています。1台の GPU に載らないモデルを複数のサーバーで動かす、入力の読み込み（prefill）と文章の生成（decode）を別のサーバーに分ける、といった構成をとれます（[LLMInferenceService](https://kserve.github.io/website/docs/model-serving/generative-inference/llmisvc/llmisvc-overview)）
 
 ### 3.4 動かし方のモード

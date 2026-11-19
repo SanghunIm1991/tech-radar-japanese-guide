@@ -451,7 +451,9 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
         setFeat('ft-zero',false,NA); setFeat('ft-canary',false,NA); setFeat('ft-multi',false,multi);
         caution='現行の文書では、Knative モードは主に予測 AI のモデル向けです。詳しい解説の目安では、LLM を動かすなら Standard モードです。0台への縮小やカナリアは、詳しい解説では予測 AI のモデルについての説明です。';
       }
-      msg='Knative モードでは、Knative とネットワークの層（Istio を推奨）を使い、アクセスに応じて台数を増減し、使われていないときは0まで減らせます。カナリアで新しい版に少しずつ切り替えられます。その代わり、cert-manager・Knative・ネットワークの層なども入れて保守する必要があります。';
+      msg=(x.kind==='pred')
+        ?'Knative モードでは、Knative とネットワークの層（Istio を推奨）を使い、アクセスに応じて台数を増減し、使われていないときは0まで減らせます。カナリアで新しい版に少しずつ切り替えられます。その代わり、cert-manager・Knative・ネットワークの層なども入れて保守する必要があります。'
+        :'Knative モードは、Knative とネットワークの層（Istio を推奨）を使うモードで、現行の文書では主に予測 AI のモデル向けです。cert-manager・Knative・ネットワークの層なども入れて保守する必要があります。';
     }else{
       add('zero','台数は'+NA);
       podText=t===0?'HTTP のアクセスに応じた0からの起動には対応しないので、この図では1つの箱のまま描いています（筆者の簡略化）。':'Standard モードの台数の増減は、この図では扱いません（筆者の簡略化。増えないという意味ではありません）。';
