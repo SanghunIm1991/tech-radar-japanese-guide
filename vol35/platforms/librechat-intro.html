@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LibreChat 図解ページ（非公式）</title>
+<meta name="description" content="LibreChat（自分たちで運用する AI チャットの基盤）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、緑＝会社の管理の下、赤茶＝会社の管理の外、
+   灰の点線＝この図では扱わない・できない、琥珀＝条件つき・注意。黄は評価のタグ・評価の年表の今回の印だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --out:#B4452A; --out-text:#9A3A22; --out-soft:#F8E1DA;
+  --off:#9AA3B5;
+  --warn:#C98A0B; --warn-text:#8A5C00; --warn-soft:#FCEFD2;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --out:#F08A6C; --out-text:#F5A288; --out-soft:#3E231C;
+  --off:#6B7690;
+  --warn:#F2B65A; --warn-text:#F5C67A; --warn-soft:#3D3019;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、いくつもの提供元への線が、1つの窓口に集まる様子（文字は置かない） */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.funnel{display:block;width:100%;height:64px}
+.funnel .wire{fill:none;stroke:#5B6A8C;stroke-width:2}
+.funnel .gate{fill:none;stroke:#AEB8CF;stroke-width:2}
+.funnel .node{fill:#AEB8CF}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(22px,3.6vw,30px);line-height:1.45}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図 */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ctrls{display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.route{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1.2fr);gap:6px;align-items:stretch}
+.hop{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.hop .ss{font-size:12px;color:var(--sub);font-weight:700;font-family:var(--mono);letter-spacing:.06em}
+.hop b{font-size:15px;line-height:1.5}
+.hop p{font-size:14px;line-height:1.7}
+.hop.in{border-color:var(--go);background:var(--go-soft)}
+.hop.outside{border-color:var(--out);background:var(--out-soft)}
+.hop.na{border-style:dashed;border-color:var(--off)}
+.hop.cond{border-color:var(--warn);background:var(--warn-soft)}
+.arrow{display:flex;align-items:center;justify-content:center}
+.arrow svg{width:28px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.chk{border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0;border:2px solid var(--line)}
+.chk .k{font-size:12px;color:var(--sub);font-weight:700}
+.chk .v{font-size:15px;font-weight:700}
+.chk.yes{border-color:var(--go);background:var(--go-soft)} .chk.yes .v{color:var(--go-text)}
+.chk.outside{border-color:var(--out);background:var(--out-soft)} .chk.outside .v{color:var(--out-text)}
+.chk.cond{border-color:var(--warn);background:var(--warn-soft)} .chk.cond .v{color:var(--warn-text)}
+.chk.na{border-style:dashed;border-color:var(--off)} .chk.na .v{color:var(--sub)}
+.btn:disabled::before{content:none}
+.caution{border:2px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:10px 14px;font-size:14px}
+.caution b{color:var(--warn-text)}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.legend i.g{background:var(--go)} .legend i.o{background:var(--out)} .legend i.z{border:2px dashed var(--off)} .legend i.w{background:var(--warn)}
+
+/* 機能・部品のカード */
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.fc{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.fc b{font-size:15px}
+.fc span{font-size:14px;color:var(--sub);line-height:1.7}
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pt b{font-family:var(--display);font-size:18px}
+.pt p{font-size:14px;line-height:1.7}
+
+/* トレードオフ */
+.trade{display:flex;flex-direction:column;gap:16px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+.gain h3,.loss h3{font-size:22px}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.parts,.checks{grid-template-columns:minmax(0,1fr)}
+  .pair,.route{grid-template-columns:minmax(0,1fr)}
+  .to svg,.arrow svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="librechat.html">LibreChat の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>PLATFORMS</span><span class="ring">TRIAL</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>LibreChat</h1>
+    <p class="name-hint">名前の手がかり: <span>Libre</span> フランス語・スペイン語で「自由な」 ＋ <span>Chat</span> おしゃべり・チャット</p>
+    <p class="lead">ChatGPT のような AI チャットの画面を、自分たちのサーバーで動かせるオープンソースのソフトウェア。複数の AI の提供元のモデルを、1つの画面から使える</p>
+    <svg class="funnel" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="いくつもの AI の提供元への線が、1つの窓口に集まる絵">
+      <circle class="node" cx="140" cy="32" r="8"/>
+      <path class="wire" d="M148 32 H420"/>
+      <rect class="gate" x="420" y="12" width="120" height="40" rx="8"/>
+      <path class="wire" d="M540 32 H640 V12 H780 M640 32 H780 M640 32 V52 H780"/>
+      <circle class="node" cx="790" cy="12" r="7"/>
+      <circle class="node" cx="790" cy="32" r="7"/>
+      <circle class="node" cx="790" cy="52" r="7"/>
+      <circle r="5" fill="#E8C547" cy="32">
+        <animate attributeName="cx" dur="4s" repeatCount="indefinite" values="148;420;540;780" keyTimes="0;0.45;0.6;1"/>
+      </circle>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 520 260" role="img" aria-label="社内の社員の依頼が、社内に1つ置いた窓口（LibreChat）を通ってから、社外の各社の AI や社内のモデルへ向かう絵。窓口では、誰が何を使えるかを会社が管理する">
+        <rect x="10" y="20" width="310" height="225" rx="12" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <text x="24" y="42" class="t-small">社内</text>
+        <circle cx="60" cy="100" r="14" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="60" cy="150" r="14" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="60" cy="200" r="14" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="60" y="232" text-anchor="middle" class="t-small">社員</text>
+        <rect x="160" y="80" width="130" height="100" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="225" y="108" text-anchor="middle" class="t-plain">窓口</text>
+        <text x="225" y="128" text-anchor="middle" class="t-small">LibreChat</text>
+        <text x="225" y="152" text-anchor="middle" class="t-small">誰が何を使えるか</text>
+        <text x="225" y="168" text-anchor="middle" class="t-small">を会社が管理</text>
+        <path d="M74 100 H120 V120 H160 M74 150 H160 M74 200 H120 V160 H160" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M225 180 V200" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="170" y="200" width="110" height="30" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <text x="225" y="220" text-anchor="middle" class="t-small">社内のモデル</text>
+        <path d="M290 140 H350 M350 70 V170 M350 70 H400 M350 120 H400 M350 170 H400" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <text x="400" y="42" class="t-small">社外</text>
+        <rect x="400" y="55" width="110" height="30" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <text x="455" y="75" text-anchor="middle" class="t-small">AI の提供元 A</text>
+        <rect x="400" y="105" width="110" height="30" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <text x="455" y="125" text-anchor="middle" class="t-small">AI の提供元 B</text>
+        <rect x="400" y="155" width="110" height="30" rx="6" fill="var(--bg)" stroke="var(--sub)" stroke-width="1.5"/>
+        <text x="455" y="175" text-anchor="middle" class="t-small">AI の提供元 C</text>
+        <circle r="6" fill="var(--sub)">
+          <animateMotion dur="4s" repeatCount="indefinite" begin="-0.3s" path="M74 150 H160 M290 140 H350 V120 H400"/>
+        </circle>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">各社の AI の「窓口」を社内に1つ用意し、誰がどの AI と道具を使えるかを会社が管理できるようにする仕組み</p>
+        <p>OpenAI・Anthropic・Google などの複数の提供元のモデルや、社内のモデルを、1つの画面から使えます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">2つの課題と、LibreChat の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>どのデータがどこへ送られたか分からず、費用もばらばらに発生する</h3><span class="qterm">シャドー IT（shadow IT）</span><p>社員が思い思いに外部のサービスを契約し、社内のデータを貼り付ける、ということが起きる。Thoughtworks は今回の版で、AI によって加速するシャドー IT を Caution の項目として取り上げ、LibreChat をその対策として位置づけている。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">LibreChat の答え</span><h3>自分たちのサーバーで動かし、つなぐ提供元とモデルは管理者が決める</h3><p>つなぐ提供元とモデルは、管理者が <code>librechat.yaml</code> に書く。決めたモデルの設定（model specs）を並べて選ばせ、モデルを自由に選ぶ画面を出さないこともできる。残高の機能（既定では無効）を有効にすれば、利用者ごとのトークンの残高で費用を抑えられ、使った分の記録は自分たちのデータベースに残る。ただし、送った先の提供元がデータをどう扱うかは、それぞれの提供元との契約による（筆者の見立て）。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>禁止するのではなく、会社が認めたモデルと道具を、会社の認証と権限の下で使わせたい</h3><p>AI を禁止すれば済むわけでもない。そこで、会社が認めたモデルと道具を、会社の認証と権限の下で、使いやすい画面から使わせる、という考え方が出てくる（筆者の見立て）。</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">LibreChat の答え</span><h3>社内の認証でログインさせ、ロールごとに使う・作る・共有するを切り替える</h3><p>社内の認証基盤（OAuth/OIDC・SAML・LDAP）でログインさせ、ロールごとに、エージェントや MCP を使う・作る・共有する権限を切り替えられる。MCP のサーバーは管理者が <code>librechat.yaml</code> で定義し、利用者が自分で足せるか（足せるのはリモートのサーバーだけ）もロールの権限で決める。ただし既定では、利用者は MCP のサーバーを使う・作ることができ、共有だけが許可制なので、絞るなら権限を変える。作ったエージェントは、利用者・グループ・ロールを選んで共有でき、エージェントのマーケットプレイスで探せる。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: 社員の1つの依頼は、どこを通り、何が残るか</h2>
+    <p class="hint">課題1と課題2への答えを確かめる図です。使い方・依頼・その操作の権限を選ぶと、ログイン・行き先・残るものと、会社の管理の下にあるかが変わります。依頼の例と並べ方、各自で使う場合の札は、説明のための例です（筆者の整理）。</p>
+    <div class="ctrls" id="lctrl" hidden>
+      <div>
+        <span class="ctrl-lbl">使い方</span>
+        <div class="toggles" role="group" aria-label="使い方">
+          <button type="button" class="btn" data-c="self" aria-pressed="true">各自が外部のサービスを契約して使う</button>
+          <button type="button" class="btn" data-c="lc" aria-pressed="false">LibreChat を通す</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">依頼</span>
+        <div class="toggles" role="group" aria-label="依頼">
+          <button type="button" class="btn" data-r="ask" aria-pressed="true">社内の文書を添えて質問する</button>
+          <button type="button" class="btn" data-r="agent" aria-pressed="false">エージェントを作って共有する</button>
+          <button type="button" class="btn" data-r="mcp" aria-pressed="false">MCP のサーバーを自分で足す</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">その操作の権限（管理者がロールごとに切り替える）</span>
+        <div class="toggles" role="group" aria-label="その操作の権限">
+          <button type="button" class="btn" data-p="yes" aria-pressed="true">権限あり</button>
+          <button type="button" class="btn" data-p="no" aria-pressed="false">権限なし</button>
+        </div>
+      </div>
+      <p class="hint" id="permnote" hidden></p>
+    </div>
+    <div class="route" id="route" hidden>
+      <div class="hop" id="h-login"><span class="ss">ログイン</span><b></b><p></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="hop" id="h-dest"><span class="ss">行き先・できること</span><b></b><p></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="hop" id="h-left"><span class="ss">残るもの・費用</span><b></b><p></p></div>
+    </div>
+    <div class="checks" id="checks" hidden>
+      <div class="chk" id="c-auth"><span class="k">会社の認証でログインする</span><span class="v"></span></div>
+      <div class="chk" id="c-dest"><span class="k">行き先と道具を会社が決める</span><span class="v"></span></div>
+      <div class="chk" id="c-rec"><span class="k">使った分の記録が自分たちのデータベースに残る</span><span class="v"></span></div>
+    </div>
+    <p class="caution" id="caution" hidden><b>注意</b>: <span id="caution-t"></span></p>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 各自が外部のサービスを契約して使うと、どのデータがどこへ送られたか分からず、費用もばらばらに発生する。LibreChat を通し、社内の認証基盤とつなげば、そこでログインさせられる（メールとパスワードなどもある）。つなぐ提供元とモデルは管理者が librechat.yaml に書いたものになる。残高の機能（既定では無効）を有効にすれば、使った分の記録が自分たちのデータベースに残る。エージェントや MCP を使う・作る・共有する権限はロールごとに切り替えられ、利用者が自分で足せる MCP のサーバーはリモートのサーバーだけ。既定では、利用者は MCP のサーバーを使う・作ることができ、共有だけが許可制。</p></noscript>
+    <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="g"></i>会社の管理の下</span><span><i class="o"></i>会社の管理の外</span><span><i class="z"></i>点線＝できない・この図では扱わない</span><span><i class="w"></i>条件つき・注意</span></div>
+    <p class="status" id="lstatus" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-feat">
+    <h2 id="s-feat">主な機能と、動かす部品</h2>
+    <div class="feats">
+      <div class="fc"><b>エージェント</b><span>指示・ファイル・道具を持たせた、使い回せるアシスタントを作り、共有できる</span></div>
+      <div class="fc"><b>MCP</b><span>AI に外部の道具やデータをつなぐ共通の取り決め。エージェントやチャットから使える</span></div>
+      <div class="fc"><b>ファイルとの対話（RAG）</b><span>上げた文書を検索できる形にして、内容に基づいて答えさせる</span></div>
+      <div class="fc"><b>Artifacts</b><span>AI が作った HTML や図などを、画面の横に表示する</span></div>
+      <div class="fc"><b>Web 検索</b><span>検索して、ページを読み、出典を示して答える</span></div>
+      <div class="fc"><b>会話の分岐</b><span>途中のメッセージまでを新しい会話に写し、元の会話を残したまま別の方向に進める</span></div>
+    </div>
+    <div class="parts">
+      <div class="pt"><b>つなげるモデル</b><p>OpenAI・Azure OpenAI・Anthropic・Google・AWS Bedrock などに加え、Ollama（手元で LLM〈大規模言語モデル〉を動かす道具）や OpenRouter などにもつなげる。OpenAI 互換の API を持つものは、カスタムエンドポイントとして設定で足せる。</p></div>
+      <div class="pt"><b>ログインと利用量</b><p>メールとパスワード、Google や GitHub などのアカウント、OAuth/OIDC、SAML、LDAP。メールとパスワード、または LDAP の利用者は2段階の認証も使える（SSO では認証基盤の側で行う）。利用者ごとのトークンの残高も設定できる。</p></div>
+      <div class="pt"><b>設定の2つのファイル</b><p><code>.env</code> には API キー・データベースの接続先・認証の秘密の値など。<code>librechat.yaml</code> には、つなぐモデルや MCP のサーバー・画面の設定など。</p></div>
+      <div class="pt"><b>動かし方</b><p>Docker Compose が推奨。既定の構成では、本体のほか、MongoDB・Meilisearch（会話の検索）・RAG API・PostgreSQL と pgvector のデータベース（ファイルの検索用）を一緒に起動する。Kubernetes 向けの Helm のチャートもある。本体とは別に動かす管理画面（v0.8.5 以降）で、利用者・グループ・ロール・設定を管理できる。</p></div>
+    </div>
+  </section>
+
+  <section class="trade" aria-labelledby="s-trade">
+    <h2 id="s-trade">トレードオフ</h2>
+    <p class="lead-note">位置づけ: 社内の利用者と、外部・社内の AI モデルや道具の間に立つ、利用者向けの入口。モデルそのものを動かす基盤（<a href="kserve-intro.html">KServe</a> など）とは役割が違い、画面・認証・権限・道具の管理を担う（筆者の見立て）。</p>
+    <div class="two">
+      <section class="gain" aria-labelledby="s-gain">
+        <h3 id="s-gain">メリット</h3>
+        <ul>
+          <li><b>提供元を選べる</b>: 複数の提供元や社内のモデルを1つの画面で切り替えられ、特定の提供元に縛られにくい（縛られにくさは筆者の見立て）</li>
+          <li><b>管理された形で配れる</b>: 会社の認証基盤でログインさせ、ロールで権限を分け、利用量を残高で抑えられる</li>
+          <li><b>エンジニア以外も道具を作れる</b>: Thoughtworks は、管理者が使える MCP のサーバーを決め、権限のある人がコードを書かずにエージェントを作って共有できる点を評価している</li>
+        </ul>
+      </section>
+      <section class="loss" aria-labelledby="s-loss">
+        <h3 id="s-loss">デメリット・注意点</h3>
+        <ul>
+          <li><b>運用の責任を負う</b>: データベースや検索などの部品を含めて、版上げ・バックアップ・監視を自分たちで行う（運用の負担は筆者の見立て）</li>
+          <li><b>安全の設定に気を配る</b>: コードを実行させる機能（Code Interpreter）には、管理者が別に立てるサンドボックスの部品が要る。仮想マシンや手元の PC を実行環境としてつなぐ場合、公式は、それを未知のコードを動かす機械と同じように隔離するよう求めている。画面を守る HTTP のヘッダーの一部（CSP）は既定で無効</li>
+          <li><b>最初の管理者</b>: 利用者のまとまり（テナント）が1つの構成では、最初に作られたアカウントが管理者になるため、導入の直後に自分で作るよう公式が勧めている</li>
+          <li><b>版上げで互換性が変わることがある</b>: 更新の前に、互換性を壊す変更を変更履歴で確かめるよう公式が勧めている</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">試すときに考える5つのこと</h2>
+    <p class="lead-note">使うかどうか、どう入れるかを考えるための観点を、詳しい解説の第5節から並べました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>目的は何か？</b><p>社員に AI を安全に配ることが目的なら候補になる。開発者がコードの中から AI を呼ぶだけなら、画面の基盤は要らない（筆者の見立て）。</p></div>
+      <div class="dq"><b>社内の認証基盤とつなげるか？</b><p>社内の認証基盤（OIDC・SAML・LDAP のどれで）とつなげるかを先に確かめる。</p></div>
+      <div class="dq"><b>道具をどう管理するか？</b><p>どの MCP のサーバーを誰に使わせるか、エージェントの共有をどこまで許すかの決まりを作る（筆者の見立て）。</p></div>
+      <div class="dq"><b>費用は？</b><p>LibreChat 自体は無料だが、モデルの利用料と、サーバー・運用の人手がかかる（筆者の見立て）。</p></div>
+      <div class="dq"><b>運営体制は？</b><p>公式のドキュメントは、LibreChat が ClickHouse（データベースの会社）に加わったと告知している。Thoughtworks は、2025年11月の買収のあとも MIT ライセンスが保たれているとしている。今後の方針は見守る必要がある（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>Open WebUI</b><p>同じく自分たちで動かす AI チャットの画面。Radar のページで、似た機能を持つものとして触れられている。</p></div>
+      <div class="alt"><b>MCP</b><p>LibreChat のエージェントが外部の道具を使うための共通の取り決め。</p></div>
+      <div class="alt"><b>KServe</b><p>社内でモデルを動かす基盤。LibreChat から OpenAI 互換の API でつなぐ構成が考えられる（筆者の見立て）。</p></div>
+      <div class="alt"><b>商用の AI チャットの企業向けプラン</b><p>運用を提供元に任せる選択肢（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span><span class="now">2026年11月 Trial</span></span>
+        <small>Radar のページの推移には、今回の版だけが載っています（新規か移動かは明記なし）</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、顧客の社内向け AI 基盤を作った経験をもとに、エンジニア以外の人にも、管理された形で確かめ済みの AI の道具を使わせる手段として、試す価値があるとしています。認証・権限・RAG は Open WebUI と同様に備えたうえで、管理者が選んだ MCP のサーバーの上で、権限のある利用者がコードを書かずにエージェントを作って共有できる点を挙げています。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目（版とリングは、それぞれの項目が載った時点のもの）: AI-accelerated shadow IT（同じ版の Caution）、ClickHouse（2025年11月の版の Adopt）、Open WebUI（2025年4月の版の Assess）、Grafana（2017年3月の版の Adopt）、Model Context Protocol (MCP)（2025年4月の版の Assess）</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>シャドー IT</summary><p class="etym"><span class="w">shadow</span> ＝ 影 ／ <span class="w">IT</span> ＝ Information Technology（情報技術）</p><p>会社の IT 部門が把握・管理していないところで、社員や部署が独自に使い始めたサービスや道具。</p></details>
+      <details><summary>エージェント</summary><p class="etym"><span class="w">agent</span> ＝ 代理人</p><p>指示と道具を持たせ、複数の手順を自分で選んで仕事を進める AI のアシスタント。</p></details>
+      <details><summary>MCP</summary><p class="etym"><span class="w">MCP</span> ＝ Model Context Protocol（model モデル ＋ context 文脈 ＋ protocol 通信の取り決め）</p><p>AI のアプリに外部の道具やデータをつなぐための共通の取り決め。</p></details>
+      <details><summary>RAG</summary><p class="etym"><span class="w">RAG</span> ＝ Retrieval-Augmented Generation（retrieval 取り出すこと で augmented 補強した generation 生成）</p><p>質問に関係する文書を検索で取り出し、それを AI に渡して答えさせる方法。</p></details>
+      <details><summary>埋め込み</summary><p class="etym"><span class="w">embedding</span> ＝ 埋め込むこと</p><p>文章の意味を数値の並び（ベクトル）に変えること。意味の近い文章を探すのに使う。</p></details>
+      <details><summary>トークン</summary><p class="etym"><span class="w">token</span> ＝ しるし・代用の硬貨</p><p>AI のモデルが文章を処理するときの単位（単語や単語の一部）。利用料の計算にも使う。</p></details>
+      <details><summary>LLM</summary><p class="etym"><span class="w">LLM</span> ＝ Large Language Model（大規模言語モデル）</p><p>大量の文章で学習し、文章を生成する AI モデル。</p></details>
+      <details><summary>OAuth/OIDC</summary><p class="etym"><span class="w">OAuth</span> ＝ open 開かれた ＋ authorization 認可 ／ <span class="w">OIDC</span> ＝ OpenID Connect</p><p>ほかのサービスのアカウントや社内の認証基盤を使ってログインさせるための、標準の仕組み。</p></details>
+      <details><summary>SSO</summary><p class="etym"><span class="w">SSO</span> ＝ Single Sign-On（一度のサインオン〈ログイン〉）</p><p>1回のログインで、複数のサービスを使えるようにする仕組み。</p></details>
+      <details><summary>SAML・LDAP</summary><p class="etym"><span class="w">SAML</span> ＝ Security Assertion Markup Language（安全のための表明を書く言語） ／ <span class="w">LDAP</span> ＝ Lightweight Directory Access Protocol（軽量な名簿の参照の取り決め）</p><p>企業でよく使われる、ログインや利用者の情報を社内の認証基盤とつなぐための仕組み。</p></details>
+      <details><summary>ロール</summary><p class="etym"><span class="w">role</span> ＝ 役割</p><p>「管理者」「一般利用者」のような役割。役割ごとに使える機能を決める。</p></details>
+      <details><summary>Docker Compose</summary><p class="etym"><span class="w">compose</span> ＝ 組み立てる（Docker は製品名）</p><p>複数のコンテナの組み合わせを1つの設定ファイルに書き、まとめて起動する道具。</p></details>
+      <details><summary>CSP</summary><p class="etym"><span class="w">CSP</span> ＝ Content Security Policy（content 中身 ＋ security 安全 ＋ policy 方針）</p><p>Web の画面で読み込んでよいスクリプトなどを制限し、攻撃を防ぐための HTTP のヘッダー。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="librechat.html">LibreChat の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-19。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/librechat">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 依頼ごとの例（中身は詳しい解説の第2節・第3節による。依頼の例と並べ方は説明のための例）
+  var NA='この図では扱わない';
+  var c='self', r='ask', p='yes';
+  var cb=document.querySelectorAll('#lctrl [data-c]'), rb=document.querySelectorAll('#lctrl [data-r]'), pb=document.querySelectorAll('#lctrl [data-p]');
+  function press(list,attr,val){ for(var i=0;i<list.length;i++){ list[i].setAttribute('aria-pressed',String(list[i].getAttribute(attr)===val)); } }
+  function hop(id,cls,title,text){ var e=document.getElementById(id); e.className='hop'+(cls?' '+cls:''); e.querySelector('b').textContent=title; e.querySelector('p').textContent=text; }
+  function chk(id,cls,txt){ var e=document.getElementById(id); e.className='chk'+(cls?' '+cls:''); e.querySelector('.v').textContent=txt; }
+  function label(list,attr,val){ for(var i=0;i<list.length;i++){ if(list[i].getAttribute(attr)===val) return list[i].textContent; } return ''; }
+  function render(){
+    press(cb,'data-c',c); press(rb,'data-r',r); press(pb,'data-p',p);
+    var permUsed=(c==='lc' && r!=='ask');
+    for(var i=0;i<pb.length;i++){ pb[i].disabled=!permUsed; if(!permUsed){ pb[i].removeAttribute('aria-pressed'); } }
+    var note=document.getElementById('permnote');
+    note.hidden=permUsed;
+    note.textContent=(c==='self')
+      ?'各自が外部のサービスを使う場合、会社のロールの権限は掛かりません（上の課題の状態）。'
+      :'質問そのものは、この図では権限で変えていません（筆者の簡略化）。権限で切り替える例は、エージェントと MCP の依頼で見られます。';
+    var caution='', msg;
+    if(c==='self'){
+      hop('h-login','outside','各自が契約したサービスのアカウント','社員が思い思いに外部のサービスを契約して使う。');
+      if(r==='ask'){
+        hop('h-dest','outside','各自が選んだ外部のサービス','社内の文書を貼り付けて質問する。どのデータがどこへ送られたか、会社には分からない。');
+      }else{
+        hop('h-dest','na',NA,'各自のサービスで何ができるかは、そのサービスによる。この図では扱わない。');
+      }
+      hop('h-left','outside','費用はばらばら','費用は各自の契約で、ばらばらに発生する。');
+      chk('c-auth','outside','いいえ（会社の管理の外）'); chk('c-dest','outside','いいえ（会社の管理の外）'); chk('c-rec','outside','いいえ（会社の管理の外）');
+      msg=(r==='ask')
+        ?'これが上の課題1です。Thoughtworks は今回の版で、AI によって加速するシャドー IT を Caution の項目として取り上げ、LibreChat をその対策として位置づけています。'
+        :'会社の認証・行き先・記録のどれも、会社の管理の外です。';
+    }else{
+      hop('h-login','cond','社内の認証基盤とつなげば、そこでログイン','OAuth/OIDC・SAML・LDAP で社内の認証基盤とつなげる。メールとパスワードや、Google・GitHub などのアカウントでのログインもある。');
+      if(r==='ask'){
+        hop('h-dest','in','管理者が決めた提供元とモデル','つなぐ提供元とモデルは、管理者が librechat.yaml に書いたもの。model specs で決めた設定から選ばせ、モデルを自由に選ぶ画面を出さないこともできる。添えた文書は RAG API が検索できる形にし、内容に基づいて答えさせる。');
+        caution='送った先の提供元がデータをどう扱うかは、それぞれの提供元との契約によります（筆者の見立て）。文書を埋め込みに変えるのは、既定では OpenAI です（Hugging Face や Ollama も選べる）。';
+        msg='課題1への答えです。行き先は管理者が決め、残高の機能を有効にすれば、使った分の記録が自分たちのデータベースに残ります。';
+      }else if(r==='agent'){
+        if(p==='yes'){
+          hop('h-dest','in','エージェントを作って共有する','指示・ファイル・道具を持たせたエージェントを作り、利用者・グループ・ロールを選んで共有する。エージェントのマーケットプレイスで探せる。');
+        }else{
+          hop('h-dest','na','作る・共有するの権限が無い','ロールごとに、エージェントを使う・作る・共有する権限を切り替えられる。その権限の無いロールの利用者には、その操作はできない。');
+        }
+        msg='課題2への答えです。Thoughtworks は、管理者が使える MCP のサーバーを決め、権限のある人がコードを書かずにエージェントを作って共有できる点を評価しています。';
+      }else{
+        if(p==='yes'){
+          hop('h-dest','cond','リモートの MCP のサーバーを足す','利用者が自分で足せるのは、リモートのサーバーだけ。どのサーバーを足すかは利用者が選ぶ。');
+        }else{
+          hop('h-dest','na','自分では足せない','MCP のサーバーは管理者が librechat.yaml で定義する。利用者が自分で足せるかは、ロールの権限で決まる。');
+        }
+        caution='既定では、利用者は MCP のサーバーを使う・作ることができ、共有だけが許可制です。絞るなら、管理者が権限を変えます。';
+        msg='課題2への答えです。使わせる道具を、会社の権限の下に置けます。';
+      }
+      var blocked=(r!=='ask' && p==='no');
+      if(blocked){
+        hop('h-left','na',NA,'この依頼は行えないので、この図では扱わない。');
+      }else{
+        hop('h-left','cond','残高と記録（設定しだい）','残高の機能（既定では無効）を有効にすれば、利用者ごとのトークンの残高で費用を抑えられ、使った分の記録は自分たちのデータベースに残る。');
+      }
+      chk('c-auth','cond','はい（社内の認証基盤とつなげば）');
+      if(r==='mcp'&&p==='yes'){ chk('c-dest','cond','一部（足すかどうかはロールの権限しだい。既定では足せる）'); }
+      else if(r==='ask'){ chk('c-dest','yes','はい（管理者の設定）'); }
+      else { chk('c-dest','yes','はい（管理者の設定とロールの権限）'); }
+      if(blocked){ chk('c-rec','na',NA); } else { chk('c-rec','cond','残高の機能を有効にすれば'); }
+    }
+    var c2=document.getElementById('caution'); c2.hidden=!caution; document.getElementById('caution-t').textContent=caution;
+    var sel=label(cb,'data-c',c)+'・'+label(rb,'data-r',r)+(permUsed?'・'+label(pb,'data-p',p):'')+'。';
+    function txt(id){ var e=document.getElementById(id); return e.querySelector('b').textContent+'（'+e.querySelector('p').textContent+'）'; }
+    function ck(id){ var e=document.getElementById(id); return e.querySelector('.k').textContent+': '+e.querySelector('.v').textContent+'。'; }
+    document.getElementById('lstatus').textContent=sel+(note.hidden?'':' '+note.textContent)+' ログイン: '+txt('h-login')+' 行き先・できること: '+txt('h-dest')+' 残るもの・費用: '+txt('h-left')+' '+ck('c-auth')+ck('c-dest')+ck('c-rec')+(caution?' 注意: '+caution:'')+' '+msg;
+  }
+  function bind(list,fn){ for(var i=0;i<list.length;i++){ list[i].addEventListener('click',fn); } }
+  bind(cb,function(e){ c=e.currentTarget.getAttribute('data-c'); render(); });
+  bind(rb,function(e){ r=e.currentTarget.getAttribute('data-r'); render(); });
+  bind(pb,function(e){ p=e.currentTarget.getAttribute('data-p'); render(); });
+  ['lctrl','route','checks','llegend','lstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .funnel'); for(var k=0;k<svgs.length;k++){ svgs[k].setCurrentTime(0); svgs[k].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
