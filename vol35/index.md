@@ -76,7 +76,7 @@
 | Timefold Solver | — | [Markdown](tools/timefold-solver.md) | Tools | Trial | 下書き |
 | VictoriaMetrics | [図と動きで見る](platforms/victoriametrics-intro.html) | [Markdown](platforms/victoriametrics.md) | Platforms | Adopt | 下書き |
 | Kafka share groups | [図と動きで見る](platforms/kafka-share-groups-intro.html) | [Markdown](platforms/kafka-share-groups.md) | Platforms | Trial | 下書き |
-| KServe | — | [Markdown](platforms/kserve.md) | Platforms | Trial | 下書き |
+| KServe | [図と動きで見る](platforms/kserve-intro.html) | [Markdown](platforms/kserve.md) | Platforms | Trial | 下書き |
 | LibreChat | — | [Markdown](platforms/librechat.md) | Platforms | Trial | 下書き |
 | LiteLLM | — | [Markdown](platforms/litellm.md) | Platforms | Trial | 下書き |
 | Microsoft Copilot Retrieval API | — | [Markdown](platforms/microsoft-copilot-retrieval-api.md) | Platforms | Trial | 下書き |

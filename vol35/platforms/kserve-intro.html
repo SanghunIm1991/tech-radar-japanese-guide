@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KServe 図解ページ（非公式）</title>
+<meta name="description" content="KServe（Kubernetes で AI モデルを提供する基盤）の日本語解説をもとにした、動く図と触れる要素つきの図解ページ（非公式・下書き）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 構成: 見本（VictoriaMetrics）と同じ部品。図の色は、青緑＝動いている推論のコンテナ、灰の点線＝0台（止まっている）、
+   緑＝使える機能、琥珀＝注意。黄は評価のタグ・評価の年表の今回の印だけに使う（シリーズの約束）。飾りは中立の色 */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#14203A; --sub:#4A5672; --line:#CBD3E1;
+  --blue:#2F5BD3;
+  --run:#0E8C7E; --run-soft:#D5F1EC;
+  --off:#9AA3B5;
+  --go:#1F8A5B; --go-text:#17704A; --go-soft:#DAF1E5;
+  --warn:#C98A0B; --warn-text:#8A5C00; --warn-soft:#FCEFD2;
+  --band:#14203A; --band-ink:#F4F6FA; --band-sub:#AEB8CF;
+  --focus:#8A6D00;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;
+  --body:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0F1626; --surface:#18223A; --ink:#E8ECF5; --sub:#A9B3C9; --line:#2D3A57;
+  --blue:#7C9BFF;
+  --run:#3CC9B6; --run-soft:#173A3A;
+  --off:#6B7690;
+  --go:#5ED39A; --go-text:#6FDCA6; --go-soft:#18372A;
+  --warn:#F2B65A; --warn-text:#F5C67A; --warn-soft:#3D3019;
+  --band:#0A101D; --band-ink:#F4F6FA; --band-sub:#9AA6C0;
+  --focus:#E8C547;
+  color-scheme:dark }}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:900;text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(24px,4vw,32px)}
+p{margin:0}
+code{font-family:var(--mono);font-size:.92em}
+
+/* 見出しの帯。線画は、1つの宣言から、推論のコンテナが増えたり0になったりする様子 */
+.hero{background:var(--band);color:var(--band-ink)}
+.hero .wrap{padding-block:48px 28px;display:flex;flex-direction:column;gap:16px}
+.crumb{font-size:14px}
+.crumb a{color:var(--band-sub)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.tags span{border:1px solid #5B6A8C;border-radius:4px;padding:3px 9px}
+.tags .ring{background:#E8C547;color:#14203A;border-color:transparent;font-weight:700}
+.tags .note{border:none;color:var(--band-sub)}
+.ai-note{font-size:13px;color:var(--band-sub)}
+.hero h1{font-size:clamp(44px,9.5vw,92px);line-height:1.05;letter-spacing:-.01em}
+.name-hint{font-size:14px;color:var(--band-sub)}
+.name-hint span{font-family:var(--mono);font-weight:700;color:var(--band-ink)}
+.hero .lead{font-family:var(--display);font-weight:700;font-size:clamp(18px,3vw,26px);line-height:1.55;color:#DCE3F1;max-width:36em}
+.podline{display:block;width:100%;height:64px}
+.podline .decl{fill:none;stroke:#AEB8CF;stroke-width:2}
+.podline .wire{fill:none;stroke:#5B6A8C;stroke-width:2}
+.podline text{fill:var(--band-sub);font-family:var(--mono);font-size:12px}
+
+main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
+.card{background:var(--surface);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--sub)}
+.lead-note{font-size:14px;color:var(--sub)}
+.hint{font-size:14px;color:var(--sub)}
+
+/* たとえ */
+.metaphor{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center}
+.metaphor svg{width:100%;height:auto;display:block}
+.metaphor .big{font-family:var(--display);font-weight:900;font-size:clamp(22px,3.6vw,30px);line-height:1.45}
+.t-plain{fill:var(--ink);font-family:var(--body);font-weight:700;font-size:14px}
+.t-small{fill:var(--sub);font-family:var(--body);font-weight:500;font-size:12px}
+
+/* 課題と答えの対 */
+.pairs{display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1.25fr);gap:10px;align-items:stretch}
+.q,.ans{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.q{border:1px solid var(--line)}
+.ans{background:var(--bg)}
+.q h3,.ans h3{font-size:19px}
+.q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q p,.ans p{font-size:15px;line-height:1.75}
+.ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
+.to{display:flex;align-items:center;justify-content:center}
+.to svg{width:40px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* 試せる図 */
+.ctrl-lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ctrls{display:flex;flex-direction:column;gap:12px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:15px;border:2px solid var(--line);border-radius:999px;padding:6px 16px;min-height:44px;cursor:pointer;background:var(--surface);color:var(--ink)}
+.btn[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);font-weight:700}
+.btn[aria-pressed="true"]::before{content:"✓ "}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1.3fr);gap:6px;align-items:stretch}
+.stage{border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stage .ss{font-size:12px;color:var(--sub);font-weight:700;font-family:var(--mono);letter-spacing:.06em}
+.stage b{font-size:15px;line-height:1.5}
+.stage p{font-size:14px;line-height:1.7}
+.arrow{display:flex;align-items:center;justify-content:center}
+.arrow svg{width:28px;height:24px;fill:none;stroke:var(--sub);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pods{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;align-items:center}
+.pod{width:40px;height:40px;border-radius:6px;background:var(--run-soft);border:2px solid var(--run);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--ink);transition:opacity .3s}
+.pod.zero{background:transparent;border:2px dashed var(--off);color:var(--sub);width:auto;padding:0 10px}
+.pod.wide{width:auto;padding:0 10px}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.feat{border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0;border:2px solid var(--line)}
+.feat .k{font-size:12px;color:var(--sub);font-weight:700}
+.feat .v{font-size:15px;font-weight:700}
+.feat.yes{border-color:var(--go);background:var(--go-soft)} .feat.yes .v{color:var(--go-text)}
+.feat.no{border-style:dashed}
+.feat.no .v{color:var(--sub)}
+.caution{border:2px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:10px 14px;font-size:14px}
+.caution b{color:var(--warn-text)}
+.status{font-size:15px;background:var(--bg);border-radius:10px;padding:12px 16px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.legend i.r{background:var(--run)} .legend i.z{border:2px dashed var(--off)} .legend i.g{background:var(--go)} .legend i.w{background:var(--warn)}
+
+/* 主なリソース・モード */
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.rs{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.rs b{font-family:var(--mono);font-size:15px;word-break:break-all}
+.rs span{font-size:14px;color:var(--sub);line-height:1.7}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.md{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.md b{font-family:var(--display);font-size:18px}
+.md p{font-size:14px;line-height:1.7}
+
+/* 得る・失う */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gain,.loss{background:var(--surface);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;border-top:8px solid var(--ink)}
+.loss{border-top-color:var(--sub)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+
+/* 決めることの問い・関連のカード */
+.decide,.alts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.dq{border-left:6px solid var(--sub);background:var(--bg);border-radius:0 12px 12px 0;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dq b{font-family:var(--display);font-size:18px}
+.dq p{font-size:15px;line-height:1.7}
+.alt{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.alt b{font-family:var(--display);font-size:18px}
+.alt p{font-size:14px;line-height:1.7}
+
+/* 評価（推移の年表。矢印は使わない。関連の項目は年表の外） */
+.radar{display:flex;flex-direction:column;gap:16px;border:2px solid var(--ink);border-radius:14px;padding:22px 26px}
+.radar-top{display:flex;gap:24px;align-items:center}
+.timeline{flex:none;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:14px;font-weight:700;border-left:3px solid var(--line);padding-left:14px;max-width:17em}
+.timeline .now{background:#E8C547;color:#14203A;padding:2px 10px;border-radius:4px}
+.timeline small{font-weight:500;color:var(--sub);font-family:var(--body);font-size:12px;line-height:1.6}
+.related{font-size:14px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+
+/* 用語 */
+.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:28px}
+details p{font-size:15px;margin-top:6px;color:var(--sub)}
+details p.etym{color:var(--ink);font-weight:500}
+.etym .w{font-family:var(--mono);font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:2px;text-underline-offset:3px}
+.terms-note{font-size:14px;color:var(--sub)}
+
+footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:720px){
+  .metaphor,.two,.terms,.modes,.feats{grid-template-columns:minmax(0,1fr)}
+  .pair,.flow{grid-template-columns:minmax(0,1fr)}
+  .to svg,.arrow svg{transform:rotate(90deg)}
+  .radar-top{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .pod{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">Vol.35 の索引</a> ／ <a href="kserve.html">KServe の詳しい解説（出典つき）</a></div>
+    <div class="tags">
+      <span>Radar Vol.35</span><span>PLATFORMS</span><span class="ring">TRIAL</span><span class="note">非公式の図解ページ・下書き</span>
+    </div>
+    <p class="ai-note">Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。出典は詳しい解説にあります。</p>
+    <h1>KServe</h1>
+    <p class="name-hint">名前の手がかり: <span>K</span> ＋ <span>Serve</span> （料理などを）出す・提供する。もとの名前は KFServing</p>
+    <p class="lead">Kubernetes の上で、学習済みの AI モデルを推論のサービスとして動かすための仕組み。従来の機械学習のモデル（予測 AI）と、大規模言語モデル（LLM）の両方を扱う</p>
+    <svg class="podline" viewBox="0 0 960 64" preserveAspectRatio="xMidYMid meet" role="img" aria-label="1つの宣言から、推論のコンテナが増えたり減ったりする絵">
+      <rect class="decl" x="120" y="12" width="150" height="36" rx="6"/>
+      <text x="195" y="35" text-anchor="middle">宣言（1つ）</text>
+      <path class="wire" d="M270 30 H560"/>
+      <text x="415" y="58" text-anchor="middle">コントローラーが管理</text>
+      <rect x="580" y="16" width="28" height="28" rx="4" fill="#5ED8C7"/>
+      <rect x="620" y="16" width="28" height="28" rx="4" fill="#5ED8C7">
+        <animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.25;0.75;1"/>
+      </rect>
+      <rect x="660" y="16" width="28" height="28" rx="4" fill="#5ED8C7">
+        <animate attributeName="opacity" dur="6s" repeatCount="indefinite" values="0;0;1;0" keyTimes="0;0.4;0.6;1"/>
+      </rect>
+      <text x="720" y="35">推論のコンテナ</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="card" aria-labelledby="s-meta">
+    <div class="metaphor">
+      <svg viewBox="0 0 520 260" role="img" aria-label="推論の計算を担う実行環境（vLLM・Triton など）が並ぶ厨房と、客の案内や混雑時の増員を引き受ける店の運営の絵">
+        <rect x="190" y="30" width="310" height="150" rx="10" fill="var(--bg)" stroke="var(--sub)" stroke-width="2"/>
+        <text x="345" y="54" text-anchor="middle" class="t-small">厨房（推論の計算）</text>
+        <circle cx="250" cy="100" r="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="250" y="140" text-anchor="middle" class="t-small">vLLM</text>
+        <circle cx="345" cy="100" r="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="345" y="140" text-anchor="middle" class="t-small">Triton</text>
+        <circle cx="440" cy="100" r="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="440" y="140" text-anchor="middle" class="t-small">ほかの実行環境</text>
+        <rect x="30" y="70" width="120" height="70" rx="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="3"/>
+        <text x="90" y="100" text-anchor="middle" class="t-plain">店の運営</text>
+        <text x="90" y="120" text-anchor="middle" class="t-small">KServe</text>
+        <path id="kp" d="M10 210 H90 V140" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>
+        <path d="M150 105 H230" fill="none" stroke="var(--line)" stroke-width="3"/>
+        <circle r="7" fill="var(--sub)">
+          <animateMotion dur="3.5s" repeatCount="indefinite" begin="-0.3s"><mpath href="#kp"/></animateMotion>
+        </circle>
+        <text x="20" y="235" class="t-small">客（アプリからの要求）</text>
+        <text x="345" y="215" text-anchor="middle" class="t-small">配置・案内・混雑時の増員は運営が引き受ける</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="eyebrow">たとえるなら（筆者の見立て）</div>
+        <p class="big" id="s-meta">料理人（モデル）の派遣会社ではなく、厨房の配置・客の案内・混雑時の増員を引き受ける「店の運営の仕組み」</p>
+        <p>料理そのもの（推論の計算）は、vLLM や Triton などの専用の実行環境が担います。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-issue">
+    <h2 id="s-issue">2つの課題と、KServe の答え</h2>
+    <p class="lead-note">課題と、その答えを対で並べています。課題は筆者の見立てです。</p>
+    <div class="pairs">
+      <div class="pair">
+        <div class="q"><h3>本番では、API としての公開・台数の増減・少しずつの切り替え・GPU の無駄の無い利用といった運用が要る</h3><span class="qterm">モデルを作ることと、本番で動かすことは別の仕事</span><p>（筆者の見立て）</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">KServe の答え</span><h3>宣言すれば、コントローラーが作成から削除までを管理する</h3><p>InferenceService を1つ宣言すると、KServe のコントローラーが推論サービスの作成から削除までを管理し、作られた推論サービスは HTTP などの決まった形の API で呼び出せる。Knative モードでは、アクセスに応じて台数を増減し、使われていないときは0まで減らせ、カナリアで少しずつ切り替えられる。LLM では、LLMInferenceService で1台の GPU に載らないモデルを複数のサーバーで動かしたり、prefill と decode を別のサーバーに分けたりできる。ただし、HTTP のアクセスに応じた0からの起動とカナリアは Knative モードの機能で、Standard モードは対応しない。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+      <div class="pair">
+        <div class="q"><h3>モデルごとに作り方がばらばらだと、モデルが増えるほど運用が重くなる</h3><span class="qterm">形式の違う多くのモデル</span><p>（筆者の見立て）</p></div>
+        <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
+        <div class="ans"><span class="lbl">KServe の答え</span><h3>実行環境をひな形（ServingRuntime）にし、同じ書き方で公開する</h3><p>モデルの形式に合う実行環境を選ばせ、形式の違うモデルも同じ InferenceService の書き方で公開できる（運用が軽くなるという評価は筆者の見立て）。Thoughtworks も、推論の実行環境とサービスの運用を切り分けて、多くのモデルを管理できる点を挙げている。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-lab">
+    <h2 id="s-lab">試してみる: モデルとモードを選ぶと、何が動くか</h2>
+    <p class="hint">課題1と課題2への答えを確かめる図です。モデルの種類・動かし方のモード・アクセスの量を選ぶと、使うリソース・使う実行環境（例）・推論のコンテナの数・使える機能が変わります。コンテナの数は説明のための例です（実際の台数は設定とアクセスの量で決まる）。</p>
+    <div class="ctrls" id="lctrl" hidden>
+      <div>
+        <span class="ctrl-lbl">モデルの種類</span>
+        <div class="toggles" role="group" aria-label="モデルの種類">
+          <button type="button" class="btn" data-m="sk" aria-pressed="true">予測 AI（scikit-learn）</button>
+          <button type="button" class="btn" data-m="onnx" aria-pressed="false">予測 AI（ONNX）</button>
+          <button type="button" class="btn" data-m="llm1" aria-pressed="false">LLM（1台のサーバーで動く）</button>
+          <button type="button" class="btn" data-m="llmbig" aria-pressed="false">LLM（複数のサーバーにまたがる）</button>
+        </div>
+      </div>
+      <div id="modebox">
+        <span class="ctrl-lbl">動かし方のモード（この図では InferenceService の場合だけ扱う）</span>
+        <div class="toggles" role="group" aria-label="動かし方のモード">
+          <button type="button" class="btn" data-d="kn" aria-pressed="true">Knative モード（既定）</button>
+          <button type="button" class="btn" data-d="std" aria-pressed="false">Standard モード</button>
+        </div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">アクセスの量</span>
+        <div class="toggles" role="group" aria-label="アクセスの量">
+          <button type="button" class="btn" data-t="0" aria-pressed="false">しばらく無い</button>
+          <button type="button" class="btn" data-t="1" aria-pressed="true">ふつう</button>
+          <button type="button" class="btn" data-t="2" aria-pressed="false">多い</button>
+        </div>
+      </div>
+      <p class="hint" id="modenote" hidden>「LLM（複数のサーバーにまたがる）」は LLMInferenceService で動かすので、モードとアクセスの量は選べません。この図では、モードとアクセスの量による台数の変化を InferenceService の場合だけ扱います（筆者の簡略化）。</p>
+    </div>
+    <div class="flow" id="flow" hidden>
+      <div class="stage"><span class="ss">宣言する</span><b id="f-res"></b><p id="f-resd"></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="stage"><span class="ss">使う実行環境（例）</span><b id="f-rt"></b><p id="f-rtd"></p></div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 24"><path d="M2 12h20M16 5l7 7-7 7"/></svg></div>
+      <div class="stage"><span class="ss">推論のコンテナ（例）</span><div class="pods" id="pods" aria-hidden="true"></div><p id="f-pod"></p></div>
+    </div>
+    <div class="feats" id="feats" hidden>
+      <div class="feat" id="ft-zero"><span class="k">HTTP のアクセスに応じた0台からの起動</span><span class="v"></span></div>
+      <div class="feat" id="ft-canary"><span class="k">カナリア（少しずつの切り替え）</span><span class="v"></span></div>
+      <div class="feat" id="ft-multi"><span class="k">複数のサーバーにまたがる推論・prefill と decode の分離</span><span class="v"></span></div>
+    </div>
+    <p class="caution" id="caution" hidden><b>注意</b>: <span id="caution-t"></span></p>
+    <noscript><p class="hint">この図はスクリプトで動かします。例の要約: 予測 AI のモデルは、scikit-learn には専用の実行環境があり、ONNX は NVIDIA Triton を通して動かせる。Knative モードでは、アクセスが無いと0台まで減らし、多いと増やせ、カナリアも使える。Standard モードは依存が少なく、生成 AI と予測 AI の両方を扱えるが、HTTP のアクセスに応じた0からの起動とカナリアには対応しない。1台のサーバーで動く LLM は、InferenceService（Standard モード）と Hugging Face 用の実行環境（vLLM）で動かせる。1台の GPU に載らない LLM は、LLMInferenceService（llm-d が土台）で、複数のサーバーにまたがる推論や prefill と decode の分離をとれる。</p></noscript>
+    <div class="legend" id="llegend" aria-hidden="true" hidden><span><i class="r"></i>動いている推論のコンテナ</span><span><i class="z"></i>0台</span><span><i class="g"></i>使える</span><span><i class="z"></i>点線の札＝対応しない・この図では扱わない</span><span><i class="w"></i>注意</span></div>
+    <p class="status" id="lstatus" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="s-res">
+    <h2 id="s-res">主なリソースと、2つのモード</h2>
+    <div class="res">
+      <div class="rs"><b>InferenceService</b><span>1つのモデルの推論サービス。必須の predictor（推論本体）に、任意の transformer（前後の加工）と explainer（結果の説明）を足せる</span></div>
+      <div class="rs"><b>ServingRuntime</b><span>モデルを動かす実行環境のひな形。名指ししなければ、自動選択を許した実行環境の中から、モデルの形式に合うものが選ばれる。クラスタ全体用の ClusterServingRuntime もある</span></div>
+      <div class="rs"><b>InferenceGraph</b><span>複数のモデルを順につなぐ・条件で振り分ける・結果をまとめる組み合わせを定義する</span></div>
+      <div class="rs"><b>LLMInferenceService</b><span>LLM 専用。llm-d を土台に、複数のサーバーにまたがる推論などの高度な機能を使える。API は v1alpha1（初期の段階）</span></div>
+    </div>
+    <div class="modes">
+      <div class="md"><b>Knative モード（既定）</b><p>Knative とネットワークの層（Istio を推奨。Kourier などもある）を使う。アクセスが無いときに台数を0まで減らせ、カナリアもできる。現行の文書では、主に予測 AI のモデル向け。</p></div>
+      <div class="md"><b>Standard モード</b><p>Kubernetes の標準の部品だけで動かす。生成 AI と予測 AI の両方を扱え、GPU を使う本番向け。依存が少ない代わりに、HTTP のアクセスに応じた0からの起動とカナリアには対応しない。</p></div>
+    </div>
+    <p class="hint">モデルのファイルは、S3・GCS・Azure Blob・Hugging Face などからは起動時に取り込み、Kubernetes の永続ボリュームはそのままつなぐ。OCI イメージに入れて配る方式や、サーバーのローカルのディスクに置いておくキャッシュの機能（既定では無効）もあります。</p>
+  </section>
+
+  <div class="two">
+    <section class="gain" aria-labelledby="s-gain">
+      <h2 id="s-gain">得るもの</h2>
+      <ul>
+        <li><b>モデルの運用をそろえられる</b>: 形式の違うモデルを、同じリソースと同じ手順で公開・増減・切り替えできる（運用面の評価は筆者の見立て）</li>
+        <li><b>実行環境を選べる</b>: 実行環境をひな形として差し替えられるので、新しい推論エンジンが出ても乗り換えやすい（乗り換えやすさは筆者の見立て）</li>
+        <li><b>資源の節約</b>: Knative モードでは、使われていないモデルの台数を0にできる</li>
+      </ul>
+    </section>
+    <section class="loss" aria-labelledby="s-loss">
+      <h2 id="s-loss">代わりに失うもの・注意点</h2>
+      <ul>
+        <li><b>Kubernetes の運用力が前提</b>: Knative モードでは、cert-manager・Knative・ネットワークの層なども入れて保守する。Kubernetes を運用していない組織には重い（筆者の見立て）</li>
+        <li><b>0からの起動には時間がかかる</b>: 最初の要求でコンテナの起動とモデルの取り込みを待つ。大きなモデルほど長い（筆者の見立て）</li>
+        <li><b>LLM 向けの機能は新しい</b>: LLMInferenceService の API は v1alpha1 で、Thoughtworks も、周辺の仕組みがまだ育ちつつあると注意している</li>
+        <li><b>ドキュメントの古い箇所</b>: 公式サイトのトップの手順には古い版の例が残っており、版ごとの手順を確かめる必要がある</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="s-decide">
+    <h2 id="s-decide">試すときに考える5つのこと</h2>
+    <p class="lead-note">使うかどうか、どう入れるかを考えるための観点を、詳しい解説の第5節から並べました（筆者の整理）。</p>
+    <div class="decide">
+      <div class="dq"><b>モデルはいくつあるか？</b><p>少数なら、クラウドの推論サービスや、推論エンジンを直接コンテナで動かすほうが軽いこともある。多くのモデルや多くのチームの推論を1つの基盤にまとめたいときに効く（筆者の見立て）。</p></div>
+      <div class="dq"><b>どのモードで動かすか？</b><p>予測 AI のモデルで、0台まで減らす・カナリアを使うなら Knative モード。LLM を動かす、または依存を減らしたいなら Standard モード。</p></div>
+      <div class="dq"><b>LLM はどのくらい大きいか？</b><p>1台のサーバーで動くなら InferenceService（Standard モード）でも動かせる。複数のサーバーにまたがる推論、prefill と decode の分離、賢い振り分けが要るなら LLMInferenceService。</p></div>
+      <div class="dq"><b>費用は？</b><p>KServe 自体はオープンソースだが、GPU のサーバーと Kubernetes の運用の人手が主な費用になる（筆者の見立て）。</p></div>
+      <div class="dq"><b>実績は？</b><p>公式の採用企業の一覧には、本番で使うと示した組織が十数社載っている（網羅的ではない。掲載は、使っていることを公にしたか、掲載を許可した組織）。</p></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="s-alts">
+    <h2 id="s-alts">関連技術・代替技術</h2>
+    <div class="alts">
+      <div class="alt"><b>vLLM・SGLang・NVIDIA Triton</b><p>KServe が束ねる推論の実行環境。Radar のページでも例として挙がっている。</p></div>
+      <div class="alt"><b>llm-d</b><p>LLM の分散推論の仕組み。KServe の LLMInferenceService の土台。</p></div>
+      <div class="alt"><b>Knative</b><p>KServe の既定のモードで使う、要求に応じた増減の仕組み。</p></div>
+      <div class="alt"><b>クラウドの推論サービス</b><p>Amazon SageMaker や Vertex AI など、運用を提供元に任せる選択肢（筆者の見立て）。</p></div>
+    </div>
+  </section>
+
+  <section class="radar" aria-labelledby="s-radar">
+    <div class="radar-top">
+      <div class="timeline">
+        <span><span class="now">2026年11月 Trial</span></span>
+        <small>Radar のページの推移には、今回の版だけが載っています（新規か移動かは明記なし）</small>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+        <div class="eyebrow" id="s-radar">THOUGHTWORKS の評価（Vol.35・2026年11月、要旨）</div>
+        <p>Thoughtworks は、予測 AI と生成 AI の推論を運用する仕組みとして、Kubernetes 上で社内の推論の基盤を作るとき、同じ分野のほかの道具より KServe を好んで選んでいるとしています。主な理由は、推論の実行環境とサービスの運用を切り分けて、多くのモデルをまとめて管理できることです。</p>
+      </div>
+    </div>
+    <p class="related">Radar のこの項目のページの関連の項目（版とリングは、それぞれの項目が載った時点のもの）: llm-d（同じ版の Platforms・Assess）、SGLang（2026年4月の版の Tools・Assess）、vLLM（2025年11月の版の Languages &amp; Frameworks・Adopt）、Knative（2019年4月の版の Platforms・Assess）</p>
+  </section>
+
+  <section aria-labelledby="s-terms" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="s-terms">用語（タップで開く）</h2>
+    <p class="terms-note">下線の字は元の語（英単語・略語）で、＝のあとがその意味、または略語の元の綴りです。覚えるための手がかりにしてください。</p>
+    <div class="terms">
+      <details><summary>Kubernetes</summary><p class="etym"><span class="w">Kubernetes</span> ＝ ギリシャ語で「操舵手・水先案内人」</p><p>コンテナを多数のサーバーで動かし、台数の増減や障害時の入れ替えを自動で行う基盤。</p></details>
+      <details><summary>推論</summary><p class="etym"><span class="w">inference</span> ＝ 推し量ること</p><p>学習済みのモデルに入力を渡し、予測や生成の結果を得ること。</p></details>
+      <details><summary>カスタムリソース</summary><p class="etym"><span class="w">custom</span> ＝ 独自に作った ／ <span class="w">resource</span> ＝ 資源</p><p>Kubernetes に、標準には無い種類の設定（ここでは「推論サービス」など）を足す仕組み。</p></details>
+      <details><summary>CNCF</summary><p class="etym"><span class="w">CNCF</span> ＝ Cloud Native Computing Foundation（クラウドネイティブのコンピューティングの財団）</p><p>Kubernetes などのクラウドネイティブの技術を育てる団体。プロジェクトは sandbox・incubating・graduated の順に段階が上がる。</p></details>
+      <details><summary>予測 AI</summary><p class="etym"><span class="w">predictive AI</span> ＝ 予測する AI</p><p>分類や数値の予測など、決まった形の答えを返す従来型の機械学習のモデル。</p></details>
+      <details><summary>LLM</summary><p class="etym"><span class="w">LLM</span> ＝ Large Language Model（大規模言語モデル）</p><p>大量の文章で学習し、文章を生成する AI モデル。</p></details>
+      <details><summary>vLLM</summary><p class="etym">製品名</p><p>LLM の推論を行うための、オープンソースの推論エンジン。KServe の Hugging Face のモデル向けの実行環境が使う。</p></details>
+      <details><summary>prefill と decode</summary><p class="etym"><span class="w">prefill</span> ＝ 前もって満たす ／ <span class="w">decode</span> ＝ （符号を）解く・取り出す</p><p>LLM の推論の2つの段階。入力の文章をまとめて読み込む段階（prefill）と、1語ずつ生成する段階（decode）。</p></details>
+      <details><summary>カナリア</summary><p class="etym"><span class="w">canary</span> ＝ カナリア。炭鉱で危険を先に知らせるために連れて行った鳥</p><p>新しい版に一部の利用者だけを先に流し、問題が無ければ少しずつ広げる切り替え方。</p></details>
+      <details><summary>OpenAI 互換の API</summary><p class="etym"><span class="w">API</span> ＝ Application Programming Interface（アプリをプログラムから使うための接点）</p><p>OpenAI の API と同じ形で呼び出せるようにした API。既存のアプリから呼び先を変えるだけで使える。</p></details>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    非公式の資料です（Thoughtworks とは関係がありません）。Claude Code（AI）が作成しました。内容の正確さを人は個別に確かめていません。状態: 下書き。<br>
+    このページの内容は、<a href="kserve.html">KServe の詳しい解説</a>（Markdown）にもとづいています。出典（一次情報へのリンク）と詳しい説明は、詳しい解説を参照してください。内容の確認日: 2026-11-19。<br>
+    Radar の項目のページ: <a href="https://www.thoughtworks.com/en-us/radar/platforms/kserve">thoughtworks.com/radar</a> ／ 文章のライセンス: CC BY 4.0（詳しくは <a href="https://github.com/SanghunIm1991/tech-radar-japanese-guide#readme">README</a>）
+  </div>
+</footer>
+
+<script>
+(function(){
+  // モデルの種類ごとの例（実行環境は詳しい解説の第3節による。コンテナの数は説明のための例）
+  var M={
+    sk:{res:'InferenceService',resd:'「このモデルを、この形式で動かす」と宣言する',rt:'scikit-learn の形式に用意された実行環境',rtd:'実行環境を名指ししなければ、自動選択を許した実行環境の中から、モデルの形式に合うものが選ばれる',kind:'pred'},
+    onnx:{res:'InferenceService',resd:'書き方は scikit-learn のモデルと同じで、形式の指定が違う',rt:'NVIDIA Triton を通して動かす',rtd:'Triton は多くの形式を動かせる推論サーバー。TorchScript や ONNX の形式も Triton を通して動かせる',kind:'pred'},
+    llm1:{res:'InferenceService',resd:'1台のサーバーで動く LLM なら、InferenceService（Standard モード）でも動かせる',rt:'Hugging Face のモデル向けの実行環境（vLLM）',rtd:'vLLM が対応しないモデルでは別の方式に切り替える。OpenAI 互換の API を出せる',kind:'llm1'},
+    llmbig:{res:'LLMInferenceService',resd:'LLM 専用のリソース。API は v1alpha1（初期の段階）',rt:'llm-d を土台にした構成',rtd:'1台の GPU に載らないモデルを複数のサーバーで動かす、prefill と decode を別のサーバーに分ける、といった構成をとれる',kind:'big'}
+  };
+  var NA='この図では扱わない';
+  var m='sk', d='kn', t=1;
+  var mb=document.querySelectorAll('#lctrl [data-m]'), db=document.querySelectorAll('#lctrl [data-d]'), tb=document.querySelectorAll('#lctrl [data-t]');
+  function press(list,attr,val){ for(var i=0;i<list.length;i++){ list[i].setAttribute('aria-pressed',String(list[i].getAttribute(attr)===val)); } }
+  function setFeat(id,ok,txt){ var e=document.getElementById(id); e.className='feat '+(ok?'yes':'no'); e.querySelector('.v').textContent=txt; }
+  function render(){
+    press(mb,'data-m',m); press(db,'data-d',d); press(tb,'data-t',String(t));
+    var x=M[m], big=(x.kind==='big');
+    for(var i=0;i<db.length;i++){ db[i].disabled=big; }
+    for(var j=0;j<tb.length;j++){ tb[j].disabled=big; }
+    document.getElementById('modenote').hidden=!big;
+    document.getElementById('f-res').textContent=x.res;
+    document.getElementById('f-resd').textContent=x.resd;
+    document.getElementById('f-rt').textContent=x.rt;
+    document.getElementById('f-rtd').textContent=x.rtd;
+    var pods=document.getElementById('pods'); pods.textContent='';
+    var podText, caution='', msg;
+    function add(cls,label){ var p=document.createElement('span'); p.className='pod'+(cls?' '+cls:''); p.textContent=label; pods.appendChild(p); }
+    var multi='この図では LLMInferenceService の場合だけ扱う';
+    if(big){
+      add('wide','prefill'); add('wide','decode'); add('wide','decode');
+      podText='役割の違うサーバーに分けて動かす構成の例（並べ方は説明のための例）。この図では、モードとアクセスの量による台数の変化は、InferenceService の場合だけを扱います（筆者の簡略化）。';
+      setFeat('ft-zero',false,NA); setFeat('ft-canary',false,NA); setFeat('ft-multi',true,'使える');
+      caution='LLMInferenceService の API は v1alpha1（初期の段階）で、Thoughtworks も、周辺の仕組みがまだ育ちつつあると注意しています。';
+      msg='1台の GPU に載らない LLM は、LLMInferenceService で動かします。複数のサーバーにまたがる推論、prefill と decode の分離、賢い振り分けが要るときに使います。';
+    }else if(d==='kn'){
+      if(x.kind==='pred'){
+        var n=[0,1,3][t];
+        if(n===0){ add('zero','0台'); } else { for(var k=0;k<n;k++) add('',''); }
+        podText=t===0?'使われていないので、台数を0まで減らす。次の要求では、コンテナの起動とモデルの取り込みを待つことになり、大きなモデルほど待ち時間が長い（この2文目は筆者の見立て）。':(t===2?'アクセスに応じて台数を増やす（3台は例）。':'アクセスに応じた台数で動く（1台は例）。');
+        setFeat('ft-zero',true,'使える（使われていないときは0台まで減らせる）'); setFeat('ft-canary',true,'使える'); setFeat('ft-multi',false,multi);
+      }else{
+        add('zero','台数は'+NA);
+        podText='LLM を Knative モードで動かすときの台数の増減は、詳しい解説で扱っていないので、この図でも扱いません。';
+        setFeat('ft-zero',false,NA); setFeat('ft-canary',false,NA); setFeat('ft-multi',false,multi);
+        caution='現行の文書では、Knative モードは主に予測 AI のモデル向けです。詳しい解説の目安では、LLM を動かすなら Standard モードです。0台への縮小やカナリアは、詳しい解説では予測 AI のモデルについての説明です。';
+      }
+      msg='Knative モードでは、Knative とネットワークの層（Istio を推奨）を使い、アクセスに応じて台数を増減し、使われていないときは0まで減らせます。カナリアで新しい版に少しずつ切り替えられます。その代わり、cert-manager・Knative・ネットワークの層なども入れて保守する必要があります。';
+    }else{
+      add('zero','台数は'+NA);
+      podText=t===0?'HTTP のアクセスに応じた0からの起動には対応しないので、この図では1つの箱のまま描いています（筆者の簡略化）。':'Standard モードの台数の増減は、この図では扱いません（筆者の簡略化。増えないという意味ではありません）。';
+      setFeat('ft-zero',false,'対応しない'); setFeat('ft-canary',false,'対応しない'); setFeat('ft-multi',false,multi);
+      msg='Standard モードは、Kubernetes の標準の部品だけで動かします。生成 AI と予測 AI の両方を扱え、GPU を使う本番向けです。依存が少ない代わりに、HTTP のアクセスに応じた0からの起動とカナリアには対応しません。';
+    }
+    document.getElementById('f-pod').textContent=podText;
+    var c=document.getElementById('caution'); c.hidden=!caution; document.getElementById('caution-t').textContent=caution;
+    function label(list,attr,val){ for(var i=0;i<list.length;i++){ if(list[i].getAttribute(attr)===val) return list[i].textContent; } return ''; }
+    var sel=label(mb,'data-m',m)+(big?'':'・'+label(db,'data-d',d)+'・アクセス '+label(tb,'data-t',String(t)))+'。実行環境: '+x.rt+'。';
+    document.getElementById('lstatus').textContent=sel+podText+(caution?' 注意: '+caution:'')+' '+msg;
+  }
+  function bind(list,fn){ for(var i=0;i<list.length;i++){ list[i].addEventListener('click',fn); } }
+  bind(mb,function(e){ m=e.currentTarget.getAttribute('data-m'); render(); });
+  bind(db,function(e){ d=e.currentTarget.getAttribute('data-d'); render(); });
+  bind(tb,function(e){ t=parseInt(e.currentTarget.getAttribute('data-t'),10); render(); });
+  ['lctrl','flow','feats','llegend','lstatus'].forEach(function(id){ document.getElementById(id).hidden=false; });
+  render();
+
+  // 動きを減らす設定のときは、見出しとたとえの絵の動きを止める
+  try{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ var svgs=document.querySelectorAll('.metaphor svg, .podline'); for(var k=0;k<svgs.length;k++){ svgs[k].setCurrentTime(0); svgs[k].pauseAnimations(); } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
