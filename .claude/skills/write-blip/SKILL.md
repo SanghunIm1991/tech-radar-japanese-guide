@@ -88,7 +88,9 @@ description: Technology Radar の技術（blip）1つについて、日本語の
   - 点検の前に、わざと入れた例文（`user@example.com`・`C:\Users\x`・「80MB未満」など）を同じ検索に通し、各検査が当たることを確かめる。当たらない検査は、何も見つけられないまま「問題なし」に見える
   - 検査の対象と種類を落とさない（2026-11-19 のセッションのレビューの指摘。ユーザーが5つとも足すと決めた）:
     - 認証情報の型も探す。例: `ghp_|github_pat_|gho_|AKIA[0-9A-Z]{16}|(^|[^A-Za-z0-9])sk-[A-Za-z0-9_-]{20,}|xox[baprs]-|-----BEGIN [A-Z ]*PRIVATE KEY`
-    - コミットメッセージも検査する。コミットのあと、push の前に、`git log origin/main..HEAD --format='%an <%ae>%n%B'` の出力に同じ検査をかける
+    - コミットメッセージも検査する。コミットのあと、push の前に、名義と本文を分けて確かめる（2026-11-19 にユーザーが決めた。名義の行にはアカウント名が必ず入り、いつも検査に当たって、目で外す習慣が見落としを招くため）:
+      - 名義: `git log origin/main..HEAD --format='%an <%ae>|%cn <%ce>'` の各行が、`git config user.name` と `git config user.email`（noreply アドレス）から組み立てた値と完全に一致するかを見る。一致しない行があれば止める。期待する値はスキルに書かず、その場で `git config` から読む
+      - 本文: `git log origin/main..HEAD --format='%B'` にだけ、5つの検査（メール・容量・パス・アカウント名・認証情報）をかける。アカウント名を許可するものに足さない（本文や差分に名前が出たときに見落とすため）
     - 大文字・小文字を区別しない（`grep -inE`）。容量は `[0-9]+(\.[0-9]+)? ?([KMGT]i?B|ＫＢ|ＭＢ|ＧＢ|ＴＢ)` のように、`kB`・`GiB`・全角の単位も拾う
     - ファイル名に空白や日本語があっても壊れない読み方にする。`git -c core.quotePath=false ls-files -z --others --exclude-standard` を `while IFS= read -r -d '' f` で読む（`for f in $(…)` は、日本語の名前が引用符と8進の形で出て読めず、入力が空のまま「問題なし」に見える）
     - 失敗を黙って通さない。`set -o pipefail` にし、`git diff` などが失敗したら止める（`|| true` で飲み込まない）
