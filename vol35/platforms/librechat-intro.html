@@ -86,6 +86,7 @@ main .wrap{padding-block:40px 24px;display:flex;flex-direction:column;gap:40px}
 .ans{background:var(--bg)}
 .q h3,.ans h3{font-size:19px}
 .q .qterm{font-family:var(--mono);font-size:13px;color:var(--sub)}
+.q .qno{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.08em}
 .q p,.ans p{font-size:15px;line-height:1.75}
 .ans .lbl{font-family:var(--mono);font-size:12px;color:var(--sub);letter-spacing:.08em}
 .to{display:flex;align-items:center;justify-content:center}
@@ -200,7 +201,7 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
       <circle class="node" cx="790" cy="12" r="7"/>
       <circle class="node" cx="790" cy="32" r="7"/>
       <circle class="node" cx="790" cy="52" r="7"/>
-      <circle r="5" fill="#E8C547" cy="32">
+      <circle r="5" fill="#F4F6FA" cy="32">
         <animate attributeName="cx" dur="4s" repeatCount="indefinite" values="148;420;540;780" keyTimes="0;0.45;0.6;1"/>
       </circle>
     </svg>
@@ -253,12 +254,12 @@ footer .wrap{padding-block:20px 40px;font-size:13px;line-height:1.8;color:var(--
     <p class="lead-note">課題と、その答えを対で並べています。</p>
     <div class="pairs">
       <div class="pair">
-        <div class="q"><h3>どのデータがどこへ送られたか分からず、費用もばらばらに発生する</h3><span class="qterm">シャドー IT（shadow IT）</span><p>社員が思い思いに外部のサービスを契約し、社内のデータを貼り付ける、ということが起きる。Thoughtworks は今回の版で、AI によって加速するシャドー IT を Caution の項目として取り上げ、LibreChat をその対策として位置づけている。</p></div>
+        <div class="q"><span class="qno">課題1</span><h3>どのデータがどこへ送られたか分からず、費用もばらばらに発生する</h3><span class="qterm">シャドー IT（shadow IT）</span><p>社員が思い思いに外部のサービスを契約し、社内のデータを貼り付ける、ということが起きる。Thoughtworks は今回の版で、AI によって加速するシャドー IT を Caution の項目として取り上げ、LibreChat をその対策として位置づけている。</p></div>
         <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
         <div class="ans"><span class="lbl">LibreChat の答え</span><h3>自分たちのサーバーで動かし、つなぐ提供元とモデルは管理者が決める</h3><p>つなぐ提供元とモデルは、管理者が <code>librechat.yaml</code> に書く。決めたモデルの設定（model specs）を並べて選ばせ、モデルを自由に選ぶ画面を出さないこともできる。残高の機能（既定では無効）を有効にすれば、利用者ごとのトークンの残高で費用を抑えられ、使った分の記録は自分たちのデータベースに残る。ただし、送った先の提供元がデータをどう扱うかは、それぞれの提供元との契約による（筆者の見立て）。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
       </div>
       <div class="pair">
-        <div class="q"><h3>禁止するのではなく、会社が認めたモデルと道具を、会社の認証と権限の下で使わせたい</h3><p>AI を禁止すれば済むわけでもない。そこで、会社が認めたモデルと道具を、会社の認証と権限の下で、使いやすい画面から使わせる、という考え方が出てくる（筆者の見立て）。</p></div>
+        <div class="q"><span class="qno">課題2</span><h3>禁止するのではなく、会社が認めたモデルと道具を、会社の認証と権限の下で使わせたい</h3><p>AI を禁止すれば済むわけでもない。そこで、会社が認めたモデルと道具を、会社の認証と権限の下で、使いやすい画面から使わせる、という考え方が出てくる（筆者の見立て）。</p></div>
         <div class="to" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M2 12h30M24 4l8 8-8 8"/></svg></div>
         <div class="ans"><span class="lbl">LibreChat の答え</span><h3>社内の認証でログインさせ、ロールごとに使う・作る・共有するを切り替える</h3><p>社内の認証基盤（OAuth/OIDC・SAML・LDAP）でログインさせ、ロールごとに、エージェントや MCP を使う・作る・共有する権限を切り替えられる。MCP のサーバーは管理者が <code>librechat.yaml</code> で定義し、利用者が自分で足せるか（足せるのはリモートのサーバーだけ）もロールの権限で決める。ただし既定では、利用者は MCP のサーバーを使う・作ることができ、共有だけが許可制なので、絞るなら権限を変える。作ったエージェントは、利用者・グループ・ロールを選んで共有でき、エージェントのマーケットプレイスで探せる。<a href="#s-lab">「試してみる」の図で試せます</a>。</p></div>
       </div>
